@@ -33,7 +33,6 @@ export const Login = () => {
     )
       .then(unwrapResult)
       .then((res: { content: IResLogin }) => {
-        console.log(res.content);
         let token = res.content.token;
         let refreshToken = res.content.refreshToken;
         setToken(token);

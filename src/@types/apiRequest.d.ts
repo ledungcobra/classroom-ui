@@ -6,3 +6,7 @@ interface IParamLogin {
 interface IParamRefreshToken {
   refreshToken: string;
 }
+
+interface IParamGetListClasses {
+  status: string;
+}

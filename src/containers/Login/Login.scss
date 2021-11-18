@@ -1,0 +1,19 @@
+.login-container {
+  display: flex;
+  height: 50rem;
+  justify-content: center;
+  align-items: center;
+
+  input {
+    margin-bottom: 1.5rem;
+    height: 2rem;
+    width: 15rem;
+  }
+
+  &__submit-btn {
+      button {
+      height: 2rem;
+      width: 15rem;
+    }
+  }
+}

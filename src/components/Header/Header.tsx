@@ -13,7 +13,7 @@ export const Header: React.FC<IHeader> = () => {
 
   return (
     <div className="header">
-      HEADER
+      <h1>HEADER</h1>
       <button type="button" onClick={() => handleLogout()}>
         Logout
       </button>

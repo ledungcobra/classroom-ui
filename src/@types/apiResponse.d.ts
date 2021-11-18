@@ -8,3 +8,10 @@ interface IResLogin {
   refreshToken: string;
   refreshTokenTimeExpired: string;
 }
+
+interface IResGetListClasses {
+  _id: string;
+  name: string;
+  section: string;
+  room: string;
+}

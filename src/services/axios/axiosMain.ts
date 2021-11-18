@@ -5,6 +5,7 @@ import { logout, clearAllToken } from '../../utils';
 import { apiAuth } from '../apis/apiAuth';
 
 const baseURL = process.env.BASE_API;
+
 const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 
 const axiosMain = axios.create({
@@ -25,11 +26,11 @@ axiosMain.interceptors.response.use(
         .refreshToken({
           refreshToken: localStorage.getItem(ETokenKey.REFRESH_TOKEN),
         } as IParamRefreshToken)
-        .then((res: AxiosResponse<IResLogin>) => {
-          let result = res.data;
+        .then((res: AxiosResponse<{ content: IResLogin }>) => {
+          let result = res.data.content;
 
           localStorage.setItem(ETokenKey.ACCESS_TOKEN, result.token);
-          localStorage.setItem(ETokenKey.REFRESH_TOKEN, result.refreshToken);
+          //localStorage.setItem(ETokenKey.REFRESH_TOKEN, result.refreshToken);
 
           window.location.reload();
         })
@@ -37,8 +38,9 @@ axiosMain.interceptors.response.use(
           clearAllToken();
           logout();
         });
+    } else {
+      throw err;
     }
-    throw err;
   },
 );
 export default axiosMain;

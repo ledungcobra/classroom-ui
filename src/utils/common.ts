@@ -19,3 +19,31 @@ export const setToken = (value: string) => {
 export const setRefreshToken = (value: string) => {
   localStorage.setItem(ETokenKey.REFRESH_TOKEN, value);
 };
+
+export const isExistToken = (token: string) => {
+  if (
+    !token ||
+    token === '' ||
+    token === null ||
+    token === 'null' ||
+    token === undefined ||
+    token === 'undefined'
+  ) {
+    return false;
+  }
+  return true;
+};
+
+export const objToQuery = (obj: any): string => {
+  if (!obj) return '';
+
+  var query = [];
+
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop)) {
+      query.push(encodeURIComponent(prop) + '=' + encodeURIComponent(obj[prop]));
+    }
+  }
+
+  return '?' + query.join('&');
+};

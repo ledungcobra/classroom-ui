@@ -1,6 +1,6 @@
 interface IWithAuthRouter {
-  children?: any;
-  element?: any;
+  component?: any;
+  pageProps?: any;
   layout: any;
   isHasHeader?: boolean;
   header?: any;
@@ -10,12 +10,13 @@ interface IWithAuthRouter {
 }
 
 interface IWithUnAuthRouter {
-  children?: any;
-  element?: any;
+  component?: any;
+  pageProps?: any;
   layout: any;
   isHasHeader?: boolean;
   header?: any;
   isHasFooter?: boolean;
   footer?: any;
   backgroundColor?: boolean;
+  isAuthPage?: boolean;
 }

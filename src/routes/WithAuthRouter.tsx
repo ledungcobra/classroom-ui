@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
-import { Route, useLocation } from 'react-router-dom';
 import { ETokenKey } from '../constants';
-import { logout } from '../utils';
+import { logout, isExistToken, clearAllToken } from '../utils';
 
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { batch } from 'react-redux';
 
 export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
-  element: Element,
-  children: Children,
+  component: Compnent,
+  pageProps,
   layout: Layout,
   header: Header,
   footer: Footer,
@@ -16,11 +15,12 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   isHasHeader,
   backgroundColor,
 }) => {
-  const dispatch = useAppDispatch();
-  const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
+  // const dispatch = useAppDispatch();
   const refeshToken = localStorage.getItem(ETokenKey.REFRESH_TOKEN);
+  const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 
-  if (!refeshToken) {
+  if (!isExistToken(refeshToken as string) && !isExistToken(token as string)) {
+    clearAllToken();
     logout();
   }
 
@@ -34,8 +34,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
       footer={isHasFooter ? <Footer /> : <></>}
       backgroundColor={backgroundColor}
     >
-      {Element}
-      {Children}
+      <Compnent {...pageProps} />
     </Layout>
   );
 };

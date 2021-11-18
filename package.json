@@ -1,5 +1,5 @@
 {
-  "name": "test-core",
+  "name": "classroom-ui",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -49,14 +49,17 @@
     "webpack-pwa-manifest": "^4.3.0"
   },
   "dependencies": {
+    "@babel/core": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
     "@reduxjs/toolkit": "^1.6.2",
+    "acorn": "^8.5.0",
     "axios": "^0.24.0",
     "core-js": "^3.19.1",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-favicon": "0.0.25",
     "react-hook-form": "^7.19.5",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.0.2",

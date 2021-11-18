@@ -1,0 +1,47 @@
+@import '../../assets/scss/variable.scss';
+
+.layout-full {
+  width: 100%;
+  max-width: $screen-width;
+  color: #000;
+  background-color: #fff;
+  min-height: 100vh;
+
+  &__header {
+    position: fixed;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    z-index: 999;
+  }
+
+  &__center {
+
+    min-height: 80vh;
+    padding-top: $header-height * 1.3;
+    padding-bottom: 90px;
+    @media (max-width: 50rem) {
+      padding-top: 1.5*$header-height;
+      padding-bottom: 5rem;
+    }
+  }
+
+  &__container {
+    width: 100%;
+    max-width: $screen-width;
+  }
+
+  &__footer {
+    //position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+}

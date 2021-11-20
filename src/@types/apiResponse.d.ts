@@ -38,6 +38,7 @@ export interface ClassDeadLine {
 
 export interface ClassStatus {
   authorName: string;
+  time: string;
   status: string;
   comments: Comment[];
 }
@@ -46,4 +47,10 @@ export interface Comment {
   author: string;
   content: string;
   time: string;
+}
+
+export interface Student {
+  id: number;
+  displayName: string;
+  avatar?: string;
 }

@@ -1,4 +1,5 @@
 import { ClassDetailData } from '../@types/apiResponse';
+import { Student } from './../@types/apiResponse.d';
 
 export const detailData: ClassDetailData = {
   classCode: '12345',
@@ -25,6 +26,19 @@ export const detailData: ClassDetailData = {
   classStatus: [
     {
       authorName: 'Thầy ',
+      time: '10:10',
+      comments: [
+        {
+          author: 'ABC',
+          content: 'Bài này dễ',
+          time: '10:00',
+        },
+      ],
+      status: 'Hello các e <b>HEll oworld</b>',
+    },
+    {
+      authorName: 'Thầy ',
+      time: '10:10',
       comments: [
         {
           author: 'ABC',
@@ -36,3 +50,22 @@ export const detailData: ClassDetailData = {
     },
   ],
 };
+
+const classList: string[] = [
+  'Lớp học 1',
+  'Lớp học 2',
+  'Lớp học 3',
+  'Lớp học 4',
+  'Lớp học 5',
+  'Lớp học 6',
+  'Lớp học 7',
+];
+
+const studentList: Student[] = [
+  { id: 0, displayName: 'Tất cả học viên' },
+  {
+    id: 1,
+
+    displayName: 'Quốc Dũng Lê',
+  },
+];

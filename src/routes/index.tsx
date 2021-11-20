@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header } from '../components';
-import { Home, Login, Classes } from '../containers';
-import { WithUnAuthRouter } from './WithUnAuthRouter';
+import { Classes, Home, Login } from '../containers';
+import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
 import { BlankLayout, HeaderFooterLayout } from '../layouts';
 import { WithAuthRouter } from './WithAuthRouter';
+import { WithUnAuthRouter } from './WithUnAuthRouter';
 
 export const Routers = () => {
   return (
@@ -51,6 +52,19 @@ export const Routers = () => {
               isHasFooter={true}
               footer={Footer}
               isAuthPage={true}
+            />
+          }
+        />
+        <Route
+          path="/class-detail"
+          element={
+            <WithUnAuthRouter
+              component={ClassDetail}
+              layout={HeaderFooterLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
             />
           }
         />

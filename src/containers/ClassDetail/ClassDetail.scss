@@ -1,0 +1,27 @@
+.classDetail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+  &__top {
+    position: relative;
+    width: 80%;
+    height: 300px;
+    border-radius: 10px !important;
+    -webkit-border-radius: 10px !important;
+    -moz-border-radius: 10px !important;
+    -ms-border-radius: 10px !important;
+    -o-border-radius: 10px !important;
+  }
+  &__top:before {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://gstatic.com/classroom/themes/img_bookclub.jpg');
+    background-position: center;
+  }
+}

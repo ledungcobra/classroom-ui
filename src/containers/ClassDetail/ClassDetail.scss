@@ -53,6 +53,9 @@
   &--blue {
     color: $color-blue;
   }
+  &--light-blue {
+    color: $color-light-blue;
+  }
   &:hover {
     text-decoration: underline;
     color: inherit;

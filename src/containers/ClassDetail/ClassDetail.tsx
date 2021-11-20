@@ -2,13 +2,14 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ControlCameraOutlined';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Card, CardContent, IconButton, Typography } from '@mui/material';
+import { Avatar, Card, CardContent, IconButton, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { DEFAULT_USER_AVATAR } from '../../constants';
 import { detailData } from '../../constants/dumydata';
 import './ClassDetail.scss';
 
@@ -90,7 +91,7 @@ export const ClassDetail = () => {
       <Grid
         className="classDetail__body"
         container
-        spacing={3}
+        spacing={0}
         sx={{ width: '100%', marginTop: '10px' }}
       >
         {/* Left Part */}
@@ -98,7 +99,7 @@ export const ClassDetail = () => {
           item
           xs={3}
           className="classDetail__body__leftPart"
-          sx={{ justifyContent: 'space-between' }}
+          sx={{ justifyContent: 'space-between', marginRight: '10px' }}
         >
           <div className="classDetail__body__leftPart__top">
             <Card variant="outlined" sx={{ borderRadius: '7px' }}>
@@ -132,7 +133,7 @@ export const ClassDetail = () => {
             </Card>
           </div>
           <div className="classDetail__body__leftPart__bottom">
-            <Card sx={{ borderRadius: '7px' }}>
+            <Card sx={{ borderRadius: '7px', padding: '5px' }}>
               <CardContent>
                 <Box display="flex" flexDirection="column" alignItems="flex-start">
                   <Typography variant="h6" color="black" textAlign="left" fontWeight="bold">
@@ -149,7 +150,7 @@ export const ClassDetail = () => {
                         <Typography variant="h6" color="lightgray" textAlign="left">
                           Đến hạn {dl.day}
                         </Typography>
-                        <Link to={`/deadline-detail/${dl.id}`} className="myCustomLink">
+                        <Link to={`/details/${dl.id}`} className="myCustomLink">
                           <Typography variant="h6" color="black" textAlign="left">
                             {dl.hour} - {dl.name}
                           </Typography>
@@ -157,15 +158,26 @@ export const ClassDetail = () => {
                       </div>
                     ))}
                   </Box>
+                  <Link
+                    to="/deadlines"
+                    className="myCustomLink myCustomLink--light-blue"
+                    style={{ display: 'block', width: '100%' }}
+                  >
+                    <Typography variant="h6" color="#137333" fontWeight="600" textAlign="right">
+                      Xem tất cả
+                    </Typography>
+                  </Link>
                 </Box>
               </CardContent>
             </Card>
           </div>
         </Grid>
         {/* Right Part */}
-        <Grid item xs={9} className="classDetail__body__rightPart">
+        <Grid item className="classDetail__body__rightPart">
           {/* Up status section */}
-          <div className="classDetail__body__rightPart__up-status-section"></div>
+          <div className="classDetail__body__rightPart__up-status-section">
+            <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR}></Avatar>
+          </div>
           <div className="classDetail__body__rightPart__statuses"></div>
         </Grid>
       </Grid>

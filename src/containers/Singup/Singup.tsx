@@ -5,7 +5,6 @@ import { useAppDispatch } from '../../redux';
 import { setToken, setRefreshToken, isValidPhone } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
-import { makeStyles, createStyles } from '@mui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FaviIcon from '../../assets/icons/favicon.ico';
 
@@ -21,20 +20,7 @@ type FormValues = {
   repeatPassword: string;
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    input: {
-      width: '100%',
-    },
-    loginBtn: {
-      width: '100%',
-      height: '3rem',
-    },
-  }),
-);
-
 export const Singup = () => {
-  const classes = useStyles();
   const { register, handleSubmit } = useForm();
 
   const [isSingupLoading, setIsSingupLoading] = useState(false);
@@ -105,53 +91,53 @@ export const Singup = () => {
               <h2>Sign Up to your account</h2>
             </div>
             <p className="right-side__form__error">{error ?? error}</p>
-            <div className="right-side__form__signupInfo">
+            <div className="right-side__form__signup-info">
               <TextField
                 {...register('email')}
                 required
-                className={classes.input}
+                className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
                 label="Email"
                 type="email"
                 variant="outlined"
               />
             </div>
-            <div className="right-side__form__signupInfo">
+            <div className="right-side__form__signup-info">
               <TextField
                 {...register('fullName')}
                 required
-                className={classes.input}
+                className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
                 label="Full name"
                 variant="outlined"
               />
             </div>
-            <div className="right-side__form__signupInfo">
+            <div className="right-side__form__signup-info">
               <TextField
                 {...register('phone')}
                 required
-                className={classes.input}
+                className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
                 label="Phone number"
                 variant="outlined"
               />
             </div>
-            <div className="right-side__form__signupInfo">
+            <div className="right-side__form__signup-info">
               <TextField
                 {...register('password')}
                 required
-                className={classes.input}
+                className="right-side__form__signup-info__text-field"
                 type="password"
                 id="outlined-basic"
                 label="Password"
                 variant="outlined"
               />
             </div>
-            <div className="right-side__form__signupInfo">
+            <div className="right-side__form__signup-info">
               <TextField
                 {...register('repeatPassword')}
                 required
-                className={classes.input}
+                className="right-side__form__signup-info__text-field"
                 type="password"
                 id="outlined-basic"
                 label="Reptype Password"
@@ -161,7 +147,7 @@ export const Singup = () => {
             <LoadingButton
               type="submit"
               loading={isSingupLoading}
-              className={classes.loginBtn}
+              className="right-side__form__signup-btn"
               variant="contained"
             >
               Register

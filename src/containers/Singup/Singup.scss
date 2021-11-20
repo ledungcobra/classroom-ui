@@ -74,7 +74,7 @@
       display: flex;
     }
 
-    &__signupInfo {
+    &__signup-info {
       align-items: center;
       display: flex;
       flex-flow: row wrap;
@@ -82,6 +82,15 @@
       justify-content: space-between;
       margin-top: 1.5rem;
       margin-bottom: 1.5rem;
+
+      &__text-field {
+        width: 100%,
+      }
+    }
+
+    &__signup-btn{
+      width: 100%;
+      height: 3rem;
     }
 
     &__btn-separate {

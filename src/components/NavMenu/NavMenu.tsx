@@ -13,7 +13,7 @@ import {
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 
-import { useStyles } from './styles';
+import './NavMenu.scss';
 
 interface INavMenu {
   anchor: 'top' | 'left' | 'bottom' | 'right' | undefined;
@@ -22,10 +22,8 @@ interface INavMenu {
 }
 
 export const NavMenu: React.FC<INavMenu> = ({ anchor, open, toggle }) => {
-  const classes = useStyles();
-
   return (
-    <div>
+    <div className="nav-menu">
       <Drawer anchor={anchor} open={open} onClose={toggle(false)}>
         <Box
           sx={{
@@ -36,7 +34,7 @@ export const NavMenu: React.FC<INavMenu> = ({ anchor, open, toggle }) => {
           onKeyDown={toggle(false)}
         >
           <List>
-            <Typography variant="h6" className={classes.title}>
+            <Typography variant="h6" className="nav-menu__title">
               Teaching
             </Typography>
             {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
@@ -48,7 +46,7 @@ export const NavMenu: React.FC<INavMenu> = ({ anchor, open, toggle }) => {
           </List>
           <Divider />
           <List>
-            <Typography variant="h6" className={classes.title}>
+            <Typography variant="h6" className="nav-menu__title">
               Enrolled
             </Typography>
             {['All mail', 'Trash', 'Spam'].map((text, index) => (

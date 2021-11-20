@@ -1,27 +1,63 @@
+@import '../../assets//scss/variable.scss';
+
 .classDetail {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 80%;
   flex-direction: column;
   &__top {
     position: relative;
-    width: 80%;
-    height: 300px;
-    border-radius: 10px !important;
-    -webkit-border-radius: 10px !important;
-    -moz-border-radius: 10px !important;
-    -ms-border-radius: 10px !important;
-    -o-border-radius: 10px !important;
-  }
-  &__top:before {
-    position: absolute;
-    content: '';
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
+    height: 300px;
+    z-index: 1;
+
     background-image: url('https://gstatic.com/classroom/themes/img_bookclub.jpg');
     background-position: center;
+
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    & h3 {
+      margin-bottom: 2px;
+      color: white;
+      font-size: $class-font-size;
+    }
+
+    &__classDetailBtn__icon {
+      color: white;
+    }
+  }
+
+  &__infor {
+    & h4 {
+      font-weight: 600;
+    }
+  }
+
+  &__body {
+    &__leftPart {
+      &__top {
+        margin-bottom: 20px;
+      }
+      &__bottom {
+        &__deadlines {
+        }
+      }
+    }
+  }
+}
+
+.myCustomLink {
+  text-decoration: none;
+  &--blue {
+    color: $color-blue;
+  }
+  &:hover {
+    text-decoration: underline;
+    color: inherit;
+  }
+  &:visited {
+    color: inherit;
   }
 }

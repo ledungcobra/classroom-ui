@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { ETokenKey } from '../constants';
 import { logout, isExistToken, clearAllToken } from '../utils';
+import { useAppDispatch, useAppSelector, setLogined } from '../redux';
 
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { batch } from 'react-redux';
 
 export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
@@ -19,16 +19,21 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   const refeshToken = localStorage.getItem(ETokenKey.REFRESH_TOKEN);
   const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 
+  const dispatch = useAppDispatch();
+  const isLogined = useAppSelector((state) => state.authReducer.isLogined);
+
   if (!isExistToken(refeshToken as string) && !isExistToken(token as string)) {
     clearAllToken();
     logout();
+  } else {
+    dispatch(setLogined(true));
   }
 
   useEffect(() => {
     batch(() => {});
   }, []);
 
-  return (
+  return isLogined ? (
     <Layout
       header={isHasHeader ? <Header backgroundColor={backgroundColor} /> : <></>}
       footer={isHasFooter ? <Footer /> : <></>}
@@ -36,5 +41,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
     >
       <Compnent {...pageProps} />
     </Layout>
+  ) : (
+    <></>
   );
 };

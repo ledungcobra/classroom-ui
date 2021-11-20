@@ -47,3 +47,9 @@ export const objToQuery = (obj: any): string => {
 
   return '?' + query.join('&');
 };
+
+export const isValidPhone = (phone: string) => {
+  return /(([03+[2-9]|05+[6|8|9]|07+[0|6|7|8|9]|08+[1-9]|09+[1-4|6-9]]){3})+[0-9]{7}\b/g.test(
+    phone,
+  );
+};

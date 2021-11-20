@@ -13,4 +13,9 @@ export const apiAuth = {
     const url = basicUrl + 'login';
     return axiosMain.post(url, params);
   },
+
+  register: (params: IParamSignup) => {
+    const url = basicUrl + 'register';
+    return axiosMain.post(url, params);
+  },
 };

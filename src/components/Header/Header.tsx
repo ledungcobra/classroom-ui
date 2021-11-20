@@ -1,19 +1,17 @@
 import { AppBar, Avatar, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
-import { Add, Apps } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import React from 'react';
 import { Divider, IconButton } from '@mui/material';
-import { useStyles } from './styles';
 import { useState } from 'react';
 import { logout } from '../../utils/common';
 import MenuIcon from '@mui/icons-material/Menu';
 import { NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
+import './Header.scss';
 
 interface IHeader {}
 
 export const Header: React.FC<IHeader> = () => {
-  const classes = useStyles();
-
   const navAnchor: 'top' | 'left' | 'bottom' | 'right' | undefined = 'left';
 
   const [leftNavOpenStatus, setLeftNavOpenStatus] = useState(false);
@@ -45,21 +43,21 @@ export const Header: React.FC<IHeader> = () => {
 
   return (
     <div>
-      <div className={classes.root}>
-        <AppBar className={classes.appBar} position="static">
-          <Toolbar className={classes.toolbar}>
-            <div className={classes.headerWrapper}>
+      <div className="header">
+        <AppBar className="header__app-bar" position="static">
+          <Toolbar className="header__tool-bar">
+            <div className="header__left-container">
               <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleNav(true)}>
                 <MenuIcon />
               </IconButton>
-              <Typography variant="h6" className={classes.title}>
+              <Typography variant="h6" className="header__title">
                 HDH - Classroom <img src={FaviIcon} alt="icon" width="30" height="30" />
               </Typography>
             </div>
 
-            <div className={classes.header__wrapper__right}>
-              <Add onClick={handleClickAdd} className={classes.icon} />
-              {/* <Apps className={classes.icon} /> */}
+            <div className="header__right-container">
+              <Add onClick={handleClickAdd} className="header__icon" />
+              {/* <Apps className="header__icon" /> */}
               <Menu
                 id="add-menu"
                 anchorEl={anchorElAdd}
@@ -71,7 +69,7 @@ export const Header: React.FC<IHeader> = () => {
                 <MenuItem onClick={handleCreate}>Create Class</MenuItem>
               </Menu>
               <div>
-                <Avatar onClick={handleClickAvt} className={classes.icon} />
+                <Avatar onClick={handleClickAvt} className="header__icon" />
                 <Menu
                   id="avt-menu"
                   anchorEl={anchorElAvt}

@@ -5,7 +5,6 @@ import { useAppDispatch } from '../../redux';
 import { setToken, setRefreshToken } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
-import { makeStyles, createStyles } from '@mui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FaviIcon from '../../assets/icons/favicon.ico';
 import GIcon from '../../assets/icons/login/g-logo.png';
@@ -19,20 +18,7 @@ type FormValues = {
   password: string;
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    input: {
-      width: '100%',
-    },
-    loginBtn: {
-      width: '100%',
-      height: '3rem',
-    },
-  }),
-);
-
 export const Login = () => {
-  const classes = useStyles();
   const { register, handleSubmit } = useForm();
 
   const [isLoging, setIsLoging] = useState(false);
@@ -83,22 +69,22 @@ export const Login = () => {
               <h2>Log In to your account</h2>
             </div>
             <p className="right-side__form__error">{error ?? +error}</p>
-            <div className="right-side__form__loginInfo">
+            <div className="right-side__form__login-info">
               <TextField
                 {...register('email')}
                 required
-                className={classes.input}
+                className="right-side__form__login-info__text-field"
                 id="outlined-basic"
                 type="email"
                 label="Email"
                 variant="outlined"
               />
             </div>
-            <div className="right-side__form__loginInfo">
+            <div className="right-side__form__login-info">
               <TextField
                 {...register('password')}
                 required
-                className={classes.input}
+                className="right-side__form__login-info__text-field"
                 type="password"
                 id="outlined-basic"
                 label="Password"
@@ -108,7 +94,7 @@ export const Login = () => {
             <LoadingButton
               type="submit"
               loading={isLoging}
-              className={classes.loginBtn}
+              className="right-side__form__login-btn"
               variant="contained"
             >
               Login
@@ -116,7 +102,7 @@ export const Login = () => {
             <p className="right-side__form__btn-separate">OR</p>
             <LoadingButton
               variant="outlined"
-              className={classes.loginBtn}
+              className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}
             >
               Continue with Google

@@ -39,7 +39,7 @@ axiosMain.interceptors.response.use(
           logout();
         });
     } else {
-      throw { ...err, res: err.response };
+      throw err;
     }
   },
 );

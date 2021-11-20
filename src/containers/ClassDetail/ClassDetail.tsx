@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DEFAULT_USER_AVATAR } from '../../constants';
 import { detailData } from '../../constants/dumydata';
@@ -20,14 +20,14 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-interface CopyState {
+interface ICopyState {
   clicked: boolean;
   content: string;
 }
 export const ClassDetail = () => {
   const [infoClicked, setInfoClicked] = useState<boolean>(true);
 
-  const [copyClicked, setCopyClick] = useState<CopyState>({
+  const [copyClicked, setCopyClick] = useState<ICopyState>({
     clicked: false,
     content: '',
   });

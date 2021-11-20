@@ -1,2 +1,2 @@
 export * from './classesAction';
-export * from './loginAction';
+export * from './authAction';

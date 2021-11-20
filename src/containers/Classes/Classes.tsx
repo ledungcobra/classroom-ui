@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { batch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { doGetListClasses, useAppDispatch, useAppSelector } from '../../redux';
@@ -9,14 +9,17 @@ export const Classes = () => {
   const classes = useAppSelector((state) => state.classesSlice.classes);
 
   useEffect(() => {
-    batch(() => {
-      dispatch(
-        doGetListClasses({
-          status: 'all',
-        } as IParamGetListClasses),
-      );
-    });
-  }, []);
+    const initFetch = () => {
+      batch(() => {
+        dispatch(
+          doGetListClasses({
+            status: 'all',
+          } as IParamGetListClasses),
+        );
+      });
+    };
+    initFetch();
+  });
 
   return (
     <div className="classes">

@@ -1,31 +1,47 @@
-import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { doLogin } from '../../redux/asyncThunk/loginAction';
+import { doLogin } from '../../redux/asyncThunk/authAction';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useAppDispatch } from '../../redux';
 import { setToken, setRefreshToken } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
-import { useNavigate } from 'react-router-dom';
-import imga from '../../assets/icons/favicon.ico';
+import { TextField } from '@mui/material';
+import { makeStyles, createStyles } from '@mui/styles';
+import LoadingButton from '@mui/lab/LoadingButton';
+import FaviIcon from '../../assets/icons/favicon.ico';
+import GIcon from '../../assets/icons/login/g-logo.png';
+
 import './Login.scss';
-//import Image from '../../assets/imgs/teacher.png';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 type FormValues = {
   email: string;
   password: string;
 };
 
+const useStyles = makeStyles(() =>
+  createStyles({
+    input: {
+      width: '100%',
+    },
+    loginBtn: {
+      width: '100%',
+      height: '3rem',
+    },
+  }),
+);
+
 export const Login = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const classes = useStyles();
+  const { register, handleSubmit } = useForm();
+
+  const [isLoging, setIsLoging] = useState(false);
+  const [error, setError] = useState('');
 
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const onSubmit = (data: FormValues) => {
+    setIsLoging(true);
     dispatch(
       doLogin({
         email: data.email,
@@ -34,51 +50,82 @@ export const Login = () => {
     )
       .then(unwrapResult)
       .then((res: { content: IResLogin }) => {
+        setIsLoging(false);
         let token = res.content.token;
         let refreshToken = res.content.refreshToken;
         setToken(token);
         setRefreshToken(refreshToken);
         dispatch(setMainToken(token));
         window.location.replace('/');
+      })
+      .catch((err) => {
+        setIsLoging(false);
+        setError('*Email or password is not valid!');
       });
   };
 
   return (
     <div className="login-container">
-      <img src={imga} alt="" />
-      <div
-        className="left-side"
-        //  style={{ backgroundImage: `url(${Image})` }}
-      >
-        <div className="left-side__title">
-          <p>HDH - Classroom</p>
-        </div>
-        <div className="left-side__description">
-          <p>Join to learning</p>
+      <div className="left-side">
+        <div className="left-side__intro">
+          <h1>HDH - Classroom</h1>
+          <h2>Join to learning</h2>
         </div>
       </div>
       <div className="right-side">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="right-side__email">
-            <input
-              placeholder="Enter email"
-              type="email"
-              defaultValue="panhhuu@gmail.com"
-              {...register('email')}
-            />
-          </div>
-          <div className="right-side__email">
-            <input
-              placeholder="Enter password"
-              type="password"
-              defaultValue="123456789"
-              {...register('password')}
-            />
-          </div>
-          <div className="right-side__submit-btn">
-            <button type="submit">Login</button>
-          </div>
-        </form>
+        <div className="right-side__brand">
+          <img src={FaviIcon} alt="icon" />
+          <span>HDH - Classroom</span>
+        </div>
+        <div className="right-side__form">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="right-side__form__title">
+              <h2>Log In to your account</h2>
+            </div>
+            <p className="right-side__form__error">{error ?? +error}</p>
+            <div className="right-side__form__loginInfo">
+              <TextField
+                {...register('email')}
+                required
+                className={classes.input}
+                id="outlined-basic"
+                type="email"
+                label="Email"
+                variant="outlined"
+              />
+            </div>
+            <div className="right-side__form__loginInfo">
+              <TextField
+                {...register('password')}
+                required
+                className={classes.input}
+                type="password"
+                id="outlined-basic"
+                label="Password"
+                variant="outlined"
+              />
+            </div>
+            <LoadingButton
+              type="submit"
+              loading={isLoging}
+              className={classes.loginBtn}
+              variant="contained"
+            >
+              Login
+            </LoadingButton>
+            <p className="right-side__form__btn-separate">OR</p>
+            <LoadingButton
+              variant="outlined"
+              className={classes.loginBtn}
+              startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}
+            >
+              Continue with Google
+            </LoadingButton>
+            <p className="right-side__form__question">
+              Do not have an account? <Link to="/signup">Signup</Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

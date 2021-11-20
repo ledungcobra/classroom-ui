@@ -1,7 +1,7 @@
 import axiosMain from '../axios/axiosMain';
 import { objToQuery } from '../../utils';
 
-const basicUrl = 'classes/';
+//const basicUrl = 'classes/';
 const basicUrlWithoutSlash = 'classes';
 
 export const apiClasses = {

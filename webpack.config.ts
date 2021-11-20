@@ -3,9 +3,7 @@ import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
-const WebpackPwaManifest = require('webpack-pwa-manifest');
 
 const config: webpack.Configuration = {
   entry: ['./src/index.tsx'],
@@ -22,11 +20,33 @@ const config: webpack.Configuration = {
         exclude: /node_modules/,
       },
       {
-        test: /\.s?[ac]ss$/i,
+        test: /\.(sa|sc|c)ss$/,
         use: [
-          process.env.NODE_ENV !== 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
-          'css-loader',
-          'sass-loader',
+          process.env.NODE_ENV !== 'production'
+            ? {
+                loader: 'style-loader',
+              }
+            : MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+              importLoaders: 2,
+            },
+          },
+          {
+            loader: 'resolve-url-loader',
+            options: {
+              attempts: 1,
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
@@ -54,27 +74,6 @@ const config: webpack.Configuration = {
     hot: true,
   },
   plugins: [
-    // new WebpackPwaManifest({
-    //   name: 'Classroom - App',
-    //   short_name: 'Classroom - App',
-    //   description: 'Classroom - App!',
-    //   background_color: '#000000',
-    //   crossorigin: 'use-credentials',
-    //   icons: [
-    //     {
-    //       src: path.resolve('public/favicon.ico'),
-    //       sizes: [16, 24, 32, 64], // multiple sizes
-    //     },
-    //     {
-    //       src: path.resolve('public/logo192.png'),
-    //       size: '192x192',
-    //     },
-    //     {
-    //       src: path.resolve('public/logo512.png'),
-    //       size: '512x512',
-    //     },
-    //   ],
-    // }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public', 'index.html'),
       favicon: path.join(__dirname, 'public', 'favicon.ico'),
@@ -94,7 +93,6 @@ const config: webpack.Configuration = {
       filename: 'public/[name].css',
       chunkFilename: '[id].css',
     }),
-    // new CopyWebpackPlugin({ patterns: [{ from: 'public/one' }] }),
   ],
 };
 export default config;

@@ -15,7 +15,6 @@
   "devDependencies": {
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-react": "^7.16.0",
-    "@types/copy-webpack-plugin": "^8.0.1",
     "@types/dotenv-webpack": "^7.0.3",
     "@types/jest": "^27.0.2",
     "@types/mini-css-extract-plugin": "^2.4.0",
@@ -28,7 +27,6 @@
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "babel-loader": "^8.2.3",
-    "copy-webpack-plugin": "^9.1.0",
     "css-loader": "^6.5.1",
     "dotenv-webpack": "^7.0.3",
     "eslint": "^8.2.0",
@@ -64,7 +62,9 @@
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.0.2",
     "react-router-last-location": "^2.0.1",
+    "resolve-url-loader": "^4.0.0",
     "style-loader": "^3.3.1",
+    "url-loader": "^4.1.1",
     "web-vitals": "^2.1.2"
   }
 }

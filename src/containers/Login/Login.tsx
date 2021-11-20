@@ -6,8 +6,9 @@ import { useAppDispatch } from '../../redux';
 import { setToken, setRefreshToken } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { useNavigate } from 'react-router-dom';
-
+import imga from '../../assets/icons/favicon.ico';
 import './Login.scss';
+//import Image from '../../assets/imgs/teacher.png';
 
 type FormValues = {
   email: string;
@@ -44,27 +45,41 @@ export const Login = () => {
 
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="login-container__email">
-          <input
-            placeholder="Enter email"
-            type="email"
-            defaultValue="panhhuu@gmail.com"
-            {...register('email')}
-          />
+      <img src={imga} alt="" />
+      <div
+        className="left-side"
+        //  style={{ backgroundImage: `url(${Image})` }}
+      >
+        <div className="left-side__title">
+          <p>HDH - Classroom</p>
         </div>
-        <div className="login-container__email">
-          <input
-            placeholder="Enter password"
-            type="password"
-            defaultValue="123456789"
-            {...register('password')}
-          />
+        <div className="left-side__description">
+          <p>Join to learning</p>
         </div>
-        <div className="login-container__submit-btn">
-          <button type="submit">Login</button>
-        </div>
-      </form>
+      </div>
+      <div className="right-side">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="right-side__email">
+            <input
+              placeholder="Enter email"
+              type="email"
+              defaultValue="panhhuu@gmail.com"
+              {...register('email')}
+            />
+          </div>
+          <div className="right-side__email">
+            <input
+              placeholder="Enter password"
+              type="password"
+              defaultValue="123456789"
+              {...register('password')}
+            />
+          </div>
+          <div className="right-side__submit-btn">
+            <button type="submit">Login</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

@@ -145,7 +145,7 @@ export const ClassDetail = () => {
                     gap="10px"
                     className="classDetail__body__leftPart__bottom__deadlines"
                   >
-                    {detailData.classDeadLine.map((dl) => (
+                    {detailData.IResClassDeadline.map((dl) => (
                       <div className="classDetail__body__leftPart__bottom__deadlines__item">
                         <Typography variant="h6" color="lightgray" textAlign="left">
                           Đến hạn {dl.day}

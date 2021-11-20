@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { setToken, setRefreshToken } from '../../../utils/common';
+//import { setToken, setRefreshToken } from '../../../utils/common';
 import { doGetListClasses } from '../../asyncThunk/classesAction';
 
 interface TInitialState {
@@ -24,7 +24,7 @@ export const classesSlice = createSlice({
       doGetListClasses.fulfilled,
       (state, action: PayloadAction<{ content: { classes: Array<IResGetListClasses> } }>) => {
         let payload = action.payload;
-        state.classes = action.payload.content.classes;
+        state.classes = payload.content.classes;
       },
     );
     builder.addCase(doGetListClasses.rejected, (state) => {
@@ -33,5 +33,5 @@ export const classesSlice = createSlice({
   },
 });
 
-export const {} = classesSlice.actions;
+//export const {} = classesSlice.actions;
 export default classesSlice.reducer;

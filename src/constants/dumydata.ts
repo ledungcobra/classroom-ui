@@ -1,13 +1,11 @@
-import { ClassDetailData } from '../@types/apiResponse';
-
-export const detailData: ClassDetailData = {
+export const detailData: IResClassDetailData = {
   classCode: '12345',
   infor: {
     classCode: '1234',
     room: 'Phòng 1',
     theme: 'Testing',
   },
-  classDeadLine: [
+  IResClassDeadline: [
     {
       id: 1,
       name: 'Bai tập web',
@@ -22,7 +20,7 @@ export const detailData: ClassDetailData = {
     },
   ],
   className: 'Web nâng cao',
-  classStatus: [
+  IResClassStatus: [
     {
       authorName: 'Thầy ',
       comments: [

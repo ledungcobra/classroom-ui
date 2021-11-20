@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ETokenKey } from '../../constants';
 
-const baseURL = process.env.BASE_API;
+const baseURL = process.env.REACT_APP_BASE_API;
 const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 
 const axiosCore = axios.create({

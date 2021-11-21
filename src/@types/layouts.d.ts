@@ -14,4 +14,4 @@ interface IOnlyFooterLayout {
   footer: JSX.Element;
 }
 
-export type AddMemberVariant = 'teacher' | 'student';
+type AddMemberVariant = 'teacher' | 'student';

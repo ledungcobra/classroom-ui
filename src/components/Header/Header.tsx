@@ -71,6 +71,9 @@ export const Header: React.FC<IHeaderProps> = () => {
   const handleCloseJoinClassDialog = () => {
     setJoinClassDialogStatus(false);
   };
+
+  const showEditProfile = () => {};
+
   useEffect(() => {
     if (location.pathname.includes('class-detail')) {
       setHeaderSelect(HeaderSelect.NewsFeed);
@@ -164,7 +167,8 @@ export const Header: React.FC<IHeaderProps> = () => {
                   open={Boolean(anchorElAvt)}
                   onClose={handleCloseProfileMenu}
                 >
-                  <MenuItem onClick={handleLogout}>Log out</MenuItem>
+                  <MenuItem onClick={showEditProfile}>Cập nhật profile</MenuItem>
+                  <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
                 </Menu>
               </div>
             </div>

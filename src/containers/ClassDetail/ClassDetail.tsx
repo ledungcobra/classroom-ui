@@ -1,4 +1,3 @@
-import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ControlCameraOutlined';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -14,7 +13,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
@@ -23,6 +21,7 @@ import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AppContext } from '../../App';
 import { PostStatus } from '../../components';
 import {
   BOX_SHADOW_STYLE,
@@ -52,22 +51,13 @@ interface ICopyState {
 }
 
 export const ClassDetail = () => {
+  const Context = React.useContext(AppContext);
   const [infoClicked, setInfoClicked] = useState<boolean>(true);
   const [postStatusClicked, setPostStatusClicked] = useState(true);
 
   const [moreButtonEventData, setMoreButtonEventData] = useState<MoreButtonEventData>({
     type: TypeMoreButton.None,
   });
-
-  // Snack bar
-  const [open, setOpen] = React.useState(false);
-  const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpen(false);
-  };
 
   // Menu more
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -131,7 +121,7 @@ export const ClassDetail = () => {
                 <IconButton
                   onClick={() => {
                     // TODO:
-                    handleCopy(setOpen, 'Max lop');
+                    handleCopy(Context?.openSnackBar, 'Max lop');
                   }}
                 >
                   <ContentCopyOutlinedIcon sx={{ color: 'black', width: '25px', height: '25px' }} />
@@ -188,7 +178,11 @@ export const ClassDetail = () => {
                   <Box display="flex">
                     <Typography variant="h5" fontWeight="600" color={GREEN_COLOR}>
                       {detailData.classCode}{' '}
-                      <IconButton>
+                      <IconButton
+                        onClick={() => {
+                          handleCopy(Context?.openSnackBar, 'ClassCode');
+                        }}
+                      >
                         <ContentCopyOutlinedIcon />
                       </IconButton>
                     </Typography>
@@ -408,7 +402,7 @@ export const ClassDetail = () => {
           <MenuItem
             onClick={() => {
               // TODO:
-              handleCopy(setOpen, 'Link thanh vien');
+              handleCopy(Context?.openSnackBar, 'Link thanh vien');
             }}
           >
             Sao chép đường liên kết mời thành viên
@@ -416,7 +410,7 @@ export const ClassDetail = () => {
           <MenuItem
             onClick={() => {
               // TODO:
-              handleCopy(setOpen, 'Max lop');
+              handleCopy(Context?.openSnackBar, 'Max lop');
             }}
           >
             Sao chép mã lớp
@@ -470,7 +464,7 @@ export const ClassDetail = () => {
           <MenuItem
             onClick={() => {
               // TODO: handle copy
-              handleCopy(setOpen, 'LINK');
+              handleCopy(Context?.openSnackBar, 'LINK');
             }}
           >
             Sao chép đường dẫn liên kết
@@ -508,34 +502,15 @@ export const ClassDetail = () => {
             Xoá
           </MenuItem>
         </Menu>
-        <Snackbar
-          open={open}
-          autoHideDuration={6000}
-          onClose={handleClose}
-          message="Copied"
-          ContentProps={{
-            sx: {
-              background: 'white',
-              color: SUB_COLOR,
-            },
-          }}
-          action={
-            <>
-              <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </>
-          }
-        />
       </div>
     </div>
   );
 };
 
-function handleCopy(setOpen: React.Dispatch<React.SetStateAction<boolean>>, content: string) {
+function handleCopy(openSnackBar: ((message: string) => void) | undefined, content: string) {
+  if (openSnackBar === undefined) return;
+  console.log('COPIED');
+
   copy(content);
-  setOpen(true);
-  setTimeout(() => {
-    setOpen(false);
-  }, 2000);
+  openSnackBar('Copied');
 }

@@ -1,3 +1,4 @@
+
 export const detailData: IResClassDetailData = {
   classCode: '12345',
   infor: {
@@ -5,7 +6,7 @@ export const detailData: IResClassDetailData = {
     room: 'Phòng 1',
     theme: 'Testing',
   },
-  IResClassDeadline: [
+  classDeadline: [
     {
       id: 1,
       name: 'Bai tập web',
@@ -20,9 +21,22 @@ export const detailData: IResClassDetailData = {
     },
   ],
   className: 'Web nâng cao',
-  IResClassStatus: [
+  classStatus: [
     {
       authorName: 'Thầy ',
+      time: '10:10',
+      comments: [
+        {
+          author: 'ABC',
+          content: 'Bài này dễ',
+          time: '10:00',
+        },
+      ],
+      status: 'Hello các e <b>HEll oworld</b>',
+    },
+    {
+      authorName: 'Thầy ',
+      time: '10:10',
       comments: [
         {
           author: 'ABC',
@@ -34,3 +48,22 @@ export const detailData: IResClassDetailData = {
     },
   ],
 };
+
+const classList: string[] = [
+  'Lớp học 1',
+  'Lớp học 2',
+  'Lớp học 3',
+  'Lớp học 4',
+  'Lớp học 5',
+  'Lớp học 6',
+  'Lớp học 7',
+];
+
+const studentList: IStudent[] = [
+  { id: 0, displayName: 'Tất cả học viên' },
+  {
+    id: 1,
+
+    displayName: 'Quốc Dũng Lê',
+  },
+];

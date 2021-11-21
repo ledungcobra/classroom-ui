@@ -21,6 +21,7 @@ interface IHeaderProps {}
 enum HeaderSelect {
   NewsFeed,
   Members,
+  OtherPage,
 }
 
 export const Header: React.FC<IHeaderProps> = () => {
@@ -31,9 +32,7 @@ export const Header: React.FC<IHeaderProps> = () => {
   const [anchorElAdd, setAnchorElAdd] = useState(null);
   const [anchorElAvt, setAnchorElAvt] = useState(null);
   const location = useLocation();
-  const [headerSelect, setHeaderSelect] = useState(
-    !location.state ? HeaderSelect.NewsFeed : location.state,
-  );
+  const [headerSelect, setHeaderSelect] = useState(HeaderSelect.OtherPage);
   const navigate = useNavigate();
 
   const toggleNav = (open: boolean) => (event: any) => {
@@ -72,6 +71,15 @@ export const Header: React.FC<IHeaderProps> = () => {
   const handleCloseJoinClassDialog = () => {
     setJoinClassDialogStatus(false);
   };
+  useEffect(() => {
+    if (location.pathname.includes('class-detail')) {
+      setHeaderSelect(HeaderSelect.NewsFeed);
+    } else if (location.pathname.includes('/members')) {
+      setHeaderSelect(HeaderSelect.Members);
+    } else {
+      setHeaderSelect(HeaderSelect.OtherPage);
+    }
+  }, []);
 
   useEffect(() => {
     if (headerSelect === HeaderSelect.Members) {

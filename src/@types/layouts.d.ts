@@ -13,3 +13,5 @@ interface IOnlyFooterLayout {
   children: JSX.Element;
   footer: JSX.Element;
 }
+
+export type AddMemberVariant = 'teacher' | 'student';

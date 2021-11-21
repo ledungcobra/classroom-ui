@@ -1,10 +1,11 @@
-
 export const detailData: IResClassDetailData = {
   classCode: '12345',
   infor: {
+    id: 0,
     classCode: '1234',
     room: 'Phòng 1',
     theme: 'Testing',
+    className: 'Phát triển web',
   },
   classDeadline: [
     {
@@ -49,17 +50,17 @@ export const detailData: IResClassDetailData = {
   ],
 };
 
-const classList: string[] = [
-  'Lớp học 1',
-  'Lớp học 2',
-  'Lớp học 3',
-  'Lớp học 4',
-  'Lớp học 5',
-  'Lớp học 6',
-  'Lớp học 7',
+export const classList: IResClassInfo[] = [
+  { id: 0, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 1' },
+  { id: 1, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 2' },
+  { id: 2, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 3' },
+  { id: 3, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 4' },
+  { id: 4, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 5' },
+  { id: 5, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 6' },
+  { id: 6, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 7' },
 ];
 
-const studentList: IStudent[] = [
+export const studentList: IResStudent[] = [
   { id: 0, displayName: 'Tất cả học viên' },
   {
     id: 1,

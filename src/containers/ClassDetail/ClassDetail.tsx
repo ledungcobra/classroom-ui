@@ -513,6 +513,7 @@ export const ClassDetail = () => {
     </div>
   );
 };
+
 function handleCopy(setOpen: React.Dispatch<React.SetStateAction<boolean>>, content: string) {
   copy(content);
   setOpen(true);

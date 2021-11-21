@@ -23,8 +23,15 @@ import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DEFAULT_USER_AVATAR } from '../../constants';
-import { detailData } from '../../constants/dumydata';
+import { PostStatus } from '../../components';
+import {
+  BOX_SHADOW_STYLE,
+  DEFAULT_USER_AVATAR,
+  GREEN_COLOR,
+  MAIN_COLOR,
+  SUB_COLOR,
+} from '../../constants';
+import { classList, detailData } from '../../constants/dumydata';
 import './ClassDetail.scss';
 
 enum TypeMoreButton {
@@ -44,19 +51,12 @@ interface ICopyState {
   content: string;
 }
 
-const subColor = '#6b6b6b';
-const mainColor = '##363636';
-
 export const ClassDetail = () => {
   const [infoClicked, setInfoClicked] = useState<boolean>(true);
+  const [postStatusClicked, setPostStatusClicked] = useState(true);
 
   const [moreButtonEventData, setMoreButtonEventData] = useState<MoreButtonEventData>({
     type: TypeMoreButton.None,
-  });
-
-  const [copyClicked, setCopyClick] = useState<ICopyState>({
-    clicked: false,
-    content: '',
   });
 
   // Snack bar
@@ -72,7 +72,6 @@ export const ClassDetail = () => {
   // Menu more
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenuMore = Boolean(anchorEl);
-  const [openClassCodeOpt, setOpenClassCodeOpt] = React.useState(false);
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
@@ -85,8 +84,6 @@ export const ClassDetail = () => {
 
   // Event handle
   const handlePostComment = () => {};
-  const handleCommentItemClick = () => {};
-  const boxShadowStyle = { boxShadow: '5px 5px 20px 4px lightgrey', borderRadius: '7px' };
 
   return (
     <div className="classDetail-container">
@@ -182,7 +179,6 @@ export const ClassDetail = () => {
                   <IconButton
                     aria-label="settings"
                     aria-haspopup="true"
-                    aria-expanded={openClassCodeOpt ? 'true' : undefined}
                     onClick={(e) => openMenu(e, TypeMoreButton.ClassCode)}
                   >
                     <MoreVertIcon />
@@ -190,7 +186,7 @@ export const ClassDetail = () => {
                 </Grid>
                 <CardContent>
                   <Box display="flex">
-                    <Typography variant="h5" fontWeight="600" color="#137333">
+                    <Typography variant="h5" fontWeight="600" color={GREEN_COLOR}>
                       {detailData.classCode}{' '}
                       <IconButton>
                         <ContentCopyOutlinedIcon />
@@ -219,7 +215,7 @@ export const ClassDetail = () => {
                             Đến hạn {dl.day}
                           </Typography>
                           <Link to={`/details/${dl.id}`} className="myCustomLink">
-                            <Typography variant="h6" color={subColor} textAlign="left">
+                            <Typography variant="h6" color={SUB_COLOR} textAlign="left">
                               {dl.hour} - {dl.name}
                             </Typography>
                           </Link>
@@ -244,26 +240,42 @@ export const ClassDetail = () => {
           <Grid item xs={12} md={9} className="classDetail__body__rightPart">
             {/* Up status section */}
             <div className="classDetail__body__rightPart__up-status-section">
-              <Card variant="outlined" sx={boxShadowStyle}>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
-                    <Typography variant="subtitle1" color={subColor} className="status-text">
-                      Thông báo nội dụng nào đó cho lớp học của bạn
-                    </Typography>
-                    <IconButton>
-                      <PublishedWithChangesOutlinedIcon />
-                    </IconButton>
-                  </Box>
-                </CardContent>
-              </Card>
+              {!postStatusClicked ? (
+                <Card
+                  variant="outlined"
+                  sx={BOX_SHADOW_STYLE}
+                  onClick={() => {
+                    setPostStatusClicked((prev) => !prev);
+                  }}
+                >
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
+                      <Typography variant="subtitle1" color={SUB_COLOR} className="status-text">
+                        Thông báo nội dụng nào đó cho lớp học của bạn
+                      </Typography>
+                      <IconButton>
+                        <PublishedWithChangesOutlinedIcon />
+                      </IconButton>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ) : (
+                <PostStatus
+                  classList={classList}
+                  onCancel={() => setPostStatusClicked(false)}
+                  onPost={(content) => {
+                    //TODO: do post
+                  }}
+                />
+              )}
             </div>
             <div className="classDetail__body__rightPart__statuses">
               {detailData.classStatus.map((stt, index) => (
                 <Card
                   key={index}
                   variant="outlined"
-                  sx={{ ...boxShadowStyle, marginBottom: '20px' }}
+                  sx={{ ...BOX_SHADOW_STYLE, marginBottom: '20px' }}
                 >
                   <CardContent>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -278,7 +290,7 @@ export const ClassDetail = () => {
                           >
                             {stt.authorName}
                           </Typography>
-                          <Typography variant="subtitle1" fontWeight="bold" color={subColor}>
+                          <Typography variant="subtitle1" fontWeight="bold" color={SUB_COLOR}>
                             {stt.time}
                           </Typography>
                         </Box>
@@ -306,7 +318,7 @@ export const ClassDetail = () => {
                   <CardContent className="comments">
                     <Box display="flex" gap="8px" marginBottom="10px">
                       <PeopleAltOutlinedIcon />
-                      <Typography variant="body1" color={mainColor} fontWeight="600">
+                      <Typography variant="body1" color={MAIN_COLOR} fontWeight="600">
                         {stt.comments.length} bình luận về lớp học
                       </Typography>
                     </Box>
@@ -318,16 +330,16 @@ export const ClassDetail = () => {
                             <div>
                               <Typography
                                 variant="body1"
-                                color={mainColor}
+                                color={MAIN_COLOR}
                                 fontWeight="500"
                                 display="inline"
                               >
                                 {c.author + ' '}
-                                <Typography variant="subtitle1" color={subColor} display="inline">
+                                <Typography variant="subtitle1" color={SUB_COLOR} display="inline">
                                   {c.time}
                                 </Typography>
                               </Typography>
-                              <Typography variant="body2" color={mainColor}>
+                              <Typography variant="body2" color={MAIN_COLOR}>
                                 {c.content}
                               </Typography>
                             </div>
@@ -504,7 +516,7 @@ export const ClassDetail = () => {
           ContentProps={{
             sx: {
               background: 'white',
-              color: subColor,
+              color: SUB_COLOR,
             },
           }}
           action={

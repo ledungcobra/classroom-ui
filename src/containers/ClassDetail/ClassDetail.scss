@@ -1,5 +1,11 @@
 @import '../../assets//scss/variable.scss';
 
+.classDetail-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .classDetail {
   display: flex;
   justify-content: center;

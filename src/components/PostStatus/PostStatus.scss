@@ -1,0 +1,17 @@
+@import '../../assets/scss/variable.scss';
+.rdw-option-wrapper{
+    background-color: rgba(0,0,0,0);
+    border-bottom: 2px solid rgba(0,0,0,0)  !important;
+}
+
+.rdw-option-wrapper:hover{
+    border-bottom: 2px solid $color-green-light !important;
+    box-shadow: none;
+}
+
+.editor-status{
+    border-bottom: 2px solid rgba(0,0,0,0)  !important;
+}
+.editor-status:hover{
+    border-bottom: 2px solid  $color-green-light  !important;
+}

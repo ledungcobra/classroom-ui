@@ -41,7 +41,7 @@ export const Routers = () => {
         <Route
           path="/classes"
           element={
-            <WithAuthRouter
+            <WithUnAuthRouter
               component={Classes}
               layout={HeaderFooterLayout}
               isHasHeader={true}

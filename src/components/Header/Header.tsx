@@ -1,20 +1,33 @@
-import { AppBar, Avatar, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Avatar,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  Divider,
+  IconButton,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
-import React from 'react';
-import { Divider, IconButton } from '@mui/material';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { logout } from '../../utils/common';
 import MenuIcon from '@mui/icons-material/Menu';
-import { NavMenu } from '..';
+
+import { JoinClass, NavMenu, CreateClass } from '..';
+
 import FaviIcon from '../../assets/icons/favicon.ico';
 import './Header.scss';
 
-interface IHeader {}
+interface IHeaderProps {}
 
-export const Header: React.FC<IHeader> = () => {
+export const Header: React.FC<IHeaderProps> = () => {
   const navAnchor: 'top' | 'left' | 'bottom' | 'right' | undefined = 'left';
 
+  const [createClassDialogStatus, setCreateClassDialogStatus] = useState(false);
+  const [joinClassDialogStatus, setJoinClassDialogStatus] = useState(false);
   const [leftNavOpenStatus, setLeftNavOpenStatus] = useState(false);
+  const [anchorElAdd, setAnchorElAdd] = useState(null);
+  const [anchorElAvt, setAnchorElAvt] = useState(null);
 
   const toggleNav = (open: boolean) => (event: any) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -24,21 +37,33 @@ export const Header: React.FC<IHeader> = () => {
     setLeftNavOpenStatus(open);
   };
 
-  const [anchorElAdd, setAnchorElAdd] = useState(null);
-  const [anchorElAvt, setAnchorElAvt] = useState(null);
-
-  const handleClickAdd = (event: any) => setAnchorElAdd(event.currentTarget);
-  const handleCloseAdd = () => setAnchorElAdd(null);
-
-  const handleClickAvt = (event: any) => setAnchorElAvt(event.currentTarget);
-  const handleCloseAvt = () => setAnchorElAvt(null);
-
-  const handleCreate = () => {};
-
-  const handleJoin = () => {};
-
   const handleLogout = () => {
     logout();
+  };
+
+  //Add menu handle
+  const handleOpenAddMenu = (event: any) => setAnchorElAdd(event.currentTarget);
+  const handleCloseAddMenu = () => setAnchorElAdd(null);
+
+  //Avatar handle
+  const handleOpenProfileMenu = (event: any) => setAnchorElAvt(event.currentTarget);
+  const handleCloseProfileMenu = () => setAnchorElAvt(null);
+
+  //Create class dialog handle
+  const handleOpenCreateClassDialog = () => {
+    setCreateClassDialogStatus(true);
+  };
+
+  const hadleCloseCreateClassDialog = () => {
+    setCreateClassDialogStatus(false);
+  };
+
+  //Join class dialog handle
+  const handleOpenJoinClassDialog = () => {
+    setJoinClassDialogStatus(true);
+  };
+  const handleCloseJoinClassDialog = () => {
+    setJoinClassDialogStatus(false);
   };
 
   return (
@@ -56,26 +81,25 @@ export const Header: React.FC<IHeader> = () => {
             </div>
 
             <div className="header__right-container">
-              <Add onClick={handleClickAdd} className="header__icon" />
-              {/* <Apps className="header__icon" /> */}
+              <Add onClick={handleOpenAddMenu} className="header__icon" />
               <Menu
                 id="add-menu"
                 anchorEl={anchorElAdd}
                 keepMounted
                 open={Boolean(anchorElAdd)}
-                onClose={handleCloseAdd}
+                onClose={handleCloseAddMenu}
               >
-                <MenuItem onClick={handleJoin}>Join Class</MenuItem>
-                <MenuItem onClick={handleCreate}>Create Class</MenuItem>
+                <MenuItem onClick={handleOpenJoinClassDialog}>Join Class</MenuItem>
+                <MenuItem onClick={handleOpenCreateClassDialog}>Create Class</MenuItem>
               </Menu>
               <div>
-                <Avatar onClick={handleClickAvt} className="header__icon" />
+                <Avatar onClick={handleOpenProfileMenu} className="header__icon" />
                 <Menu
                   id="avt-menu"
                   anchorEl={anchorElAvt}
                   keepMounted
                   open={Boolean(anchorElAvt)}
-                  onClose={handleCloseAvt}
+                  onClose={handleCloseProfileMenu}
                 >
                   <MenuItem onClick={handleLogout}>Log out</MenuItem>
                 </Menu>
@@ -84,10 +108,16 @@ export const Header: React.FC<IHeader> = () => {
           </Toolbar>
         </AppBar>
         <Divider />
+        <CreateClass
+          openStatus={createClassDialogStatus}
+          handleCloseDialog={hadleCloseCreateClassDialog}
+        />
+        <JoinClass
+          openStatus={joinClassDialogStatus}
+          handleCloseDialog={handleCloseJoinClassDialog}
+        />
       </div>
       <NavMenu anchor={navAnchor} open={leftNavOpenStatus} toggle={toggleNav} />
     </div>
   );
 };
-
-export default Header;

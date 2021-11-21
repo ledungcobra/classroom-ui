@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { loginReducer } from '../slices/apiSlices/loginSlice';
+import { loginReducer } from '../slices/apiSlices/authSlice';
 import classesSlice from '../slices/apiSlices/classesSlice';
 import { authReducer } from '../slices/appSlices/authSlice';
 

@@ -4,7 +4,7 @@ import { logout, clearAllToken } from '../../utils';
 
 import { apiAuth } from '../apis/apiAuth';
 
-const baseURL = process.env.BASE_API;
+const baseURL = process.env.REACT_APP_BASE_API;
 
 const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 

@@ -16,40 +16,40 @@ interface IResGetListClasses {
   room: string;
 }
 
-export interface ClassDetailData {
+interface IResClassDetailData {
   className: string;
   classCode: string;
-  classDeadLine: ClassDeadLine[];
-  classStatus: ClassStatus[];
-  infor: ClassInfo;
+  classDeadline: IResClassDeadline[];
+  classStatus: IResClassStatus[];
+  infor: IResClassInfo;
 }
 
-export interface ClassInfo {
+interface IResClassInfo {
   classCode: string;
   theme: string;
   room: string;
 }
-export interface ClassDeadLine {
+interface IResClassDeadline {
   id: number;
   name: string;
   day: string;
   hour: string;
 }
 
-export interface ClassStatus {
+interface IResClassStatus {
   authorName: string;
   time: string;
   status: string;
-  comments: Comment[];
+  comments: IResClassStatusComment[];
 }
 
-export interface Comment {
+interface IResClassStatusComment {
   author: string;
   content: string;
   time: string;
 }
 
-export interface Student {
+interface IStudent {
   id: number;
   displayName: string;
   avatar?: string;

@@ -39,6 +39,11 @@ interface MoreButtonEventData {
   data?: any;
 }
 
+interface ICopyState {
+  clicked: boolean;
+  content: string;
+}
+
 const subColor = '#6b6b6b';
 const mainColor = '##363636';
 
@@ -47,6 +52,11 @@ export const ClassDetail = () => {
 
   const [moreButtonEventData, setMoreButtonEventData] = useState<MoreButtonEventData>({
     type: TypeMoreButton.None,
+  });
+
+  const [copyClicked, setCopyClick] = useState<ICopyState>({
+    clicked: false,
+    content: '',
   });
 
   // Snack bar
@@ -202,9 +212,9 @@ export const ClassDetail = () => {
                     gap="10px"
                     className="classDetail__body__leftPart__bottom__deadlines"
                   >
-                    {detailData.classDeadLine.map((dl, i) => (
-                      <div key={i} className="classDetail__body__leftPart__bottom__deadlines__item">
-                        <Typography variant="h6" color={subColor} textAlign="left">
+                    {detailData.classDeadline.map((dl) => (
+                      <div className="classDetail__body__leftPart__bottom__deadlines__item">
+                        <Typography variant="h6" color="lightgray" textAlign="left">
                           Đến hạn {dl.day}
                         </Typography>
                         <Link to={`/details/${dl.id}`} className="myCustomLink">

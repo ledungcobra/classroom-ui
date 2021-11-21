@@ -1,14 +1,12 @@
-import { ClassDetailData } from '../@types/apiResponse';
-import { Student } from './../@types/apiResponse.d';
 
-export const detailData: ClassDetailData = {
+export const detailData: IResClassDetailData = {
   classCode: '12345',
   infor: {
     classCode: '1234',
     room: 'Phòng 1',
     theme: 'Testing',
   },
-  classDeadLine: [
+  classDeadline: [
     {
       id: 1,
       name: 'Bai tập web',
@@ -61,7 +59,7 @@ const classList: string[] = [
   'Lớp học 7',
 ];
 
-const studentList: Student[] = [
+const studentList: IStudent[] = [
   { id: 0, displayName: 'Tất cả học viên' },
   {
     id: 1,

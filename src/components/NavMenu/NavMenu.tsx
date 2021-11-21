@@ -15,13 +15,13 @@ import MailIcon from '@mui/icons-material/Mail';
 
 import './NavMenu.scss';
 
-interface INavMenu {
+interface INavMenuProps {
   anchor: 'top' | 'left' | 'bottom' | 'right' | undefined;
   open: boolean;
   toggle: any;
 }
 
-export const NavMenu: React.FC<INavMenu> = ({ anchor, open, toggle }) => {
+export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
   return (
     <div className="nav-menu">
       <Drawer anchor={anchor} open={open} onClose={toggle(false)}>

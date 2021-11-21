@@ -25,9 +25,11 @@ interface IResClassDetailData {
 }
 
 interface IResClassInfo {
+  id: number;
   classCode: string;
   theme: string;
   room: string;
+  className: string;
 }
 interface IResClassDeadline {
   id: number;
@@ -49,7 +51,7 @@ interface IResClassStatusComment {
   time: string;
 }
 
-interface IStudent {
+interface IResStudent {
   id: number;
   displayName: string;
   avatar?: string;

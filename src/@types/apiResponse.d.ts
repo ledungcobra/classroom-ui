@@ -19,8 +19,8 @@ interface IResGetListClasses {
 interface IResClassDetailData {
   className: string;
   classCode: string;
-  IResClassDeadline: IResClassDeadline[];
-  IResClassStatus: IResClassStatus[];
+  classDeadline: IResClassDeadline[];
+  classStatus: IResClassStatus[];
   infor: IResClassInfo;
 }
 
@@ -38,6 +38,7 @@ interface IResClassDeadline {
 
 interface IResClassStatus {
   authorName: string;
+  time: string;
   status: string;
   comments: IResClassStatusComment[];
 }
@@ -46,4 +47,10 @@ interface IResClassStatusComment {
   author: string;
   content: string;
   time: string;
+}
+
+interface IStudent {
+  id: number;
+  displayName: string;
+  avatar?: string;
 }

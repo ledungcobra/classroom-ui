@@ -40,10 +40,33 @@
       &__top {
         margin-bottom: 20px;
       }
-      &__bottom {
-        &__deadlines {
-        }
+    }
+
+    &__rightPart {
+      width: 100%;
+
+      &__up-status-section {
+        width: 100%;
+        margin-bottom: 30px;
       }
+
+      &__status {
+        margin-top: 5px;
+      }
+    }
+  }
+}
+
+.comments {
+  &__item {
+    &__option-button {
+      visibility: hidden;
+    }
+  }
+
+  &__item:hover {
+    & .comment_more-btn {
+      visibility: visible;
     }
   }
 }
@@ -54,7 +77,7 @@
     color: $color-blue;
   }
   &--light-blue {
-    color: $color-light-blue;
+    color: $color-light-green;
   }
   &:hover {
     text-decoration: underline;
@@ -62,5 +85,28 @@
   }
   &:visited {
     color: inherit;
+  }
+}
+
+.status-text {
+  &:hover {
+    color: $color-light-green;
+    cursor: pointer;
+  }
+}
+
+.input-field {
+  &__comment-input {
+    & input {
+      padding: 8px;
+      text-indent: 10px;
+    }
+    & fieldset {
+      border-radius: 60px !important;
+      -webkit-border-radius: 60px !important;
+      -moz-border-radius: 60px !important;
+      -ms-border-radius: 60px !important;
+      -o-border-radius: 60px !important;
+    }
   }
 }

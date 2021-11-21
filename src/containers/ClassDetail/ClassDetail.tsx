@@ -24,8 +24,14 @@ import copy from 'copy-to-clipboard';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PostStatus } from '../../components';
-import { BOX_SHADOW_STYLE, DEFAULT_USER_AVATAR, MAIN_COLOR, SUB_COLOR } from '../../constants';
-import { classList, detailData, studentList } from '../../constants/dumydata';
+import {
+  BOX_SHADOW_STYLE,
+  DEFAULT_USER_AVATAR,
+  GREEN_COLOR,
+  MAIN_COLOR,
+  SUB_COLOR,
+} from '../../constants';
+import { classList, detailData } from '../../constants/dumydata';
 import './ClassDetail.scss';
 
 enum TypeMoreButton {
@@ -179,7 +185,7 @@ export const ClassDetail = () => {
               </Grid>
               <CardContent>
                 <Box display="flex">
-                  <Typography variant="h5" fontWeight="600" color="#137333">
+                  <Typography variant="h5" fontWeight="600" color={GREEN_COLOR}>
                     {detailData.classCode}{' '}
                     <IconButton>
                       <ContentCopyOutlinedIcon />
@@ -254,7 +260,13 @@ export const ClassDetail = () => {
                 </CardContent>
               </Card>
             ) : (
-              <PostStatus classList={classList} studentList={studentList} />
+              <PostStatus
+                classList={classList}
+                onCancel={() => setPostStatusClicked(false)}
+                onPost={(content) => {
+                  //TODO: do post
+                }}
+              />
             )}
           </div>
           <div className="classDetail__body__rightPart__statuses">

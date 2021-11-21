@@ -1,54 +1,67 @@
+import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import InsertLinkOutlinedIcon from '@mui/icons-material/InsertLinkOutlined';
+import YouTubeIcon from '@mui/icons-material/YouTube';
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Checkbox,
   FormControl,
+  IconButton,
   InputLabel,
-  ListItemText,
   MenuItem,
   Select,
   SelectChangeEvent,
   Typography,
 } from '@mui/material';
-import React from 'react';
-import { MAIN_COLOR } from '../../constants';
+// @ts-ignore
+import { convertToRaw, EditorState } from 'draft-js';
+// @ts-ignore
+import draftToHtml from 'draftjs-to-html';
+import React, { useEffect, useState } from 'react';
+// @ts-ignore
+import { Editor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { GREEN_COLOR, MAIN_COLOR } from '../../constants';
 import './PostStatus.scss';
 export interface IPostStatus {
   classList: IResClassInfo[];
-  studentList: IResStudent[];
+  onCancel?: () => void;
+  onPost?: (content: string, classId: number) => void;
 }
 
-export const PostStatus: React.FC<IPostStatus> = ({ classList, studentList }) => {
-  const [selectedClass, setSelectedClass] = React.useState<IResClassInfo | string>('');
-  const [selectedStudent, setSelectedStudent] = React.useState<IResStudent[]>([]);
-  const selectedStudentList = selectedStudent.map((s) => s.displayName);
+const btnStyle = (theme: any) => ({
+  button: {
+    '&:disabled': {
+      backgroundColor: theme.palette.primary || GREEN_COLOR,
+    },
+  },
+});
 
-  const handleSelectStudentChange = (event: SelectChangeEvent) => {
-    console.log(event.target.value);
+export const PostStatus: React.FC<IPostStatus> = ({ classList, onCancel, onPost }) => {
+  const [selectedClass, setSelectedClass] = React.useState<string>('');
 
-    setSelectedStudent(
-      studentList.filter((s) =>
-        (typeof event.target.value === 'string'
-          ? event.target.value.split(',')
-          : event.target.value
-        )
-          .filter((s1) => typeof s1 !== 'string')
-          .map((s1) => parseInt(s1))
-          .includes(s.id),
-      ),
-    );
-  };
   const handleSelectClassChange = (event: SelectChangeEvent) => {
-    const foundClass = classList.find((c: any) => c.id === +event.target.value);
-    if (foundClass) {
-      setSelectedClass(foundClass);
-    }
+    setSelectedClass(event.target.value);
   };
+
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [editorFocus, setEditorFocus] = useState(false);
+  const [content, setContent] = useState('');
+
+  useEffect(() => {
+    const currentContent = editorState.getCurrentContent();
+    const plainText = currentContent.getPlainText();
+    if (plainText) {
+      setContent(draftToHtml(convertToRaw(currentContent)));
+    }
+  }, [editorState]);
+
   return (
     <Card className="post-status" variant="outlined">
       <CardContent>
-        <Box width="100%" display="flex" gap="10px" flexDirection="column" alignItems="flex-start">
+        <Box width="100%" display="flex" gap="15px" flexDirection="column" alignItems="flex-start">
           <Typography variant="body1" color={MAIN_COLOR} textAlign="left">
             Dành cho
           </Typography>
@@ -61,7 +74,7 @@ export const PostStatus: React.FC<IPostStatus> = ({ classList, studentList }) =>
                 required
                 autoWidth
                 label="Chọn lớp"
-                value={typeof selectedClass === 'string' ? selectedClass : selectedClass.className}
+                value={selectedClass}
                 onChange={handleSelectClassChange}
               >
                 {classList.map((c, index) => (
@@ -71,36 +84,68 @@ export const PostStatus: React.FC<IPostStatus> = ({ classList, studentList }) =>
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel id="student-select">Chọn học sinh</InputLabel>
+          </Box>
 
-              <Select
-                labelId="student-select"
-                autoWidth
-                label="Chọn học sinh"
-                required
-                multiple
-                // @ts-ignore
-                value={selectedStudentList}
-                placeholder="Chọn học sinh"
-                onChange={handleSelectStudentChange}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 48 * 4.5 + 8,
-                      width: 250,
-                    },
-                  },
+          <Editor
+            onFocus={() => setEditorFocus(true)}
+            onBlur={() => setEditorFocus(false)}
+            className="editor-status"
+            editorState={editorState}
+            placeholder="Thông báo nội dung nào đó cho lớp học"
+            wrapperStyle={{
+              backgroundColor: 'rgba(233,233,233,0.3)',
+              borderRadius: '8px 8px 0 0',
+              position: 'relative',
+              width: '100%',
+              borderBottom: editorFocus ? '3px solid ' + GREEN_COLOR : '3px solid lightgrey',
+              transition: 'all 1s ease-out',
+            }}
+            editorStyle={{
+              minHeight: 240,
+              padding: '0px 15px',
+              backgroundColor: 'rgba(233,233,233,0.3)',
+            }}
+            onEditorStateChange={setEditorState}
+            toolbarStyle={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: '100%',
+              backgroundColor: 'rgba(0,0,0,0)',
+            }}
+          />
+
+          <Box display="flex" justifyContent="space-between" width="100%">
+            <Box display="flex" gap="12px">
+              <IconButton>
+                <AddToDriveOutlinedIcon sx={{ color: GREEN_COLOR }} />
+              </IconButton>
+              <IconButton>
+                <FileUploadOutlinedIcon sx={{ color: GREEN_COLOR }} />
+              </IconButton>{' '}
+              <IconButton>
+                <InsertLinkOutlinedIcon sx={{ color: GREEN_COLOR }} />
+              </IconButton>
+              <IconButton>
+                <YouTubeIcon sx={{ color: GREEN_COLOR }} />
+              </IconButton>
+            </Box>
+            <Box display="flex" gap="15px">
+              <Button variant="text" onClick={onCancel}>
+                Huỷ
+              </Button>
+              <Button
+                color="success"
+                variant="contained"
+                onClick={() => {
+                  if (onPost && selectedClass) {
+                    onPost(content, +selectedClass);
+                  }
                 }}
               >
-                {studentList.map((s, index) => (
-                  <MenuItem key={index} value={s.id}>
-                    <Checkbox checked={selectedStudent.filter((s1) => s1.id === s.id).length > 0} />
-                    <ListItemText primary={s.displayName}></ListItemText>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Đăng
+              </Button>
+            </Box>
           </Box>
         </Box>
       </CardContent>

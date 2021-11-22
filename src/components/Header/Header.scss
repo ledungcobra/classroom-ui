@@ -1,8 +1,8 @@
 $header-color: #5f6368;
+@import '../../assets/scss/variable.scss';
 
 .header {
   flex-grow: 1;
-
   &__menu-button {
     margin-right: 0.5rem;
     color: black;
@@ -30,6 +30,46 @@ $header-color: #5f6368;
   &__left-container{
     display: flex;
     align-items: center;
+  }
+
+  &__center-container{
+    display:flex;
+    gap: 10px;    
+    
+    &__item{
+     
+      cursor:pointer;
+      padding-left: 10px;
+      padding-right: 10px;
+      user-select: none;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      border-bottom: "2";
+      position: relative;
+    
+
+    
+      &--selected{
+        transition: all 0.2s ease-in-out;
+        &:hover{
+          background-color: rgba($color-green-light,0.1);
+          transition: all 0.2s ease-in-out;
+        }
+
+        &:after{
+          bottom: 0px;
+          left: 0px;
+          content:'';
+          position: absolute;
+          width: 100%;
+          height: 4px;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          font-weight: 600;
+          background-color: $color-light-green;
+}
+      }
+    }
   }
   
   &__right-container{

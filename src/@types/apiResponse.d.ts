@@ -51,8 +51,30 @@ interface IResClassStatusComment {
   time: string;
 }
 
-interface IResStudent {
-  id: number;
+type Role = 'ROLE_STUDENT' | 'ROLE_TEACHER';
+interface IUser {
   displayName: string;
   avatar?: string;
+  id: number;
+  role?: Role;
+}
+
+type TStatus = 'INVITED' | 'JOINED';
+
+interface IResMember extends IUser {
+  status?: TStatus;
+}
+interface IResMembers {
+  students: IResMember[];
+  teachers: IResMember[];
+}
+
+interface IUserProfileInfo {
+  phoneNumber: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  personalEmail: string;
+  studentId?: string;
+  personalPhoneNumber?: string;
 }

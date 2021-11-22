@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header } from '../components';
-import { Classes, Home, Login, Singup } from '../containers';
+import { Classes, EditProfile, Home, Login, Singup } from '../containers';
 import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
+import ClassMembers from '../containers/ClassMembers/ClassMembers';
 import { BlankLayout, HeaderFooterLayout, OnlyHeaderLayout } from '../layouts';
 import { WithAuthRouter } from './WithAuthRouter';
 import { WithUnAuthRouter } from './WithUnAuthRouter';
@@ -51,6 +52,46 @@ export const Routers = () => {
             />
           }
         />
+        <Route
+          path="/members"
+          element={
+            <WithAuthRouter
+              component={ClassMembers}
+              layout={HeaderFooterLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
+            />
+          }
+        />
+
+        <Route
+          path="/class-detail"
+          element={
+            <WithAuthRouter
+              component={ClassDetail}
+              layout={HeaderFooterLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
+            />
+          }
+        />
+
+        <Route
+          path="/edit-profile"
+          element={
+            <WithAuthRouter
+              component={EditProfile}
+              layout={OnlyHeaderLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+            />
+          }
+        />
 
         {/*----------------------------- UNAUTH ROUTE ----------------------------*/}
 
@@ -79,19 +120,6 @@ export const Routers = () => {
               isHasFooter={true}
               footer={Footer}
               isAuthPage={true}
-            />
-          }
-        />
-        <Route
-          path="/class-detail"
-          element={
-            <WithUnAuthRouter
-              component={ClassDetail}
-              layout={HeaderFooterLayout}
-              isHasHeader={true}
-              header={Header}
-              isHasFooter={true}
-              footer={Footer}
             />
           }
         />

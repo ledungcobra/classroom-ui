@@ -68,3 +68,13 @@ interface IResMembers {
   students: IResMember[];
   teachers: IResMember[];
 }
+
+interface IUserProfileInfo {
+  phoneNumber: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  personalEmail: string;
+  studentId?: string;
+  personalPhoneNumber?: string;
+}

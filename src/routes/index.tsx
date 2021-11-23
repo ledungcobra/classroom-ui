@@ -16,7 +16,7 @@ export const Routers = () => {
           path="*"
           element={
             <WithAuthRouter
-              component={Home}
+              component={Classes}
               layout={HeaderFooterLayout}
               isHasHeader={true}
               header={Header}
@@ -31,7 +31,7 @@ export const Routers = () => {
           path="/"
           element={
             <WithAuthRouter
-              component={Home}
+              component={Classes}
               layout={OnlyHeaderLayout}
               isHasHeader={true}
               header={Header}

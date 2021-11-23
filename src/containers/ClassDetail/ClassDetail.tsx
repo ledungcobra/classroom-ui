@@ -46,6 +46,21 @@ interface MoreButtonEventData {
   data?: any;
 }
 
+const convertResponse = ({ data: content }: any): IResClassDetailData => {
+  return {
+    classCode: content.classCode ?? 'Class CODE NULL',
+    classDeadline: [],
+    className: content.title,
+    classStatus: [],
+    infor: {
+      classCode: content.classCode,
+      className: content.className,
+      id: content.id,
+      theme: content.description,
+    },
+  };
+};
+
 export const ClassDetail = () => {
   const Context = useAppContextApi();
 
@@ -60,7 +75,7 @@ export const ClassDetail = () => {
         })
         .then((data) => {
           Context?.hideLoading();
-          console.log('Data' + JSON.stringify(data));
+          console.log('Data' + JSON.stringify(convertResponse(data)));
           Context?.setCurrentClassId(parseInt(id));
         })
         .catch((e) => {
@@ -68,7 +83,7 @@ export const ClassDetail = () => {
           console.error(e);
         });
     }
-  }, [id]);
+  }, []);
 
   const [infoClicked, setInfoClicked] = useState<boolean>(true);
   const [postStatusClicked, setPostStatusClicked] = useState(true);

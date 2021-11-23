@@ -5,15 +5,21 @@ export const AUTHENTICATION_HEADER_NAME = '';
 export const logout = () => {
   window.location.replace('/login');
   localStorage.removeItem(ETokenKey.ACCESS_TOKEN);
+  localStorage.removeItem(ETokenKey.CURRENT_USER);
 };
 
 export const clearAllToken = () => {
   localStorage.removeItem(ETokenKey.ACCESS_TOKEN);
   localStorage.removeItem(ETokenKey.REFRESH_TOKEN);
+  localStorage.removeItem(ETokenKey.CURRENT_USER);
 };
 
 export const setToken = (value: string) => {
   localStorage.setItem(ETokenKey.ACCESS_TOKEN, value);
+};
+
+export const setCurrentUser = (value: string) => {
+  localStorage.setItem(ETokenKey.CURRENT_USER, value);
 };
 
 export const setRefreshToken = (value: string) => {

@@ -53,7 +53,7 @@ export const Routers = () => {
           }
         />
         <Route
-          path="/members"
+          path="/members/:id"
           element={
             <WithAuthRouter
               component={ClassMembers}
@@ -67,7 +67,7 @@ export const Routers = () => {
         />
 
         <Route
-          path="/class-detail"
+          path="/class-detail/:id"
           element={
             <WithAuthRouter
               component={ClassDetail}

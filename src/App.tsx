@@ -7,8 +7,13 @@ import ImageFavicon from './assets/icons/favicon.ico';
 import { SUB_COLOR } from './constants';
 import { Routers } from './routes';
 
-interface IAppContext {
+export interface IAppContext {
   openSnackBar: (message: string) => void;
+  showLoading: () => void;
+  hideLoading: () => void;
+  loading: boolean;
+  setCurrentClassId: (classId: number | null) => void;
+  currentClassId: number | null;
 }
 
 export const AppContext = React.createContext<IAppContext | null>(null);
@@ -17,7 +22,15 @@ export default function App() {
   // Snack bar
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  const [classId, setClassId] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const showLoading = () => {
+    setLoading(true);
+  };
 
+  const hideLoading = () => {
+    setLoading(false);
+  };
   const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -35,6 +48,11 @@ export default function App() {
     <AppContext.Provider
       value={{
         openSnackBar,
+        showLoading,
+        hideLoading,
+        loading,
+        currentClassId: classId,
+        setCurrentClassId: setClassId,
       }}
     >
       <div className="app">

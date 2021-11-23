@@ -19,9 +19,8 @@ import {
 import Grid from '@mui/material/Grid';
 import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AppContext } from '../../App';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { PostStatus } from '../../components';
 import {
   BOX_SHADOW_STYLE,
@@ -31,6 +30,8 @@ import {
   SUB_COLOR,
 } from '../../constants';
 import { classList, detailData } from '../../constants/dumydata';
+import { useAppContextApi } from '../../redux';
+import { apiClass } from '../../services/apis/apiClass';
 import './ClassDetail.scss';
 
 enum TypeMoreButton {
@@ -45,13 +46,30 @@ interface MoreButtonEventData {
   data?: any;
 }
 
-interface ICopyState {
-  clicked: boolean;
-  content: string;
-}
-
 export const ClassDetail = () => {
-  const Context = React.useContext(AppContext);
+  const Context = useAppContextApi();
+
+  const { id } = useParams<any>();
+
+  useEffect(() => {
+    if (id) {
+      Context?.showLoading();
+      apiClass
+        .getClassDetail({
+          classId: parseInt(id),
+        })
+        .then((data) => {
+          Context?.hideLoading();
+          console.log('Data' + JSON.stringify(data));
+          Context?.setCurrentClassId(parseInt(id));
+        })
+        .catch((e) => {
+          Context?.hideLoading();
+          console.error(e);
+        });
+    }
+  }, [id]);
+
   const [infoClicked, setInfoClicked] = useState<boolean>(true);
   const [postStatusClicked, setPostStatusClicked] = useState(true);
 

@@ -22,9 +22,9 @@ export const classesSlice = createSlice({
     });
     builder.addCase(
       doGetListClasses.fulfilled,
-      (state, action: PayloadAction<{ content: { classes: Array<IResGetListClasses> } }>) => {
+      (state, action: PayloadAction<{ content: { data: Array<IResGetListClasses> } }>) => {
         let payload = action.payload;
-        state.classes = payload.content.classes;
+        state.classes = payload.content.data;
       },
     );
     builder.addCase(doGetListClasses.rejected, (state) => {

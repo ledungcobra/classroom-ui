@@ -51,9 +51,7 @@ export const objToQuery = (obj: any): string => {
 export const isValidPhone = (phone: string | undefined) => {
   if (!phone) return false;
   if (phone.length < 10) return false;
-  return /(([03+[2-9]|05+[6|8|9]|07+[0|6|7|8|9]|08+[1-9]|09+[1-4|6-9]]){3})+[0-9]{7}\b/g.test(
-    phone,
-  );
+  return /^0[0-9]{9,}$/g.test(phone);
 };
 
 export const generateReferenceLink = (classCode: string) =>

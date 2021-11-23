@@ -130,9 +130,6 @@ export const ClassDetail = () => {
               <Box sx={{ display: 'flex ', gap: '10px', alignItems: 'center', marginBottom: '0' }}>
                 <h4>Chủ đề: {detailData.infor.theme}</h4>
               </Box>
-              <Box sx={{ display: 'flex ', gap: '10px', alignItems: 'center', marginBottom: '0' }}>
-                <h4>Phòng {detailData.infor.room}</h4>
-              </Box>
             </CardContent>
           </Card>
         )}

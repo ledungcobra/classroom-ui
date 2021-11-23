@@ -4,7 +4,7 @@ export const detailData: IResClassDetailData = {
   infor: {
     id: 0,
     classCode: '1234',
-    room: 'Phòng 1',
+    // room: 'Phòng 1',
     theme: 'Testing',
     className: 'Phát triển web',
   },
@@ -52,13 +52,13 @@ export const detailData: IResClassDetailData = {
 };
 
 export const classList: IResClassInfo[] = [
-  { id: 0, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 1' },
-  { id: 1, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 2' },
-  { id: 2, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 3' },
-  { id: 3, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 4' },
-  { id: 4, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 5' },
-  { id: 5, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 6' },
-  { id: 6, classCode: '1234', room: 'Phòng 1', theme: 'Testing', className: 'Class 7' },
+  { id: 0, classCode: '1234', theme: 'Testing', className: 'Class 1' },
+  { id: 1, classCode: '1234', theme: 'Testing', className: 'Class 2' },
+  { id: 2, classCode: '1234', theme: 'Testing', className: 'Class 3' },
+  { id: 3, classCode: '1234', theme: 'Testing', className: 'Class 4' },
+  { id: 4, classCode: '1234', theme: 'Testing', className: 'Class 5' },
+  { id: 5, classCode: '1234', theme: 'Testing', className: 'Class 6' },
+  { id: 6, classCode: '1234', theme: 'Testing', className: 'Class 7' },
 ];
 
 export const studentList: IResMember[] = [

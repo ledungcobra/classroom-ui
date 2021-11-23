@@ -1,5 +1,6 @@
 interface IResLogin {
   _id: string;
+  username: string;
   fullName: string;
   email: string;
   phone: string;
@@ -10,10 +11,13 @@ interface IResLogin {
 }
 
 interface IResGetListClasses {
-  _id: string;
+  id: string;
   name: string;
+  title: string;
+  description: string;
   section: string;
   room: string;
+  owner: string;
 }
 
 interface IResClassDetailData {
@@ -28,7 +32,7 @@ interface IResClassInfo {
   id: number;
   classCode: string;
   theme: string;
-  room: string;
+  // room: string;
   className: string;
 }
 interface IResClassDeadline {

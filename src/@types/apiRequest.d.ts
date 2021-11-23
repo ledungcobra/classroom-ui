@@ -1,12 +1,15 @@
 interface IParamLogin {
-  email: string;
+  username: string;
   password: string;
 }
 
 interface IParamSignup {
-  fullName: string;
+  username: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   password: string;
 }
 
@@ -15,5 +18,57 @@ interface IParamRefreshToken {
 }
 
 interface IParamGetListClasses {
-  status: string;
+  title: string;
+  currentUser: string;
+  startAt: number;
+  maxResults: number;
+  sortColumn: string;
+}
+interface IParamCreateClasses {
+  className: string;
+  section: string;
+  room: string;
+  title: string;
+  subject: string;
+  room: string;
+  currentUser: string;
+}
+
+interface IUserProfileInfo {
+  phoneNumber: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  personalEmail: string;
+  studentId?: string;
+  personalPhoneNumber?: string;
+}
+
+interface IParamChangePassword {
+  oldPassword?: string;
+  newPassword?: string;
+  rePassword?: string;
+}
+
+interface IParamGetClassDetail {
+  classId: number;
+}
+
+interface IParamGetMemberClass {
+  classId: number;
+}
+
+interface IParamInviteMemberClassClient {
+  personReceives: string[];
+  courseId: number;
+}
+
+interface IParamInviteMemberClass {
+  personReceive: string;
+  courseId: number;
+}
+
+interface IParamAddStudent {
+  courseId: number;
+  currentUser: string;
 }

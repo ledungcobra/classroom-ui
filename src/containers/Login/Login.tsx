@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 type FormValues = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -30,7 +30,7 @@ export const Login = () => {
     setIsLoging(true);
     dispatch(
       doLogin({
-        email: data.email,
+        username: data.username,
         password: data.password,
       } as IParamLogin),
     )
@@ -71,12 +71,12 @@ export const Login = () => {
             <p className="right-side__form__error">{error ?? +error}</p>
             <div className="right-side__form__login-info">
               <TextField
-                {...register('email')}
+                {...register('username')}
                 required
                 className="right-side__form__login-info__text-field"
                 id="outlined-basic"
-                type="email"
-                label="Email"
+                type="text"
+                label="Username"
                 variant="outlined"
               />
             </div>

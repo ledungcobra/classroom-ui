@@ -88,18 +88,20 @@ export const Header: React.FC<IHeaderProps> = () => {
   }, []);
 
   useEffect(() => {
-    if (headerSelect === HeaderSelect.Members) {
-      navigate('/members/' + Context?.currentClassId, {
-        replace: true,
-        state: headerSelect,
-      });
-    } else if (headerSelect === HeaderSelect.NewsFeed) {
-      navigate('/class-detail/' + Context?.currentClassId, {
-        replace: true,
-        state: headerSelect,
-      });
+    if (Context?.currentClassId) {
+      if (headerSelect === HeaderSelect.Members) {
+        navigate('/members/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      } else if (headerSelect === HeaderSelect.NewsFeed) {
+        navigate('/class-detail/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      }
     }
-  }, [headerSelect]);
+  }, [headerSelect, Context?.currentClassId]);
 
   return (
     <div>

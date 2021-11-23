@@ -47,7 +47,7 @@ const AddMember: React.FC<AddMemberProps> = ({
   };
 
   const timeOutRef = React.useRef<any>(null);
-  let listEmailToPost: any;
+  let listEmailToPost = React.useRef([] as string[]);
   const [emailInvalid, setEmailInvalid] = React.useState<string>('');
 
   return (
@@ -79,9 +79,16 @@ const AddMember: React.FC<AddMemberProps> = ({
                   alignItems="center"
                   flexDirection="row"
                 >
-                  <Typography variant="body1" color="initial">
-                    {referenceLink}
-                  </Typography>
+                  <Box maxWidth="90%">
+                    <Typography
+                      variant="body1"
+                      color="initial"
+                      sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    >
+                      {referenceLink}
+                    </Typography>
+                  </Box>
+
                   <IconButton
                     onClick={() => {
                       setCopied(true);
@@ -130,9 +137,9 @@ const AddMember: React.FC<AddMemberProps> = ({
                     }
                   }
                   if (valid) {
-                    listEmailToPost = listEmail;
+                    listEmailToPost.current = listEmail as string[];
                   }
-                }, 4000);
+                }, 200);
               }}
             >
               <Chip label="HEllo world" />
@@ -145,10 +152,8 @@ const AddMember: React.FC<AddMemberProps> = ({
           <Button
             color="success"
             onClick={(_) => {
-              console.log('CLICKED');
-              if (listEmailToPost && listEmailToPost.length > 0) {
-                actionPerform(listEmailToPost);
-                Context?.openSnackBar('Sending bụp bụp');
+              if (listEmailToPost.current && listEmailToPost.current.length > 0) {
+                actionPerform(listEmailToPost.current);
               } else {
                 Context?.openSnackBar('Không có gì để gửi');
               }

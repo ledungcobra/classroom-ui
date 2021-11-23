@@ -6,7 +6,6 @@ import './App.scss';
 import ImageFavicon from './assets/icons/favicon.ico';
 import { SUB_COLOR } from './constants';
 import { Routers } from './routes';
-
 export interface IAppContext {
   openSnackBar: (message: string) => void;
   showLoading: () => void;
@@ -14,6 +13,7 @@ export interface IAppContext {
   loading: boolean;
   setCurrentClassId: (classId: number | null) => void;
   currentClassId: number | null;
+  openSnackBarError: (message: string) => void;
 }
 
 export const AppContext = React.createContext<IAppContext | null>(null);
@@ -22,6 +22,8 @@ export default function App() {
   // Snack bar
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  const [isError, setIsError] = React.useState(false);
+
   const [classId, setClassId] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
   const showLoading = () => {
@@ -42,8 +44,14 @@ export default function App() {
   const openSnackBar = (message: string) => {
     setMessage(message);
     setOpen(true);
+    setIsError(false);
   };
 
+  const showSnackBarError = (message: string) => {
+    setMessage(message);
+    setOpen(true);
+    setIsError(true);
+  };
   return (
     <AppContext.Provider
       value={{
@@ -53,6 +61,7 @@ export default function App() {
         loading,
         currentClassId: classId,
         setCurrentClassId: setClassId,
+        openSnackBarError: showSnackBarError,
       }}
     >
       <div className="app">
@@ -65,8 +74,8 @@ export default function App() {
           message={message}
           ContentProps={{
             sx: {
-              background: 'white',
-              color: SUB_COLOR,
+              background: isError ? 'red' : 'white',
+              color: isError ? 'white' : SUB_COLOR,
             },
           }}
           action={

@@ -57,20 +57,23 @@ interface IResClassStatusComment {
 
 type Role = 'ROLE_STUDENT' | 'ROLE_TEACHER';
 interface IUser {
-  displayName: string;
-  avatar?: string;
   id: number;
-  role?: Role;
+  username: string;
+  firstName: string;
+  middleName: number;
+  email: Role;
+  profileImageUrl: string | undefined | null;
 }
 
 type TStatus = 'INVITED' | 'JOINED';
 
 interface IResMember extends IUser {
-  status?: TStatus;
+  status?: 'INVITED';
 }
 interface IResMembers {
   students: IResMember[];
   teachers: IResMember[];
+  owner: string;
 }
 
 interface IUserProfileInfo {

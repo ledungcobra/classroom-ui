@@ -52,6 +52,7 @@ interface IParamChangePassword {
 
 interface IParamGetClassDetail {
   classId: number;
+  currentUser: string;
 }
 
 interface IParamGetMemberClass {

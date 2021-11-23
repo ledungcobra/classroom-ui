@@ -4,16 +4,16 @@ import axiosMain from '../axios/axiosMain';
 const basicUrlWithoutSlash = 'course';
 
 export const apiClass = {
-  getClassDetail: (params: IParamGetClassDetail) => {
-    const url = basicUrlWithoutSlash + '/' + params.classId;
-    return axiosMain.get(url);
+  getClassDetail: async (params: IParamGetClassDetail) => {
+    const url = basicUrlWithoutSlash + '/' + params.classId + `?currentUser=${params.currentUser}`;
+    return (await axiosMain.get(url)).data;
   },
-  getClassMember: (params: IParamGetMemberClass) => {
+  getClassMember: async (params: IParamGetMemberClass) => {
     const url = basicUrlWithoutSlash + '/' + params.classId + '/everyone';
-    return axiosMain.get(url);
+    return (await axiosMain.get(url)).data;
   },
 
-  postInviteMemberToClass: (body: IParamInviteMemberClassClient) => {
+  postInviteMemberToClass: async (body: IParamInviteMemberClassClient) => {
     const url = basicUrlWithoutSlash + '/' + 'send-mail';
     return Promise.all(
       body.personReceives.map((email) =>
@@ -25,8 +25,8 @@ export const apiClass = {
     );
   },
 
-  postAddStudent: (body: IParamAddStudent) => {
+  postAddStudent: async (body: IParamAddStudent) => {
     const url = basicUrlWithoutSlash + '/add-student';
-    return axiosMain.post(url, body);
+    return (await axiosMain.post(url, body)).data;
   },
 };

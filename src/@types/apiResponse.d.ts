@@ -1,5 +1,6 @@
 interface IResLogin {
   _id: string;
+  username: string;
   fullName: string;
   email: string;
   phone: string;
@@ -10,10 +11,16 @@ interface IResLogin {
 }
 
 interface IResGetListClasses {
-  _id: string;
+  id: string;
   name: string;
+  title: string;
+  description: string;
+  classBackground: any;
   section: string;
   room: string;
+  owner: string;
+  iconColor: string;
+  createUsername: string;
 }
 
 interface IResClassDetailData {
@@ -28,7 +35,7 @@ interface IResClassInfo {
   id: number;
   classCode: string;
   theme: string;
-  room: string;
+  // room: string;
   className: string;
 }
 interface IResClassDeadline {
@@ -53,20 +60,23 @@ interface IResClassStatusComment {
 
 type Role = 'ROLE_STUDENT' | 'ROLE_TEACHER';
 interface IUser {
-  displayName: string;
-  avatar?: string;
   id: number;
-  role?: Role;
+  username: string;
+  firstName: string;
+  middleName: number;
+  email: Role;
+  profileImageUrl: string | undefined | null;
 }
 
 type TStatus = 'INVITED' | 'JOINED';
 
 interface IResMember extends IUser {
-  status?: TStatus;
+  status?: 'INVITED';
 }
 interface IResMembers {
   students: IResMember[];
   teachers: IResMember[];
+  owner: string;
 }
 
 interface IUserProfileInfo {

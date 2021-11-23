@@ -1,9 +1,31 @@
+@import '../../assets/scss/variable.scss';
+
 .nav-menu {
+  display: block;
+
   &__title {
+      margin-top: 20px !important;
       color: #5f6368;
       margin-left: 0.625rem !important;
       font-weight: 400 !important;
       line-height: 2 !important;
       font-size: 1rem !important;
+      font-weight: 500 !important;
+  }
+  &__custom-link:link,&__custom-link:visited{
+    text-decoration: none;
+    color: $color-black;
+  }
+
+  &__character-icon {
+    color: white;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 500;
   }
 }

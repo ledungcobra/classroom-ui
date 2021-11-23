@@ -1,7 +1,7 @@
 import axiosMain from '../axios/axiosMain';
 import axiosCore from '../axios/axiosCore';
 
-const basicUrl = 'auth/';
+const basicUrl = 'users/';
 
 export const apiAuth = {
   refreshToken: (params: IParamRefreshToken) => {

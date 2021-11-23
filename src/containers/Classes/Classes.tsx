@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { batch } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { MyClass } from '../../components/MyClass/MyClass';
 import { doGetListClasses, useAppDispatch, useAppSelector } from '../../redux';
 import './Classes.scss';
@@ -8,13 +7,18 @@ import './Classes.scss';
 export const Classes = () => {
   const dispatch = useAppDispatch();
   const myClasses = useAppSelector((state) => state.classesSlice.classes);
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
 
   useEffect(() => {
     const initFetch = () => {
       batch(() => {
         dispatch(
           doGetListClasses({
-            status: 'all',
+            currentUser,
+            title: '',
+            sortColumn: '',
+            startAt: 0,
+            maxResults: 10,
           } as IParamGetListClasses),
         );
       });
@@ -34,11 +38,12 @@ export const Classes = () => {
 
           return (
             <MyClass
-              key={item._id}
-              _id={item._id}
-              name={item.name}
-              ownerName={'Phạm Minh Anh Hữu'}
+              key={item.id}
+              id={item.id}
+              name={item.title}
+              ownerName={item.owner}
               ownerAvt={randAvatar}
+              classBackground={item.classBackground}
             />
           );
         })}

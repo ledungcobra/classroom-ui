@@ -13,6 +13,10 @@ $header-color: #5f6368;
     color: $header-color;
     margin-left: 1rem !important;
     cursor: pointer;
+
+    a{
+      text-decoration: none;
+    }
   }
 
   &__app-bar {

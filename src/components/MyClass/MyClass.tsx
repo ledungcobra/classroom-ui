@@ -1,27 +1,37 @@
-import { Avatar } from '@mui/material';
 import { FolderOpen, PermContactCalendar } from '@mui/icons-material';
+import { Avatar } from '@mui/material';
 import React from 'react';
+import { Link } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 import './MyClass.scss';
-import { Link } from 'react-router-dom';
 
 interface IMyClassProps {
-  _id?: string;
+  id?: string;
   name?: string;
   section?: string;
   ownerAvt?: string;
   ownerName?: string;
+  classBackground?: any;
 }
 
-export const MyClass: React.FC<IMyClassProps> = ({ name, section, ownerAvt, ownerName }) => {
+export const MyClass: React.FC<IMyClassProps> = ({
+  name,
+  section,
+  ownerAvt,
+  ownerName,
+  id,
+  classBackground,
+}) => {
   return (
     <li className="joined__list">
       <div className="joined__wrapper">
         <div className="joined__container">
           <div className="joined__img-wrapper" />
-          <div className="joined__image" />
+          <div className="joined__image">
+            <img src={classBackground} alt="" />
+          </div>
           <div className="joined__content">
-            <Link className="joined__title" to={`/class-detail`}>
+            <Link className="joined__title" to={`/class-detail/${id}`}>
               <h2>{name}</h2>
               <span>{section}</span>
             </Link>

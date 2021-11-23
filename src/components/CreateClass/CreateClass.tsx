@@ -27,26 +27,23 @@ export const CreateClass: React.FC<ICreateClassProps> = ({ openStatus, handleClo
         ) : (
           <>
             <div className="class-create-dialog__title">
-              Using Classroom at a school with students?
+              Bạn muốn sử dụng HDH - Classroom để tạo mới một lớp học?
             </div>
             <DialogContent className="class-create-dialog__content">
               <div className="class-create-dialog__checkbox-container">
                 <div className="class-create-dialog__checkbox-container__checkbox">
                   <Checkbox color="primary" onChange={() => setChecked(!check)} />
                 </div>
-                <p>
-                  I've read and understand the above notice, and I'm not using Classroom at a school
-                  with students
-                </p>
+                <p>Xác nhận tạo mới một lớp học?</p>
               </div>
             </DialogContent>
             <DialogActions>
               <Button autoFocus onClick={handleCloseDialog}>
-                Close
+                Đóng
               </Button>
 
               <Button autoFocus color="primary" disabled={!check} onClick={() => setShowForm(true)}>
-                Continue
+                Tiếp tục
               </Button>
             </DialogActions>
           </>

@@ -5,15 +5,18 @@ import {
   Avatar,
   Divider,
   IconButton,
+  LinearProgress,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
+import { useAppContextApi, useAppSelector } from '../../redux';
 import { logout } from '../../utils/common';
 import './Header.scss';
 
@@ -34,6 +37,8 @@ export const Header: React.FC<IHeaderProps> = () => {
   const location = useLocation();
   const [headerSelect, setHeaderSelect] = useState(HeaderSelect.OtherPage);
   const navigate = useNavigate();
+  const Context = useAppContextApi();
+  const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
 
   const toggleNav = (open: boolean) => (event: any) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -85,18 +90,20 @@ export const Header: React.FC<IHeaderProps> = () => {
   }, []);
 
   useEffect(() => {
-    if (headerSelect === HeaderSelect.Members) {
-      navigate('/members', {
-        replace: true,
-        state: headerSelect,
-      });
-    } else if (headerSelect === HeaderSelect.NewsFeed) {
-      navigate('/class-detail', {
-        replace: true,
-        state: headerSelect,
-      });
+    if (Context?.currentClassId) {
+      if (headerSelect === HeaderSelect.Members) {
+        navigate('/members/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      } else if (headerSelect === HeaderSelect.NewsFeed) {
+        navigate('/class-detail/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      }
     }
-  }, [headerSelect]);
+  }, [headerSelect, Context?.currentClassId]);
 
   return (
     <div>
@@ -108,44 +115,48 @@ export const Header: React.FC<IHeaderProps> = () => {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" className="header__title">
-                HDH - Classroom <img src={FaviIcon} alt="icon" width="30" height="30" />
+                <Link to="/">
+                  HDH - Classroom <img src={FaviIcon} alt="icon" width="30" height="30" />
+                </Link>
               </Typography>
             </div>
-            <div className="header__center-container">
-              <div
-                className={`header__center-container__item
+            {Context?.currentClassId && (
+              <div className="header__center-container">
+                <div
+                  className={`header__center-container__item
               ${
                 headerSelect === HeaderSelect.NewsFeed
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
-                onClick={() => {
-                  if (headerSelect !== HeaderSelect.NewsFeed) {
-                    setHeaderSelect(HeaderSelect.NewsFeed);
-                  }
-                }}
-              >
-                <Typography variant="h6" fontWeight="500">
-                  Bảng tin
-                </Typography>
+                  onClick={() => {
+                    if (headerSelect !== HeaderSelect.NewsFeed) {
+                      setHeaderSelect(HeaderSelect.NewsFeed);
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="500">
+                    Bảng tin
+                  </Typography>
+                </div>
+                <div
+                  className={`header__center-container__item  ${
+                    headerSelect === HeaderSelect.Members
+                      ? 'header__center-container__item--selected'
+                      : ''
+                  }`}
+                  onClick={() => {
+                    if (HeaderSelect.Members !== headerSelect) {
+                      setHeaderSelect(HeaderSelect.Members);
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="500">
+                    Mọi người
+                  </Typography>
+                </div>
               </div>
-              <div
-                className={`header__center-container__item  ${
-                  headerSelect === HeaderSelect.Members
-                    ? 'header__center-container__item--selected'
-                    : ''
-                }`}
-                onClick={() => {
-                  if (HeaderSelect.Members !== headerSelect) {
-                    setHeaderSelect(HeaderSelect.Members);
-                  }
-                }}
-              >
-                <Typography variant="h6" fontWeight="500">
-                  Mọi người
-                </Typography>
-              </div>
-            </div>
+            )}
             <div className="header__right-container">
               <Add onClick={handleOpenAddMenu} className="header__icon" />
               <Menu
@@ -155,11 +166,11 @@ export const Header: React.FC<IHeaderProps> = () => {
                 open={Boolean(anchorElAdd)}
                 onClose={handleCloseAddMenu}
               >
-                <MenuItem onClick={handleOpenJoinClassDialog}>Join Class</MenuItem>
-                <MenuItem onClick={handleOpenCreateClassDialog}>Create Class</MenuItem>
+                <MenuItem onClick={handleOpenJoinClassDialog}>Tham gia lớp học</MenuItem>
+                <MenuItem onClick={handleOpenCreateClassDialog}>Tạo mới lớp học</MenuItem>
               </Menu>
               <div>
-                <Avatar onClick={handleOpenProfileMenu} className="header__icon" />
+                <Avatar src={avatarRand} onClick={handleOpenProfileMenu} className="header__icon" />
                 <Menu
                   id="avt-menu"
                   anchorEl={anchorElAvt}
@@ -167,14 +178,15 @@ export const Header: React.FC<IHeaderProps> = () => {
                   open={Boolean(anchorElAvt)}
                   onClose={handleCloseProfileMenu}
                 >
-                  <MenuItem onClick={showEditProfile}>Cập nhật profile</MenuItem>
+                  <MenuItem onClick={showEditProfile}>Cập nhật thông tin</MenuItem>
                   <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
                 </Menu>
               </div>
             </div>
           </Toolbar>
         </AppBar>
-        <Divider />
+        <Divider sx={{ marginBottom: '10px' }} />
+        {Context?.loading && <LinearProgress color="success" />}
         <CreateClass
           openStatus={createClassDialogStatus}
           handleCloseDialog={hadleCloseCreateClassDialog}

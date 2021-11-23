@@ -16,7 +16,7 @@ export const Routers = () => {
           path="*"
           element={
             <WithAuthRouter
-              component={Home}
+              component={Classes}
               layout={HeaderFooterLayout}
               isHasHeader={true}
               header={Header}
@@ -31,7 +31,7 @@ export const Routers = () => {
           path="/"
           element={
             <WithAuthRouter
-              component={Home}
+              component={Classes}
               layout={OnlyHeaderLayout}
               isHasHeader={true}
               header={Header}
@@ -53,7 +53,7 @@ export const Routers = () => {
           }
         />
         <Route
-          path="/members"
+          path="/members/:id"
           element={
             <WithAuthRouter
               component={ClassMembers}
@@ -67,7 +67,7 @@ export const Routers = () => {
         />
 
         <Route
-          path="/class-detail"
+          path="/class-detail/:id"
           element={
             <WithAuthRouter
               component={ClassDetail}
@@ -111,6 +111,20 @@ export const Routers = () => {
         />
         <Route
           path="/signup"
+          element={
+            <WithUnAuthRouter
+              component={Singup}
+              layout={BlankLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
+              isAuthPage={true}
+            />
+          }
+        />
+        <Route
+          path="/confirm-mail"
           element={
             <WithUnAuthRouter
               component={Singup}

@@ -5,10 +5,10 @@ const baseURL = process.env.REACT_APP_BASE_API;
 const token = localStorage.getItem(ETokenKey.ACCESS_TOKEN);
 
 const axiosCore = axios.create({
-  baseURL: baseURL + 'api/',
+  baseURL: baseURL,
   headers: {
     'content-type': 'application/json',
-    'x-hdh-classroom-client-access-token': token ?? '',
+    'Authorization':`Bearer ${token ?? ''}` ,
   },
 });
 

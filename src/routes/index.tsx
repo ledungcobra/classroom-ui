@@ -123,6 +123,20 @@ export const Routers = () => {
             />
           }
         />
+        <Route
+          path="/confirm-mail"
+          element={
+            <WithUnAuthRouter
+              component={Singup}
+              layout={BlankLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
+              isAuthPage={true}
+            />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -33,3 +33,42 @@ interface IParamCreateClasses {
   room: string;
   currentUser: string;
 }
+
+interface IUserProfileInfo {
+  phoneNumber: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  personalEmail: string;
+  studentId?: string;
+  personalPhoneNumber?: string;
+}
+
+interface IParamChangePassword {
+  oldPassword?: string;
+  newPassword?: string;
+  rePassword?: string;
+}
+
+interface IParamGetClassDetail {
+  classId: number;
+}
+
+interface IParamGetMemberClass {
+  classId: number;
+}
+
+interface IParamInviteMemberClassClient {
+  personReceives: string[];
+  courseId: number;
+}
+
+interface IParamInviteMemberClass {
+  personReceive: string;
+  courseId: number;
+}
+
+interface IParamAddStudent {
+  courseId: number;
+  currentUser: string;
+}

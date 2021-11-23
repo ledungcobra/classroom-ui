@@ -32,7 +32,7 @@ interface IResClassInfo {
   id: number;
   classCode: string;
   theme: string;
-  room: string;
+  // room: string;
   className: string;
 }
 interface IResClassDeadline {

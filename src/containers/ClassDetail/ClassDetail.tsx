@@ -61,8 +61,7 @@ interface IClassDetailRes {
 const convertResponse = (data: any): IClassDetailRes => {
   console.log(data);
   if (data.status === 200) {
-    const content = data.content;
-    console.log(content);
+    const content = data.content.course;
 
     return {
       data: {
@@ -122,7 +121,7 @@ export const ClassDetail = () => {
           console.error(e);
         });
     }
-  }, [currentUser]);
+  }, [currentUser, id]);
 
   const [infoClicked, setInfoClicked] = useState<boolean>(false);
   const [postStatusClicked, setPostStatusClicked] = useState(false);

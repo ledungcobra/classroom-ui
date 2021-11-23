@@ -1,11 +1,18 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton, Snackbar } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Favicon from 'react-favicon';
 import './App.scss';
 import ImageFavicon from './assets/icons/favicon.ico';
 import { SUB_COLOR } from './constants';
 import { Routers } from './routes';
+
+import { useAppDispatch } from './redux';
+import { setRandomAvt } from './redux';
+import { getRandomUInt } from './utils/common';
+
+import { avatars } from './utils/img';
+
 export interface IAppContext {
   openSnackBar: (message: string) => void;
   showLoading: () => void;
@@ -19,6 +26,8 @@ export interface IAppContext {
 export const AppContext = React.createContext<IAppContext | null>(null);
 
 export default function App() {
+  const dispatch = useAppDispatch();
+
   // Snack bar
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
@@ -52,6 +61,12 @@ export default function App() {
     setOpen(true);
     setIsError(true);
   };
+
+  useEffect(() => {
+    var randIndex = getRandomUInt(avatars.length);
+    dispatch(setRandomAvt(avatars[randIndex]));
+  }, []);
+
   return (
     <AppContext.Provider
       value={{

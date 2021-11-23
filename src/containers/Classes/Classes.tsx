@@ -7,9 +7,7 @@ import './Classes.scss';
 export const Classes = () => {
   const dispatch = useAppDispatch();
   const myClasses = useAppSelector((state) => state.classesSlice.classes);
-  // TODO: Change this
-  // const currentUser = useAppSelector((state) => state.authReducer.currentUser);
-  const currentUser = 'tanhank2k';
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
 
   useEffect(() => {
     const initFetch = () => {
@@ -45,6 +43,7 @@ export const Classes = () => {
               name={item.title}
               ownerName={item.owner}
               ownerAvt={randAvatar}
+              classBackground={item.classBackground}
             />
           );
         })}

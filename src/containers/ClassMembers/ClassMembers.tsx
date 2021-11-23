@@ -98,8 +98,12 @@ const ClassMembers = (props: ClassMemberProps) => {
 
   // Add Member
   const [addMemberVariant, setAddMemberVariant] = useState<AddMemberVariant | null>(null);
-  const handleAddMember = (data: any) => {
-    console.log(data);
+  const handleAddMember = (emails: string[]) => {
+    apiClass.postInviteMemberToClass({
+      classCode: '',
+      courseId: parseInt(classId!!),
+      personReceives: emails,
+    });
   };
 
   const [studentReverse, setStudentReverse] = useState(false);

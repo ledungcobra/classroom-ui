@@ -6,11 +6,15 @@ interface TInitialState {
   isLoading: boolean;
   isLogined: boolean;
   currentUser: string;
+  email: string;
+  fullName: string;
 }
 
 const initialState = {
   mainToken: '',
   currentUser: '',
+  email: '',
+  fullName: '',
   isLoading: false,
   isLogined: false,
 } as TInitialState;
@@ -28,10 +32,17 @@ const authSlice = createSlice({
     setCurrentUser: (state, action: PayloadAction<string>) => {
       state.currentUser = action.payload;
     },
+    setEmail: (state, action: PayloadAction<string>) => {
+      state.email = action.payload;
+    },
+    setFullName: (state, action: PayloadAction<string>) => {
+      state.fullName = action.payload;
+    },
   },
   extraReducers: (builder) => {},
 });
 
 export const authReducer = authSlice.reducer;
 
-export const { setMainToken, setLogined, setCurrentUser } = authSlice.actions;
+export const { setMainToken, setLogined, setCurrentUser, setEmail, setFullName } =
+  authSlice.actions;

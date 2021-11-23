@@ -62,6 +62,7 @@ interface IParamGetMemberClass {
 interface IParamInviteMemberClassClient {
   personReceives: string[];
   courseId: number;
+  classCode: string;
 }
 
 interface IParamInviteMemberClass {

@@ -14,7 +14,7 @@ export const apiClass = {
   },
 
   postInviteMemberToClass: async (body: IParamInviteMemberClassClient) => {
-    const url = basicUrlWithoutSlash + '/' + 'send-mail';
+    const url = basicUrlWithoutSlash + '/' + 'add-member';
     return Promise.all(
       body.personReceives.map((email) =>
         axiosMain.post(url, {

@@ -30,7 +30,7 @@ import {
   SUB_COLOR,
 } from '../../constants';
 import { classList, detailData } from '../../constants/dumydata';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
 import './ClassDetail.scss';
 
@@ -65,6 +65,9 @@ export const ClassDetail = () => {
   const Context = useAppContextApi();
 
   const { id } = useParams<any>();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
+  console.log(currentUser);
 
   useEffect(() => {
     if (id) {

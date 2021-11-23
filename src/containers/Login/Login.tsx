@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { doLogin } from '../../redux/asyncThunk/authAction';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useAppDispatch } from '../../redux';
-import { setToken, setRefreshToken } from '../../utils/common';
+import { setToken, setRefreshToken, setCurrentUser } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -38,9 +38,11 @@ export const Login = () => {
       .then((res: { content: IResLogin }) => {
         setIsLoging(false);
         let token = res.content.token;
-        let refreshToken = res.content.refreshToken;
+        let currentUser = res.content.username;
+        // let refreshToken = res.content.refreshToken;
         setToken(token);
-        setRefreshToken(refreshToken);
+        setRefreshToken(token);
+        setCurrentUser(currentUser);
         dispatch(setMainToken(token));
         window.location.replace('/');
       })

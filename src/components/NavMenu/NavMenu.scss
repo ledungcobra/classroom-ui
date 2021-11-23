@@ -1,3 +1,5 @@
+@import '../../assets/scss/variable.scss';
+
 .nav-menu {
   &__title {
       color: #5f6368;
@@ -5,5 +7,9 @@
       font-weight: 400 !important;
       line-height: 2 !important;
       font-size: 1rem !important;
+  }
+  &__custom-link:link,&__custom-link:visited{
+    text-decoration: none;
+    color: $color-black;
   }
 }

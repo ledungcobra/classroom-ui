@@ -10,13 +10,16 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Typography
+  Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import AddMember from '../../components/AddMember/AddMember';
 import { DEFAULT_USER_AVATAR, GREEN_COLOR } from '../../constants';
 import { members as myMembers } from '../../constants/dumydata';
+import { useAppContextApi } from '../../redux';
+import { apiClass } from '../../services/apis/apiClass';
 import { generateReferenceLink } from '../../utils';
 import './ClassMembers.scss';
 
@@ -39,6 +42,33 @@ const styleNotAcceptedMember = {
 };
 
 const ClassMembers = (props: ClassMemberProps) => {
+  const navigate = useNavigate();
+  const Context = useAppContextApi();
+  let { classId } = useParams();
+  if (!classId) {
+    classId = Context?.currentClassId + '';
+  } else {
+    Context?.setCurrentClassId(+classId);
+  }
+
+  useEffect(() => {
+    if (classId) {
+      Context?.showLoading();
+      apiClass
+        .getClassMember({
+          classId: +classId,
+        })
+        .then((data) => {
+          Context?.hideLoading();
+          navigate('/members/' + Context?.currentClassId, {
+            replace: true,
+          });
+        })
+        .catch((e) => {
+          Context?.hideLoading();
+        });
+    }
+  }, [classId]);
   // TODO: CHANGE THIS
   const myTeacherId = 1;
   const classCode = '1234567';
@@ -179,9 +209,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                 onClose={() => {
                   setIsOpenMenu(false);
                 }}
-                open={
-                  isOpenMenu
-                }
+                open={isOpenMenu}
               >
                 <MenuItem
                   onClick={() => {

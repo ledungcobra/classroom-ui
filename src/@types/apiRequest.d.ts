@@ -1,12 +1,15 @@
 interface IParamLogin {
-  email: string;
+  username: string;
   password: string;
 }
 
 interface IParamSignup {
-  fullName: string;
+  username: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   password: string;
 }
 
@@ -15,5 +18,18 @@ interface IParamRefreshToken {
 }
 
 interface IParamGetListClasses {
-  status: string;
+  title: string;
+  currentUser: string;
+  startAt: number;
+  maxResults: number;
+  sortColumn: string;
+}
+interface IParamCreateClasses {
+  className: string;
+  section: string;
+  room: string;
+  title: string;
+  subject: string;
+  room: string;
+  currentUser: string;
 }

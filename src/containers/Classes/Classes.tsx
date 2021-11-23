@@ -14,7 +14,11 @@ export const Classes = () => {
       batch(() => {
         dispatch(
           doGetListClasses({
-            status: 'all',
+            currentUser: "tanhank2k",
+            title: "",
+            sortColumn: "",
+            startAt: 0,
+            maxResults: 10,
           } as IParamGetListClasses),
         );
       });
@@ -34,10 +38,10 @@ export const Classes = () => {
 
           return (
             <MyClass
-              key={item._id}
-              _id={item._id}
-              name={item.name}
-              ownerName={'Phạm Minh Anh Hữu'}
+              key={item.id}
+              id={item.id}
+              name={item.title}
+              ownerName={item.owner}
               ownerAvt={randAvatar}
             />
           );

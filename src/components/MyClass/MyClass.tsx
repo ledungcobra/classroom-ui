@@ -6,7 +6,7 @@ import './MyClass.scss';
 import { Link } from 'react-router-dom';
 
 interface IMyClassProps {
-  _id?: string;
+  id?: string;
   name?: string;
   section?: string;
   ownerAvt?: string;

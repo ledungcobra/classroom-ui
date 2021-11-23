@@ -13,8 +13,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 type FormValues = {
-  fullName: string;
-  phone: string;
+  username: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  phoneNumber: string;
   email: string;
   password: string;
   repeatPassword: string;
@@ -32,27 +35,32 @@ export const Singup = () => {
     if (data.password !== data.repeatPassword) {
       return "Retype password doesn't match!";
     }
-    if (!isValidPhone(data.phone)) {
-      return "Phone number isn't valid!";
-    }
+    // if (!isValidPhone(data.phoneNumber)) {
+    //   return "Phone number isn't valid!";
+    // }
 
     return '';
   };
 
   const onSubmit = (data: FormValues) => {
+    console.log(data);
+
     setIsSingupLoading(true);
     var err = getErrValidInput(data);
-
+    
     if (err !== '') {
       setIsSingupLoading(false);
       setError('*' + err);
     } else {
       dispatch(
         doSignup({
-          fullName: data.email,
+          username: data.username,
+          firstName: data.firstName,
+          middleName: data.middleName,
+          lastName: data.lastName,
           email: data.email,
           password: data.password,
-          phone: data.phone,
+          phoneNumber: data.phoneNumber,
         } as IParamSignup),
       )
         .then(unwrapResult)
@@ -93,6 +101,17 @@ export const Singup = () => {
             <p className="right-side__form__error">{error ?? error}</p>
             <div className="right-side__form__signup-info">
               <TextField
+                {...register('username')}
+                required
+                className="right-side__form__signup-info__text-field"
+                id="outlined-basic"
+                label="Username"
+                type="text"
+                variant="outlined"
+              />
+            </div>
+            <div className="right-side__form__signup-info">
+              <TextField
                 {...register('email')}
                 required
                 className="right-side__form__signup-info__text-field"
@@ -104,17 +123,37 @@ export const Singup = () => {
             </div>
             <div className="right-side__form__signup-info">
               <TextField
-                {...register('fullName')}
+                {...register('firstName')}
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="Full name"
+                label="First Name"
                 variant="outlined"
               />
             </div>
             <div className="right-side__form__signup-info">
               <TextField
-                {...register('phone')}
+                {...register('middleName')}
+                required
+                className="right-side__form__signup-info__text-field"
+                id="outlined-basic"
+                label="Middle Name"
+                variant="outlined"
+              />
+            </div>
+            <div className="right-side__form__signup-info">
+              <TextField
+                {...register('lastName')}
+                required
+                className="right-side__form__signup-info__text-field"
+                id="outlined-basic"
+                label="Last Name"
+                variant="outlined"
+              />
+            </div>
+            <div className="right-side__form__signup-info">
+              <TextField
+                {...register('phoneNumber')}
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"

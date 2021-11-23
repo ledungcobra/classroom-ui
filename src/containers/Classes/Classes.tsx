@@ -9,14 +9,16 @@ export const Classes = () => {
   const dispatch = useAppDispatch();
   const myClasses = useAppSelector((state) => state.classesSlice.classes);
 
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
   useEffect(() => {
     const initFetch = () => {
       batch(() => {
         dispatch(
           doGetListClasses({
-            currentUser: "tanhank2k",
-            title: "",
-            sortColumn: "",
+            currentUser: currentUser,
+            title: '',
+            sortColumn: '',
             startAt: 0,
             maxResults: 10,
           } as IParamGetListClasses),
@@ -43,6 +45,7 @@ export const Classes = () => {
               name={item.title}
               ownerName={item.owner}
               ownerAvt={randAvatar}
+              classBackground={item.classBackground}
             />
           );
         })}

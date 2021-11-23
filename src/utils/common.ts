@@ -5,11 +5,17 @@ export const AUTHENTICATION_HEADER_NAME = '';
 export const logout = () => {
   window.location.replace('/login');
   localStorage.removeItem(ETokenKey.ACCESS_TOKEN);
+  localStorage.removeItem(ETokenKey.CURRENT_USER);
+  localStorage.removeItem(ETokenKey.CURRENT_FULLNAME);
+  localStorage.removeItem(ETokenKey.CURRENT_EMAIL);
 };
 
 export const clearAllToken = () => {
   localStorage.removeItem(ETokenKey.ACCESS_TOKEN);
   localStorage.removeItem(ETokenKey.REFRESH_TOKEN);
+  localStorage.removeItem(ETokenKey.CURRENT_USER);
+  localStorage.removeItem(ETokenKey.CURRENT_FULLNAME);
+  localStorage.removeItem(ETokenKey.CURRENT_EMAIL);
 };
 
 export const setToken = (value: string) => {
@@ -18,6 +24,18 @@ export const setToken = (value: string) => {
 
 export const setRefreshToken = (value: string) => {
   localStorage.setItem(ETokenKey.REFRESH_TOKEN, value);
+};
+
+export const setCurrentUser = (value: string) => {
+  localStorage.setItem(ETokenKey.CURRENT_USER, value);
+};
+
+export const setFullName = (value: string) => {
+  localStorage.setItem(ETokenKey.CURRENT_FULLNAME, value);
+};
+
+export const setEmail = (value: string) => {
+  localStorage.setItem(ETokenKey.CURRENT_EMAIL, value);
 };
 
 export const isExistToken = (token: string) => {
@@ -79,3 +97,13 @@ export const readImageBlob = (file: Blob): Promise<string | ArrayBuffer | null> 
     reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
+
+export const getRandomUInt = (max: number) => {
+  return Math.floor(Math.random() * max);
+};
+
+export const getRandomRGBColorCSSFunction = (maxR: number, maxG: number, maxB: number) => {
+  return `rgb(${Math.random() * maxR}, ${Math.random() * maxG}, ${Math.random() * maxB})`;
+};
+
+// /http://localhost:3000/class-join?classToken=[token]&role=[role]

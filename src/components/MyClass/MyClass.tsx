@@ -11,15 +11,25 @@ interface IMyClassProps {
   section?: string;
   ownerAvt?: string;
   ownerName?: string;
+  classBackground?: any;
 }
 
-export const MyClass: React.FC<IMyClassProps> = ({ name, section, ownerAvt, ownerName, id }) => {
+export const MyClass: React.FC<IMyClassProps> = ({
+  name,
+  section,
+  ownerAvt,
+  ownerName,
+  id,
+  classBackground,
+}) => {
   return (
     <li className="joined__list">
       <div className="joined__wrapper">
         <div className="joined__container">
           <div className="joined__img-wrapper" />
-          <div className="joined__image" />
+          <div className="joined__image">
+            <img src={classBackground} alt="" />
+          </div>
           <div className="joined__content">
             <Link className="joined__title" to={`/class-detail/${id}`}>
               <h2>{name}</h2>

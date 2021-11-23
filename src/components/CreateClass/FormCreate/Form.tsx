@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { apiClasses } from './../../../services/apis/apiClasses';
+import { useAppSelector } from '../../../redux';
 
 interface IFormCreate {
   handleCloseDialog: any;
@@ -18,21 +19,22 @@ type FormVaue = {
 const Form: React.FC<IFormCreate> = ({ handleCloseDialog }) => {
   const [createLoading, setCreateLoading] = useState(false);
 
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
   const { register, handleSubmit } = useForm();
 
   const onSubmit = (data: FormVaue) => {
     console.log(data);
     apiClasses.createNewClasses({
-      className: "",
-      section: "",
+      className: '',
+      section: '',
       room: data.room,
-      subject: "",
+      subject: '',
       title: data.className,
-      currentUser: "tanhank2k",
-    } as IParamCreateClasses)
+      currentUser: currentUser,
+    } as IParamCreateClasses);
     handleCloseDialog();
-
-  }
+  };
   return (
     <div className="form">
       <p className="class-create-dialog__title">Create Class</p>

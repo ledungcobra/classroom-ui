@@ -15,9 +15,12 @@ interface IResGetListClasses {
   name: string;
   title: string;
   description: string;
+  classBackground: any;
   section: string;
   room: string;
   owner: string;
+  iconColor: string;
+  createUsername: string;
 }
 
 interface IResClassDetailData {

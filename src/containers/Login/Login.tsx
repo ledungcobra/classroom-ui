@@ -16,9 +16,7 @@ import FaviIcon from '../../assets/icons/favicon.ico';
 import GIcon from '../../assets/icons/login/g-logo.png';
 import { apiAuth } from './../../services/apis/apiAuth';
 
-import {
-  useLocation
-} from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 import './Login.scss';
 import { useEffect, useState } from 'react';
@@ -30,38 +28,44 @@ type FormValues = {
   password: string;
 };
 
-const parseParams = (params = "") => {
-  const rawParams = params.replace("?", "").split("&");
-  const extractedParams : any|string[] = {};
-  rawParams.forEach((item: any|string[]) => {
-    item = item.split("=");
+const parseParams = (params = '') => {
+  const rawParams = params.replace('?', '').split('&');
+  const extractedParams: any | string[] = {};
+  rawParams.forEach((item: any | string[]) => {
+    item = item.split('=');
     extractedParams[item[0]] = item[1];
   });
   return extractedParams;
 };
 
-
 export const Login = () => {
   const { register, handleSubmit } = useForm();
   let query = parseParams(useLocation().search);
-  
+
   const [isLoging, setIsLoging] = useState(false);
   const [error, setError] = useState('');
 
   const dispatch = useAppDispatch();
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(Object.keys(query).length);
-    if(Object.keys(query).length > 1){
+    if (Object.keys(query).length > 1) {
       setIsLoging(false);
       let token = query.token;
-      let refreshToken = "";
+      let currentUser = query.username;
+      let currentEmail = query.email;
+      let currentFullName = query.username;
+
       setToken(token);
-      setRefreshToken(refreshToken);
+      setCurrentUser(currentUser);
+      setEmail(currentEmail);
+      setFullName(currentFullName);
+      setRefreshToken(token);
+
       dispatch(setMainToken(token));
       window.location.replace('/');
     }
-  },[]);
+  }, []);
 
   const onSubmit = (data: FormValues) => {
     setIsLoging(true);
@@ -78,13 +82,14 @@ export const Login = () => {
         let currentUser = res.content.username;
         let currentEmail = res.content.email;
         let currentFullName = res.content.fullName;
-        // let refreshToken = res.content.refreshToken;
+
         setToken(token);
         setRefreshToken(token);
         setCurrentUser(currentUser);
         setEmail(currentEmail);
         setFullName(currentFullName);
         dispatch(setMainToken(token));
+
         window.location.replace('/');
       })
       .catch((err) => {
@@ -144,7 +149,7 @@ export const Login = () => {
             </LoadingButton>
             <p className="right-side__form__btn-separate">HOẶC</p>
             <LoadingButton
-              href = {"https://localhost:44344/users/login"}
+              href={'https://localhost:44344/users/login'}
               variant="outlined"
               className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}

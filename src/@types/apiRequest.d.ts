@@ -40,8 +40,8 @@ interface IUserProfileInfo {
   middleName: string;
   lastName: string;
   personalEmail: string;
-  studentId?: string;
   personalPhoneNumber?: string;
+  studentID?: string;
 }
 
 interface IParamChangePassword {
@@ -63,14 +63,19 @@ interface IParamInviteMemberClassClient {
   personReceives: string[];
   courseId: number;
   classCode: string;
+  role: number;
 }
 
 interface IParamInviteMemberClass {
-  personReceive: string;
+  mailPersonReceive: string;
   courseId: number;
+  classCode: string;
+  role: number;
 }
 
 interface IParamAddStudent {
-  courseId: number;
+  token: string;
+  role: number;
   currentUser: string;
+  invitee: string;
 }

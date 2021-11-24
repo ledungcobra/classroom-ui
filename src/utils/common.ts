@@ -109,3 +109,27 @@ export const getRandomRGBColorCSSFunction = (maxR: number, maxG: number, maxB: n
 };
 
 // /http://localhost:3000/class-join?classToken=[token]&role=[role]
+
+export const convertClassDetailResponse = (data: any): IClassDetailRes => {
+  console.log(data);
+  if (data.status === 200) {
+    const content = data.content.course;
+
+    return {
+      data: {
+        classCode: content.classCode ?? 'null',
+        classDeadline: [],
+        className: content.title,
+        classStatus: [],
+        infor: {
+          classCode: content.classCode ?? '',
+          className: content.className ?? '',
+          id: content.id,
+          theme: content.description,
+        },
+      },
+    };
+  } else {
+    return { error: data as IErrorResponse };
+  }
+};

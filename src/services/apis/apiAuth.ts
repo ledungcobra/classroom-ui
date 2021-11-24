@@ -14,6 +14,11 @@ export const apiAuth = {
     return axiosMain.post(url, params);
   },
 
+  loginByGoogle: () =>{
+    const url = basicUrl + 'login';
+    return axiosMain.get(url);
+  }, 
+
   register: (params: IParamSignup) => {
     const url = basicUrl + 'register';
     return axiosMain.post(url, params);

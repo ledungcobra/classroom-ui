@@ -12,8 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
 import { useAppContextApi, useAppSelector } from '../../redux';
@@ -77,7 +76,9 @@ export const Header: React.FC<IHeaderProps> = () => {
     setJoinClassDialogStatus(false);
   };
 
-  const showEditProfile = () => {};
+  const showEditProfile = () => {
+    navigate('/edit-profile');
+  };
 
   useEffect(() => {
     if (location.pathname.includes('class-detail')) {
@@ -88,22 +89,6 @@ export const Header: React.FC<IHeaderProps> = () => {
       setHeaderSelect(HeaderSelect.OtherPage);
     }
   }, []);
-
-  useEffect(() => {
-    if (Context?.currentClassId) {
-      if (headerSelect === HeaderSelect.Members) {
-        navigate('/members/' + Context?.currentClassId, {
-          replace: true,
-          state: headerSelect,
-        });
-      } else if (headerSelect === HeaderSelect.NewsFeed) {
-        navigate('/class-detail/' + Context?.currentClassId, {
-          replace: true,
-          state: headerSelect,
-        });
-      }
-    }
-  }, [headerSelect, Context?.currentClassId]);
 
   return (
     <div>
@@ -132,6 +117,10 @@ export const Header: React.FC<IHeaderProps> = () => {
                   onClick={() => {
                     if (headerSelect !== HeaderSelect.NewsFeed) {
                       setHeaderSelect(HeaderSelect.NewsFeed);
+                      navigate('/class-detail/' + Context?.currentClassId, {
+                        replace: true,
+                        state: HeaderSelect.NewsFeed,
+                      });
                     }
                   }}
                 >
@@ -148,6 +137,10 @@ export const Header: React.FC<IHeaderProps> = () => {
                   onClick={() => {
                     if (HeaderSelect.Members !== headerSelect) {
                       setHeaderSelect(HeaderSelect.Members);
+                      navigate('/members/' + Context?.currentClassId, {
+                        replace: true,
+                        state: HeaderSelect.Members,
+                      });
                     }
                   }}
                 >

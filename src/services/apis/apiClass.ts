@@ -14,19 +14,25 @@ export const apiClass = {
   },
 
   postInviteMemberToClass: async (body: IParamInviteMemberClassClient) => {
-    const url = basicUrlWithoutSlash + '/' + 'add-member';
+    const url = basicUrlWithoutSlash + '/' + 'send-mail';
     return Promise.all(
       body.personReceives.map((email) =>
         axiosMain.post(url, {
           courseId: body.courseId,
-          personReceive: email,
+          mailPersonReceive: email,
+          classCode: body.classCode,
+          role: body.role,
         } as IParamInviteMemberClass),
       ),
     );
   },
 
-  postAddStudent: async (body: IParamAddStudent) => {
-    const url = basicUrlWithoutSlash + '/add-student';
+  postAddMember: async (body: IParamAddStudent) => {
+    const url = basicUrlWithoutSlash + '/add-student/invite-link';
     return (await axiosMain.post(url, body)).data;
+  },
+
+  postDeleteMember: async (body: { courseId: number; userId: number; currentUser: string }) => {
+    return (await axiosMain.post(basicUrlWithoutSlash + '/remove-member', body)).data;
   },
 };

@@ -43,7 +43,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
     apiClass
       .postAddMember({
         currentUser,
-        invitee: currentUser,
+        invitee: currentEmail ?? '',
         role: 2,
         token: sha256(classCode),
       })

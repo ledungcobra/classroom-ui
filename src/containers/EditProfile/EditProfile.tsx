@@ -319,8 +319,8 @@ export const EditProfile = (props: IEditProfileProps) => {
               </Grid>
             </Grid>
 
-            <Box display="flex" alignItems="flex-end" flexDirection="column">
-              <Button onClick={handleSubmitForm} variant="contained">
+            <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
+              <Button onClick={handleSubmitForm} style={{ marginTop: '40px' }} variant="contained">
                 Cập nhật
               </Button>
               <Typography variant="body2" color="red" style={{ alignSelf: 'flex-start' }}>
@@ -393,17 +393,12 @@ export const EditProfile = (props: IEditProfileProps) => {
                 />
               </Grid>
               <Box height="100px" />
-              <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
-                <Button
-                  onClick={() => {
-                    handleUpdatePassword();
-                  }}
-                  variant="contained"
-                >
-                  Cập nhật
-                </Button>
-              </Box>
             </Grid>
+            <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
+              <Button onClick={handleUpdatePassword} variant="contained">
+                Cập nhật
+              </Button>
+            </Box>
           </form>
         </Grid>
         {/* <DropImageZone onUpload={(file) => {}} /> */}

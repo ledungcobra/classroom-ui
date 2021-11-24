@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { doSignup } from '../../redux/asyncThunk/authAction';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useAppDispatch } from '../../redux';
+import { useAppDispatch, useAppContextApi } from '../../redux';
 import { setToken, setRefreshToken, isValidPhone } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
@@ -27,6 +27,7 @@ export const Singup = () => {
   const { register, handleSubmit } = useForm();
 
   const [isSingupLoading, setIsSingupLoading] = useState(false);
+  const Context = useAppContextApi();
   const [error, setError] = useState('');
 
   const dispatch = useAppDispatch();
@@ -63,19 +64,14 @@ export const Singup = () => {
           phoneNumber: data.phoneNumber,
         } as IParamSignup),
       )
-        .then(unwrapResult)
-        .then((res: { content: IResLogin }) => {
+        .then((res: any) => {
           setIsSingupLoading(false);
-          let token = res.content.token;
-          let refreshToken = res.content.refreshToken;
-          setToken(token);
-          setRefreshToken(refreshToken);
-          dispatch(setMainToken(token));
-          window.location.replace('/');
+          Context?.openSnackBar('Đăng ký thành công, vui lòng đăng nhập!');
+          window.location.replace('/login');
         })
         .catch((err) => {
           setIsSingupLoading(false);
-          setError('*Đã có lỗi xảy ra, vui lòng thử lại!');
+          setError('*Đăng ký không thành công, vui lòng thử lại!');
         });
     }
   };

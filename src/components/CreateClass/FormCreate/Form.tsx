@@ -21,7 +21,6 @@ const Form: React.FC<IFormCreate> = ({ handleCloseDialog }) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = (data: FormVaue) => {
-    console.log(data);
     apiClasses.createNewClasses({
       className: "",
       section: "",

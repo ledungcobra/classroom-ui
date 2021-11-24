@@ -43,6 +43,11 @@ const convertResponse = (data: any): IResMembers => {
     owner: data.content.owner,
   };
 };
+
+interface CheckStatus {
+  id: number;
+  checked: boolean;
+}
 const ClassMembers = (props: ClassMemberProps) => {
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
@@ -53,7 +58,7 @@ const ClassMembers = (props: ClassMemberProps) => {
     owner: '',
   });
 
-  const code = useLocation().state.classCode;
+  const code = useLocation().state?.classCode;
   const [classCode, setClassCode] = React.useState(code);
 
   const Context = useAppContextApi();
@@ -77,6 +82,9 @@ const ClassMembers = (props: ClassMemberProps) => {
     }
   }, []);
 
+  const [checkStudents, setCheckStudents] = useState<CheckStatus[]>(
+    members?.students.map((s) => ({ id: s.id, checked: false })) ?? [],
+  );
   useEffect(() => {
     if (classId) {
       Context?.showLoading();
@@ -96,9 +104,11 @@ const ClassMembers = (props: ClassMemberProps) => {
   }, [classId]);
   // TODO: CHANGE THIS
 
-  const [checkStudents, setCheckStudents] = useState(
-    members?.students.map((s) => ({ id: s.id, checked: false })) ?? [],
-  );
+  useEffect(() => {
+    if (members?.students?.length > 0) {
+      setCheckStudents(members?.students.map((s) => ({ id: s.id, checked: false })) ?? []);
+    }
+  }, [members]);
   const [selectAll, setSelectAll] = useState(false);
 
   // Menu things
@@ -269,33 +279,59 @@ const ClassMembers = (props: ClassMemberProps) => {
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    // TODO xoá
-                    console.log('MUTIPLE' + JSON.stringify(moreButtonEventData));
-
+                    Context?.showLoading();
                     if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
-                      setMembers((members) => {
-                        members.students = members!!.students.filter(
-                          (m) => m.id !== moreButtonEventData.data.id,
-                        );
+                      apiClass
+                        .postDeleteMember({
+                          currentUser,
+                          userId: moreButtonEventData.data.id,
+                          courseId: parseInt(classId!!),
+                        })
+                        .then(() => {
+                          Context?.openSnackBar('Xoá thành công');
+                          setMembers((members) => {
+                            members.students = members!!.students.filter(
+                              (m) => m.id !== moreButtonEventData.data.id,
+                            );
 
-                        setCheckStudents(
-                          members.students.map((s) => ({ id: s.id, checked: false })),
-                        );
-
-                        return { ...members };
-                      });
+                            setCheckStudents(
+                              members.students.map((s) => ({ id: s.id, checked: false })),
+                            );
+                            return { ...members };
+                          });
+                        })
+                        .finally(() => {
+                          Context?.hideLoading();
+                        });
                     } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
-                      setMembers((members) => {
-                        const students = members.students.filter(
-                          (_, index) => !checkStudents[index].checked,
-                        );
-                        setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
-                        return {
-                          ...members,
-                          teachers: members.teachers,
-                          students,
-                        };
-                      });
+                      Promise.all(
+                        checkStudents
+                          .filter((s) => s.checked)
+                          .map((s) => {
+                            return apiClass.postDeleteMember({
+                              courseId: parseInt(classId!!),
+                              currentUser,
+                              userId: s.id,
+                            });
+                          }),
+                      )
+                        .then(() => {
+                          Context?.openSnackBar('Xoá thành công');
+                          setMembers((members) => {
+                            const students = members.students.filter(
+                              (_, index) => !checkStudents[index].checked,
+                            );
+                            setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
+                            return {
+                              ...members,
+                              teachers: members.teachers,
+                              students,
+                            };
+                          });
+                        })
+                        .finally(() => {
+                          Context?.hideLoading();
+                        });
                     }
                     setIsOpenMenu(false);
                   }}
@@ -321,49 +357,50 @@ const ClassMembers = (props: ClassMemberProps) => {
             gap="14px"
             marginBottom="10px"
           >
-            {members.students.map((s, index) => (
-              <Box key={index} display="flex" flexDirection="column" gap="5px">
-                <Box display="flex" justifyContent="space-between">
-                  <Box display="flex" gap="10px" alignItems="center">
-                    <Checkbox
-                      onChange={() => {
-                        setCheckStudents((value) => {
-                          value[index].checked = !value[index].checked;
-                          return [...value];
-                        });
-                      }}
-                      size="medium"
-                      color="success"
-                      value={!!checkStudents[index]?.checked}
-                      checked={!!checkStudents[index]?.checked}
-                    />
-                    <Avatar
-                      alt={s.email + 'avatar'}
-                      src={s.profileImageUrl ?? DEFAULT_USER_AVATAR}
-                    />
-                    <Typography
-                      variant="body1"
-                      fontSize="15px"
-                      color={s.status === 'INVITED' ? 'gray' : 'black'}
-                    >
-                      {s.email}
-                    </Typography>
-                  </Box>
+            {checkStudents.length === members?.students?.length &&
+              members.students.map((s, index) => (
+                <Box key={index} display="flex" flexDirection="column" gap="5px">
+                  <Box display="flex" justifyContent="space-between">
+                    <Box display="flex" gap="10px" alignItems="center">
+                      <Checkbox
+                        onChange={() => {
+                          setCheckStudents((value) => {
+                            value[index].checked = !value[index].checked;
+                            return [...value];
+                          });
+                        }}
+                        size="medium"
+                        color="success"
+                        value={checkStudents[index].checked}
+                        checked={checkStudents[index].checked}
+                      />
+                      <Avatar
+                        alt={s.email + 'avatar'}
+                        src={s.profileImageUrl ?? DEFAULT_USER_AVATAR}
+                      />
+                      <Typography
+                        variant="body1"
+                        fontSize="15px"
+                        color={s.status === 'INVITED' ? 'gray' : 'black'}
+                      >
+                        {s.email}
+                      </Typography>
+                    </Box>
 
-                  <IconButton
-                    onClick={(e) =>
-                      openMenu(e, TypeMoreButton.StudentSingle, {
-                        index,
-                        id: s.id,
-                      })
-                    }
-                  >
-                    <MoreVertOutlined />
-                  </IconButton>
+                    <IconButton
+                      onClick={(e) =>
+                        openMenu(e, TypeMoreButton.StudentSingle, {
+                          index,
+                          id: s.id,
+                        })
+                      }
+                    >
+                      <MoreVertOutlined />
+                    </IconButton>
+                  </Box>
+                  <Divider />
                 </Box>
-                <Divider />
-              </Box>
-            ))}
+              ))}
           </Box>
         </Box>
       </div>

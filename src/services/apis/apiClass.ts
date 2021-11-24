@@ -31,4 +31,8 @@ export const apiClass = {
     const url = basicUrlWithoutSlash + '/add-student/invite-link';
     return (await axiosMain.post(url, body)).data;
   },
+
+  postDeleteMember: async (body: { courseId: number; userId: number; currentUser: string }) => {
+    return (await axiosMain.post(basicUrlWithoutSlash + '/remove-member', body)).data;
+  },
 };

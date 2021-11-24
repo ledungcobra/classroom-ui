@@ -28,7 +28,7 @@ export const doPostInviteMemberToClass = createAsyncThunk(
 export const doPostAddStudent = createAsyncThunk(
   'class/doPostAddStudent',
   async (body: IParamAddStudent) => {
-    const response = await apiClass.postAddStudent(body);
+    const response = await apiClass.postAddMember(body);
     return response.data;
   },
 );

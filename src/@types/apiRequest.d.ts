@@ -74,6 +74,8 @@ interface IParamInviteMemberClass {
 }
 
 interface IParamAddStudent {
-  courseId: number;
+  token: string;
+  role: number;
   currentUser: string;
+  invitee: string;
 }

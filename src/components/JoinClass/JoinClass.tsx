@@ -1,11 +1,14 @@
-import React, { ReactElement, useState } from 'react';
-import { Avatar, Button, Dialog, Slide, TextField } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import './JoinClass.scss';
+import { Avatar, Button, Dialog, Slide, TextField } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
-import { useAppSelector } from '../../redux';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+// @ts-ignore
+import sha256 from 'sha256';
+import { useAppContextApi, useAppSelector } from '../../redux';
+import { apiClass } from '../../services/apis/apiClass';
 import { clearAllToken, logout } from '../../utils';
-
+import './JoinClass.scss';
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;
@@ -27,13 +30,35 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
   const currentEmail = useAppSelector((state) => state.authReducer.email);
   const currentFullName = useAppSelector((state) => state.authReducer.fullName);
+  const Context = useAppContextApi();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     clearAllToken();
     logout();
   };
 
-  const handleSubmit = (e: any) => {};
+  const handleSubmit = (e: any) => {
+    Context?.showLoading();
+    apiClass
+      .postAddMember({
+        currentUser,
+        invitee: currentUser,
+        role: 2,
+        token: sha256(classCode),
+      })
+      .then(() => {
+        navigate('/classes');
+      })
+      .catch((e) => {
+        console.log(e);
+        Context?.openSnackBarError('Có lỗi xảy ra không thể gia nhập lớp');
+      })
+      .finally(() => {
+        Context?.hideLoading();
+      });
+  };
+
   return (
     <div>
       <Dialog
@@ -61,9 +86,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
             </Button>
           </div>
           <div className="join-class-dialog__form">
-            <p className="join-class-dialog__form-text">
-              Bạn đang đăng nhập với tên @{currentUser}
-            </p>
+            <p className="join-class-dialog__form-text">Bạn đang đăng nhập với tên {currentUser}</p>
             <div className="join-class-dialog__login-info">
               <div className="join-class-dialog__class-left">
                 <Avatar />
@@ -93,9 +116,12 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
             <div className="join-class-dialog__login-info">
               <TextField
                 id="outlined-basic"
-                label="Link"
+                label="Mã lớp"
                 variant="outlined"
                 value={classCode}
+                sx={{
+                  width: '100%',
+                }}
                 onChange={(e) => setClassCode(e.target.value)}
                 error={error}
                 helperText={error && 'No class was found'}

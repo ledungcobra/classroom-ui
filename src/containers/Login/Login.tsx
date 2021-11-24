@@ -69,13 +69,14 @@ export const Login = () => {
         let currentUser = res.content.username;
         let currentEmail = res.content.email;
         let currentFullName = res.content.fullName;
-        // let refreshToken = res.content.refreshToken;
+
         setToken(token);
         setRefreshToken(token);
         setCurrentUser(currentUser);
         setEmail(currentEmail);
         setFullName(currentFullName);
         dispatch(setMainToken(token));
+
         window.location.replace('/');
       })
       .catch((err) => {

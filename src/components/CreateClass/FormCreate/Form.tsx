@@ -4,6 +4,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useForm } from 'react-hook-form';
 import { apiClasses } from './../../../services/apis/apiClasses';
 import { useAppSelector } from '../../../redux';
+import { useNavigate } from 'react-router';
+import { useAppDispatch } from '../../../redux/hooks';
 
 interface IFormCreate {
   handleCloseDialog: any;
@@ -17,22 +19,36 @@ type FormVaue = {
 };
 
 const Form: React.FC<IFormCreate> = ({ handleCloseDialog }) => {
+  const dispatch = useAppDispatch();
   const [createLoading, setCreateLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
 
   const { register, handleSubmit } = useForm();
 
   const onSubmit = (data: FormVaue) => {
-    apiClasses.createNewClasses({
-      className: '',
-      section: '',
-      room: data.room,
-      subject: '',
-      title: data.className,
-      currentUser: currentUser,
-    } as IParamCreateClasses);
-    handleCloseDialog();
+    setCreateLoading(true);
+
+    apiClasses
+      .createNewClasses({
+        className: '',
+        section: '',
+        room: data.room,
+        subject: '',
+        title: data.className,
+        currentUser: currentUser,
+      } as IParamCreateClasses)
+      .then((res) => {
+        setCreateLoading(false);
+        handleCloseDialog();
+        window.location.replace('/');
+      })
+      .catch((err) => {
+        handleCloseDialog();
+        window.location.replace('/');
+      });
   };
   return (
     <div className="form">

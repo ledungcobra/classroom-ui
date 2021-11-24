@@ -82,7 +82,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
               color="primary"
               onClick={handleSubmit}
             >
-              Join
+              Tham gia
             </Button>
           </div>
           <div className="join-class-dialog__form">
@@ -96,7 +96,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
                 </div>
               </div>
               <Button variant="outlined" color="primary" onClick={handleLogout}>
-                Logout
+                Đăng xuất
               </Button>
             </div>
           </div>
@@ -111,7 +111,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
               style={{ color: '#3c4043', marginTop: '-5px' }}
               className="join-class-dialog__form-text"
             >
-              Nhập link vào lớp học dưới đây.
+              Nhập mã lớp học vào ô dưới đây.
             </div>
             <div className="join-class-dialog__login-info">
               <TextField

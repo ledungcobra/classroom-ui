@@ -1,7 +1,5 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-// @ts-ignore
-import sha256 from 'sha256';
 import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
 import { parseParams } from '../../utils';
@@ -29,18 +27,18 @@ export const JoinClass = (props: Props) => {
       role = 2;
     }
 
-    if (hashedEmail && sha256(myEmail) !== hashedEmail) {
-      Context?.openSnackBarError('Email này không được mời vào lớp');
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    }
+    // if (hashedEmail && sha256(myEmail) !== hashedEmail) {
+    //   Context?.openSnackBarError('Email này không được mời vào lớp');
+    //   setTimeout(() => {
+    //     navigate('/');
+    //   }, 2000);
+    // }
 
     apiClass
       .postAddMember({
         currentUser,
         invitee: hashedEmail ? currentUser : '',
-        role,
+        role: +role,
         token: classToken,
       })
       .then(() => {

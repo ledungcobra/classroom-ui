@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header } from '../components';
-import { Classes, EditProfile, Home, Login, Singup } from '../containers';
+import { Classes, EditProfile, Login, Singup } from '../containers';
 import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
 import ClassMembers from '../containers/ClassMembers/ClassMembers';
 import { BlankLayout, HeaderFooterLayout, OnlyHeaderLayout } from '../layouts';

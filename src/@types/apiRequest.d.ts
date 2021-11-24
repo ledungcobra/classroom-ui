@@ -63,11 +63,14 @@ interface IParamInviteMemberClassClient {
   personReceives: string[];
   courseId: number;
   classCode: string;
+  role: number;
 }
 
 interface IParamInviteMemberClass {
-  personReceive: string;
+  mailPersonReceive: string;
   courseId: number;
+  classCode: string;
+  role: number;
 }
 
 interface IParamAddStudent {

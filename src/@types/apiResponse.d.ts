@@ -88,3 +88,15 @@ interface IUserProfileInfo {
   studentId?: string;
   personalPhoneNumber?: string;
 }
+
+interface IErrorResponse {
+  status: number;
+  result: number;
+  message: string;
+  content: string;
+}
+
+interface IClassDetailRes {
+  data?: IResClassDetailData;
+  error?: IErrorResponse;
+}

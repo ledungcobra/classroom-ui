@@ -32,7 +32,7 @@ import {
 // import { classList, detailData } from '../../constants/dumydata';
 import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
-import { generateReferenceLink } from '../../utils';
+import { convertClassDetailResponse, generateReferenceLink } from '../../utils';
 import './ClassDetail.scss';
 enum TypeMoreButton {
   ClassCode,
@@ -45,42 +45,6 @@ interface MoreButtonEventData {
   type: TypeMoreButton;
   data?: any;
 }
-
-interface IErrorResponse {
-  status: number;
-  result: number;
-  message: string;
-  content: string;
-}
-
-interface IClassDetailRes {
-  data?: IResClassDetailData;
-  error?: IErrorResponse;
-}
-
-const convertResponse = (data: any): IClassDetailRes => {
-  console.log(data);
-  if (data.status === 200) {
-    const content = data.content.course;
-
-    return {
-      data: {
-        classCode: content.classCode ?? 'null',
-        classDeadline: [],
-        className: content.title,
-        classStatus: [],
-        infor: {
-          classCode: content.classCode ?? '',
-          className: content.className ?? '',
-          id: content.id,
-          theme: content.description,
-        },
-      },
-    };
-  } else {
-    return { error: data as IErrorResponse };
-  }
-};
 
 export const ClassDetail = () => {
   const Context = useAppContextApi();
@@ -101,7 +65,7 @@ export const ClassDetail = () => {
         })
         .then((data) => {
           Context?.hideLoading();
-          const response = convertResponse(data);
+          const response = convertClassDetailResponse(data);
           if (!response.error) {
             setDetailData(response.data as IResClassDetailData);
             Context?.openSnackBar('Tải lớp học thành công');

@@ -19,7 +19,7 @@ import AddMember from '../../components/AddMember/AddMember';
 import { DEFAULT_USER_AVATAR, GREEN_COLOR } from '../../constants';
 import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
-import { generateReferenceLink } from '../../utils';
+import { convertClassDetailResponse, generateReferenceLink } from '../../utils';
 import './ClassMembers.scss';
 
 interface ClassMemberProps {}
@@ -46,19 +46,36 @@ const convertResponse = (data: any): IResMembers => {
 const ClassMembers = (props: ClassMemberProps) => {
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
-  console.log(currentUser);
-
+  navigate('/');
   const [members, setMembers] = React.useState<IResMembers>({
     students: [],
     teachers: [],
     owner: '',
   });
-  const location = useLocation();
 
-  const myTeacherId = 1;
-  const classCode = '1234567';
+  const code = useLocation().state.classCode;
+  const [classCode, setClassCode] = React.useState(code);
+
   const Context = useAppContextApi();
   let { id: classId } = useParams();
+
+  useEffect(() => {
+    if (!classCode && classId) {
+      apiClass
+        .getClassDetail({
+          classId: parseInt(classId!!),
+          currentUser: currentUser,
+        })
+        .then((data) => {
+          const parsedData = convertClassDetailResponse(data);
+          if (parsedData.error) {
+            Context?.openSnackBarError('Không thể lấy được mã lớp');
+          } else {
+            setClassCode(parsedData.data?.classCode);
+          }
+        });
+    }
+  }, []);
 
   useEffect(() => {
     if (classId) {
@@ -100,9 +117,10 @@ const ClassMembers = (props: ClassMemberProps) => {
   const [addMemberVariant, setAddMemberVariant] = useState<AddMemberVariant | null>(null);
   const handleAddMember = (emails: string[]) => {
     apiClass.postInviteMemberToClass({
-      classCode: '',
+      classCode,
       courseId: parseInt(classId!!),
       personReceives: emails,
+      role: addMemberVariant === 'student' ? 2 : 1,
     });
   };
 
@@ -150,7 +168,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                       {t.email}
                     </Typography>
                   </Box>
-                  {t.id !== myTeacherId && (
+                  {currentUser !== members.owner && (
                     <IconButton
                       onClick={(e) => {
                         openMenu(e, TypeMoreButton.TeacherSingle, {

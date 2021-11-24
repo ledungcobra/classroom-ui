@@ -81,12 +81,13 @@ export const Header: React.FC<IHeaderProps> = () => {
   };
 
   useEffect(() => {
+    // TODO:
     if (location.pathname.includes('class-detail')) {
       setHeaderSelect(HeaderSelect.NewsFeed);
     } else if (location.pathname.includes('/members')) {
       setHeaderSelect(HeaderSelect.Members);
     } else {
-      setHeaderSelect(HeaderSelect.OtherPage);
+      // setHeaderSelect(HeaderSelect.OtherPage);
     }
   }, []);
 

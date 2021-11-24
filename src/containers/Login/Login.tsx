@@ -8,6 +8,7 @@ import {
   setCurrentUser,
   setEmail,
   setFullName,
+  parseParams,
 } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
@@ -28,16 +29,6 @@ type FormValues = {
   password: string;
 };
 
-const parseParams = (params = '') => {
-  const rawParams = params.replace('?', '').split('&');
-  const extractedParams: any | string[] = {};
-  rawParams.forEach((item: any | string[]) => {
-    item = item.split('=');
-    extractedParams[item[0]] = item[1];
-  });
-  return extractedParams;
-};
-
 export const Login = () => {
   const { register, handleSubmit } = useForm();
   let query = parseParams(useLocation().search);
@@ -52,16 +43,12 @@ export const Login = () => {
     if (Object.keys(query).length > 1) {
       setIsLoging(false);
       let token = query.token;
-      let currentUser = query.username;
-      let currentEmail = query.email;
-      let currentFullName = query.username;
-
+      let refreshToken = '';
       setToken(token);
-      setCurrentUser(currentUser);
-      setEmail(currentEmail);
-      setFullName(currentFullName);
-      setRefreshToken(token);
-
+      setRefreshToken(refreshToken);
+      setCurrentUser(query.username);
+      setEmail(query.email);
+      setFullName(query.currentFullName);
       dispatch(setMainToken(token));
       window.location.replace('/');
     }
@@ -149,7 +136,7 @@ export const Login = () => {
             </LoadingButton>
             <p className="right-side__form__btn-separate">HOẶC</p>
             <LoadingButton
-              href={'https://localhost:44344/users/login'}
+              href={`${process.env.REACT_APP_BASE_API}users/login`}
               variant="outlined"
               className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}

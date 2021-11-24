@@ -32,7 +32,7 @@ export const JoinClass = (props: Props) => {
     if (hashedEmail && sha256(myEmail) !== hashedEmail) {
       Context?.openSnackBarError('Email này không được mời vào lớp');
       setTimeout(() => {
-        // navigate('/');
+        navigate('/');
       }, 2000);
     }
 
@@ -45,7 +45,7 @@ export const JoinClass = (props: Props) => {
       })
       .then(() => {
         Context?.openSnackBar('Gia nhập lớp thành công');
-        // navigate('/');
+        navigate('/');
       })
       .catch((e) => {
         Context?.openSnackBarError('Gia nhập lớp thất bại');
@@ -55,5 +55,5 @@ export const JoinClass = (props: Props) => {
         Context?.hideLoading();
       });
   }, [currentUser]);
-  return <div>Hello world</div>;
+  return <div></div>;
 };

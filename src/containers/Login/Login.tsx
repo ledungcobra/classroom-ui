@@ -58,8 +58,11 @@ export const Login = () => {
       let refreshToken = "";
       setToken(token);
       setRefreshToken(refreshToken);
+      setCurrentUser(query.username);
+      setEmail(query.email);
+      setFullName(query.currentFullName);
       dispatch(setMainToken(token));
-      window.location.replace('/');
+     // window.location.replace('/');
     }
   },[]);
 
@@ -144,7 +147,7 @@ export const Login = () => {
             </LoadingButton>
             <p className="right-side__form__btn-separate">HOẶC</p>
             <LoadingButton
-              href = {"https://localhost:44344/users/login"}
+              href = {`${process.env.REACT_APP_BASE_API}users/login`}
               variant="outlined"
               className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}

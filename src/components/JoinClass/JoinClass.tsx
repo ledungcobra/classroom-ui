@@ -3,6 +3,8 @@ import { Avatar, Button, Dialog, Slide, TextField } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import './JoinClass.scss';
 import { TransitionProps } from '@mui/material/transitions';
+import { useAppSelector } from '../../redux';
+import { clearAllToken, logout } from '../../utils';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -22,6 +24,14 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
   const [classCode, setClassCode] = useState('');
   const [email, setemail] = useState('');
   const [error, setError] = useState();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const currentEmail = useAppSelector((state) => state.authReducer.email);
+  const currentFullName = useAppSelector((state) => state.authReducer.fullName);
+
+  const handleLogout = () => {
+    clearAllToken();
+    logout();
+  };
 
   const handleSubmit = (e: any) => {};
   return (
@@ -39,7 +49,7 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
                 className="join-class-dialog__container__top-head__close-icon"
                 onClick={handleCloseDialog}
               />
-              <div className="join-class-dialog__container__top-head__title">Join Class</div>
+              <div className="join-class-dialog__container__top-head__title">Tham gia lớp học</div>
             </div>
             <Button
               className="join-class-dialog__btn"
@@ -51,16 +61,18 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
             </Button>
           </div>
           <div className="join-class-dialog__form">
-            <p className="join-class-dialog__form-text">You're currently signed in as @huu</p>
+            <p className="join-class-dialog__form-text">
+              Bạn đang đăng nhập với tên @{currentUser}
+            </p>
             <div className="join-class-dialog__login-info">
               <div className="join-class-dialog__class-left">
                 <Avatar />
                 <div className="join-class-dialog__login-text">
-                  <div className="join-class-dialog__login-name">HuuPham</div>
-                  <div className="join-class-dialog__login-email">panhhuu@gmail.com</div>
+                  <div className="join-class-dialog__login-name">{currentFullName}</div>
+                  <div className="join-class-dialog__login-email">{currentEmail}</div>
                 </div>
               </div>
-              <Button variant="outlined" color="primary">
+              <Button variant="outlined" color="primary" onClick={handleLogout}>
                 Logout
               </Button>
             </div>
@@ -70,31 +82,31 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
               style={{ fontSize: '1.25rem', color: '#3c4043' }}
               className="join-class-dialog__form-text"
             >
-              Class Code
+              Tham gia
             </div>
             <div
               style={{ color: '#3c4043', marginTop: '-5px' }}
               className="join-class-dialog__form-text"
             >
-              Ask your teacher for the class code, then enter it here.
+              Nhập link vào lớp học dưới đây.
             </div>
             <div className="join-class-dialog__login-info">
               <TextField
                 id="outlined-basic"
-                label="Class Code"
+                label="Link"
                 variant="outlined"
                 value={classCode}
                 onChange={(e) => setClassCode(e.target.value)}
                 error={error}
                 helperText={error && 'No class was found'}
               />
-              <TextField
+              {/* <TextField
                 id="outlined-basic"
                 label="Owner's email"
                 variant="outlined"
                 value={email}
                 onChange={(e) => setemail(e.target.value)}
-              />
+              /> */}
             </div>
           </div>
         </div>

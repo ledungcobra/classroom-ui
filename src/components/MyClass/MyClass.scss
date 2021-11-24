@@ -56,6 +56,11 @@ $nth: nth($list, $imgKey);
     background-repeat: no-repeat;
     -webkit-background-size: cover;
     background-size: cover;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &__container {
@@ -79,6 +84,9 @@ $nth: nth($list, $imgKey);
 
     h2 {
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       &:hover {
         text-decoration: underline;

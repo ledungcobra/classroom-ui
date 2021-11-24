@@ -33,7 +33,7 @@ export const Singup = () => {
 
   const getErrValidInput = (data: FormValues) => {
     if (data.password !== data.repeatPassword) {
-      return "Retype password doesn't match!";
+      return 'Nhập lại mật khẩu không khớp!';
     }
     // if (!isValidPhone(data.phoneNumber)) {
     //   return "Phone number isn't valid!";
@@ -47,7 +47,7 @@ export const Singup = () => {
 
     setIsSingupLoading(true);
     var err = getErrValidInput(data);
-    
+
     if (err !== '') {
       setIsSingupLoading(false);
       setError('*' + err);
@@ -75,13 +75,13 @@ export const Singup = () => {
         })
         .catch((err) => {
           setIsSingupLoading(false);
-          setError('*Sorry something went wrong. Please try again!');
+          setError('*Đã có lỗi xảy ra, vui lòng thử lại!');
         });
     }
   };
 
   return (
-    <div className="login-container">
+    <div className="signup-container">
       <div className="left-side">
         <div className="left-side__intro">
           <h1>HDH - Classroom</h1>
@@ -96,7 +96,7 @@ export const Singup = () => {
         <div className="right-side__form">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="right-side__form__title">
-              <h2>Sign Up to your account</h2>
+              <h2>Đăng ký tài khoản</h2>
             </div>
             <p className="right-side__form__error">{error ?? error}</p>
             <div className="right-side__form__signup-info">
@@ -105,7 +105,7 @@ export const Singup = () => {
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="Username"
+                label="Tên đăng nhập"
                 type="text"
                 variant="outlined"
               />
@@ -127,7 +127,7 @@ export const Singup = () => {
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="First Name"
+                label="Họ"
                 variant="outlined"
               />
             </div>
@@ -137,7 +137,7 @@ export const Singup = () => {
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="Middle Name"
+                label="Tên lót"
                 variant="outlined"
               />
             </div>
@@ -147,7 +147,7 @@ export const Singup = () => {
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="Last Name"
+                label="Tên"
                 variant="outlined"
               />
             </div>
@@ -157,7 +157,7 @@ export const Singup = () => {
                 required
                 className="right-side__form__signup-info__text-field"
                 id="outlined-basic"
-                label="Phone number"
+                label="Số điện thoại"
                 variant="outlined"
               />
             </div>
@@ -168,7 +168,7 @@ export const Singup = () => {
                 className="right-side__form__signup-info__text-field"
                 type="password"
                 id="outlined-basic"
-                label="Password"
+                label="Mật khẩu"
                 variant="outlined"
               />
             </div>
@@ -179,7 +179,7 @@ export const Singup = () => {
                 className="right-side__form__signup-info__text-field"
                 type="password"
                 id="outlined-basic"
-                label="Reptype Password"
+                label="Nhập lại mật khẩu"
                 variant="outlined"
               />
             </div>
@@ -189,10 +189,10 @@ export const Singup = () => {
               className="right-side__form__signup-btn"
               variant="contained"
             >
-              Register
+              Đăng ký
             </LoadingButton>
             <p className="right-side__form__question">
-              Do you have an account? <Link to="/login">Login</Link>
+              Bạn đã có tài khoản? <Link to="/login">Đăng nhập</Link>
             </p>
           </form>
         </div>

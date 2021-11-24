@@ -14,13 +14,12 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AddMember from '../../components/AddMember/AddMember';
 import { DEFAULT_USER_AVATAR, GREEN_COLOR } from '../../constants';
-import { members as myMembers } from '../../constants/dumydata';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
-import { generateReferenceLink } from '../../utils';
+import { convertClassDetailResponse, generateReferenceLink } from '../../utils';
 import './ClassMembers.scss';
 
 interface ClassMemberProps {}
@@ -37,19 +36,46 @@ interface MoreButtonEventData {
   data?: any;
 }
 
-const styleNotAcceptedMember = {
-  backgroundColor: 'rgba(50,50,50,0.1)',
+const convertResponse = (data: any): IResMembers => {
+  return {
+    students: (data?.content?.students ?? []) as IResMember[],
+    teachers: (data?.content?.teachers ?? []) as IResMember[],
+    owner: data.content.owner,
+  };
 };
-
 const ClassMembers = (props: ClassMemberProps) => {
   const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  navigate('/');
+  const [members, setMembers] = React.useState<IResMembers>({
+    students: [],
+    teachers: [],
+    owner: '',
+  });
+
+  const code = useLocation().state.classCode;
+  const [classCode, setClassCode] = React.useState(code);
+
   const Context = useAppContextApi();
-  let { classId } = useParams();
-  if (!classId) {
-    classId = Context?.currentClassId + '';
-  } else {
-    Context?.setCurrentClassId(+classId);
-  }
+  let { id: classId } = useParams();
+
+  useEffect(() => {
+    if (!classCode && classId) {
+      apiClass
+        .getClassDetail({
+          classId: parseInt(classId!!),
+          currentUser: currentUser,
+        })
+        .then((data) => {
+          const parsedData = convertClassDetailResponse(data);
+          if (parsedData.error) {
+            Context?.openSnackBarError('Không thể lấy được mã lớp');
+          } else {
+            setClassCode(parsedData.data?.classCode);
+          }
+        });
+    }
+  }, []);
 
   useEffect(() => {
     if (classId) {
@@ -60,9 +86,8 @@ const ClassMembers = (props: ClassMemberProps) => {
         })
         .then((data) => {
           Context?.hideLoading();
-          navigate('/members/' + Context?.currentClassId, {
-            replace: true,
-          });
+          const members = convertResponse(data);
+          setMembers(members);
         })
         .catch((e) => {
           Context?.hideLoading();
@@ -70,13 +95,9 @@ const ClassMembers = (props: ClassMemberProps) => {
     }
   }, [classId]);
   // TODO: CHANGE THIS
-  const myTeacherId = 1;
-  const classCode = '1234567';
-  // END TODO:
-  const [members, setMembers] = useState(myMembers);
 
   const [checkStudents, setCheckStudents] = useState(
-    members.students.map((s) => ({ id: s.id, checked: false })),
+    members?.students.map((s) => ({ id: s.id, checked: false })) ?? [],
   );
   const [selectAll, setSelectAll] = useState(false);
 
@@ -94,17 +115,20 @@ const ClassMembers = (props: ClassMemberProps) => {
 
   // Add Member
   const [addMemberVariant, setAddMemberVariant] = useState<AddMemberVariant | null>(null);
-  const handleAddMember = (data: any) => {
-    console.log(data);
+  const handleAddMember = (emails: string[]) => {
+    apiClass.postInviteMemberToClass({
+      classCode,
+      courseId: parseInt(classId!!),
+      personReceives: emails,
+      role: addMemberVariant === 'student' ? 2 : 1,
+    });
   };
 
   const [studentReverse, setStudentReverse] = useState(false);
-
   return (
     <Container maxWidth="md">
       <div className="class-members">
         {/* Teacher Role*/}
-
         <Box
           display="flex"
           gap="8px"
@@ -116,13 +140,15 @@ const ClassMembers = (props: ClassMemberProps) => {
             <Typography variant="h4" color={GREEN_COLOR}>
               &nbsp;Giáo viên
             </Typography>
-            <IconButton
-              onClick={() => {
-                setAddMemberVariant('teacher');
-              }}
-            >
-              <PersonAddIcon sx={{ color: GREEN_COLOR }} />
-            </IconButton>
+            {currentUser === members.owner && (
+              <IconButton
+                onClick={() => {
+                  setAddMemberVariant('teacher');
+                }}
+              >
+                <PersonAddIcon sx={{ color: GREEN_COLOR }} />
+              </IconButton>
+            )}
           </Box>
           <Divider sx={{ bgcolor: GREEN_COLOR, height: 2, marginBottom: '20px' }} />
           <Box display="flex" flexDirection="column" gap="14px" marginBottom="10px">
@@ -130,16 +156,19 @@ const ClassMembers = (props: ClassMemberProps) => {
               <Box key={t.id} display="flex" flexDirection="column" gap="5px">
                 <Box display="flex" justifyContent="space-between">
                   <Box display="flex" gap="10px" alignItems="center">
-                    <Avatar alt={t.displayName + 'avatar'} src={t.avatar ?? DEFAULT_USER_AVATAR} />
+                    <Avatar
+                      alt={t.email + 'avatar'}
+                      src={t.profileImageUrl ?? DEFAULT_USER_AVATAR}
+                    />
                     <Typography
                       variant="body1"
                       fontSize="15px"
                       color={t.status === 'INVITED' ? 'gray' : 'black'}
                     >
-                      {t.displayName}
+                      {t.email}
                     </Typography>
                   </Box>
-                  {t.id !== myTeacherId && (
+                  {currentUser !== members.owner && (
                     <IconButton
                       onClick={(e) => {
                         openMenu(e, TypeMoreButton.TeacherSingle, {
@@ -167,9 +196,11 @@ const ClassMembers = (props: ClassMemberProps) => {
               <Typography variant="body1" color={GREEN_COLOR}>
                 {members.students.length + ' ' + 'sinh viên  '}
               </Typography>
-              <IconButton onClick={() => setAddMemberVariant('student')}>
-                <PersonAddIcon sx={{ color: GREEN_COLOR }} />
-              </IconButton>
+              {members.owner === currentUser && (
+                <IconButton onClick={() => setAddMemberVariant('student')}>
+                  <PersonAddIcon sx={{ color: GREEN_COLOR }} />
+                </IconButton>
+              )}
             </Box>
           </Box>
           <Divider sx={{ bgcolor: GREEN_COLOR, height: 2, marginBottom: '20px' }} />
@@ -218,14 +249,14 @@ const ClassMembers = (props: ClassMemberProps) => {
                     // TODO handle ẩn
                     if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
                       setMembers((members) => {
-                        members.students = members.students.filter(
+                        members.students = members!!.students.filter(
                           (m) => m.id !== moreButtonEventData.data.id,
                         );
                         return { ...members };
                       });
                     } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
                       setMembers((members) => {
-                        members.students = members.students.filter(
+                        members!!.students = members!!.students.filter(
                           (_, index) => !checkStudents[index].checked,
                         );
                         return { ...members };
@@ -243,7 +274,7 @@ const ClassMembers = (props: ClassMemberProps) => {
 
                     if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
                       setMembers((members) => {
-                        members.students = members.students.filter(
+                        members.students = members!!.students.filter(
                           (m) => m.id !== moreButtonEventData.data.id,
                         );
 
@@ -260,6 +291,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                         );
                         setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
                         return {
+                          ...members,
                           teachers: members.teachers,
                           students,
                         };
@@ -305,13 +337,16 @@ const ClassMembers = (props: ClassMemberProps) => {
                       value={checkStudents[index].checked}
                       checked={checkStudents[index].checked}
                     />
-                    <Avatar alt={s.displayName + 'avatar'} src={s.avatar ?? DEFAULT_USER_AVATAR} />
+                    <Avatar
+                      alt={s.email + 'avatar'}
+                      src={s.profileImageUrl ?? DEFAULT_USER_AVATAR}
+                    />
                     <Typography
                       variant="body1"
                       fontSize="15px"
                       color={s.status === 'INVITED' ? 'gray' : 'black'}
                     >
-                      {s.displayName}
+                      {s.email}
                     </Typography>
                   </Box>
 
@@ -342,7 +377,7 @@ const ClassMembers = (props: ClassMemberProps) => {
           }
           onCancel={() => setAddMemberVariant(null)}
           variant={addMemberVariant}
-          referenceLink={addMemberVariant === 'student' ? generateReferenceLink(classCode) : ''}
+          referenceLink={addMemberVariant === 'student' ? generateReferenceLink(classCode, 2) : ''}
         />
       )}
     </Container>

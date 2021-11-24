@@ -2,7 +2,13 @@ import { useForm } from 'react-hook-form';
 import { doLogin } from '../../redux/asyncThunk/authAction';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useAppDispatch } from '../../redux';
-import { setToken, setRefreshToken } from '../../utils/common';
+import {
+  setToken,
+  setRefreshToken,
+  setCurrentUser,
+  setEmail,
+  setFullName,
+} from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -69,15 +75,21 @@ export const Login = () => {
       .then((res: { content: IResLogin }) => {
         setIsLoging(false);
         let token = res.content.token;
-        let refreshToken = res.content.refreshToken;
+        let currentUser = res.content.username;
+        let currentEmail = res.content.email;
+        let currentFullName = res.content.fullName;
+        // let refreshToken = res.content.refreshToken;
         setToken(token);
-        setRefreshToken(refreshToken);
+        setRefreshToken(token);
+        setCurrentUser(currentUser);
+        setEmail(currentEmail);
+        setFullName(currentFullName);
         dispatch(setMainToken(token));
         window.location.replace('/');
       })
       .catch((err) => {
         setIsLoging(false);
-        setError('*Email or password is not valid!');
+        setError('*Tên đăng nhập hoặc mật khẩu không chính xác!');
       });
   };
 
@@ -97,7 +109,7 @@ export const Login = () => {
         <div className="right-side__form">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="right-side__form__title">
-              <h2>Log In to your account</h2>
+              <h2>Đăng nhập</h2>
             </div>
             <p className="right-side__form__error">{error ?? +error}</p>
             <div className="right-side__form__login-info">
@@ -107,7 +119,7 @@ export const Login = () => {
                 className="right-side__form__login-info__text-field"
                 id="outlined-basic"
                 type="text"
-                label="Username"
+                label="Tên đăng nhập"
                 variant="outlined"
               />
             </div>
@@ -118,7 +130,7 @@ export const Login = () => {
                 className="right-side__form__login-info__text-field"
                 type="password"
                 id="outlined-basic"
-                label="Password"
+                label="Mật khẩu"
                 variant="outlined"
               />
             </div>
@@ -128,19 +140,19 @@ export const Login = () => {
               className="right-side__form__login-btn"
               variant="contained"
             >
-              Login
+              Đăng nhập
             </LoadingButton>
-            <p className="right-side__form__btn-separate">OR</p>
+            <p className="right-side__form__btn-separate">HOẶC</p>
             <LoadingButton
               href = {"https://localhost:44344/users/login"}
               variant="outlined"
               className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}
             >
-              Continue with Google
+              Tiếp tục với Google
             </LoadingButton>
             <p className="right-side__form__question">
-              Do not have an account? <Link to="/signup">Signup</Link>
+              Bạn chưa có tài khoản? <Link to="/signup">Đăng ký</Link>
             </p>
           </form>
         </div>

@@ -1,5 +1,4 @@
-import MailIcon from '@mui/icons-material/Mail';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import CreateIcon from '@mui/icons-material/Create';
 import {
   Box,
   Divider,
@@ -24,13 +23,14 @@ interface INavMenuProps {
 export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
 
   const classess = useAppSelector((state) => state.classesSlice.classes);
   React.useEffect(() => {
     if (!classess || classess.length === 0) {
       dispatch(
         doGetListClasses({
-          currentUser: 'tanhank2k',
+          currentUser: currentUser,
           title: '',
           sortColumn: '',
           startAt: 0,
@@ -49,8 +49,8 @@ export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
           }}
           display="flex"
           flexDirection="column"
-          justifyContent="center"
-          alignItems="flex-start"
+          // justifyContent="center"
+          // alignItems="flex-start"
           role="presentation"
           onClick={toggle(false)}
           onKeyDown={toggle(false)}
@@ -61,7 +61,7 @@ export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
             </Typography>
             <ListItem button>
               <ListItemIcon>
-                <MailIcon />
+                <CreateIcon />
               </ListItemIcon>
               <ListItemText
                 primary={'Lớp học của tôi'}
@@ -77,16 +77,19 @@ export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
               Lớp học đã tham gia
             </Typography>
             {classess.map((c, index) => (
-              <ListItem button key={index} sx={{ width: '100%' }}>
-                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Link className="nav-menu__custom-link" to={`/class-detail/${c.id}`}>
-                      {c.title}
-                    </Link>
-                  }
-                />
-              </ListItem>
+              <Link className="nav-menu__custom-link" to={`/class-detail/${c.id}`}>
+                <ListItem button key={index} sx={{ width: '100%' }}>
+                  <ListItemIcon>
+                    <div
+                      className="nav-menu__character-icon"
+                      style={{ backgroundColor: c.iconColor }}
+                    >
+                      {c.title.charAt(0)}
+                    </div>
+                  </ListItemIcon>
+                  <ListItemText primary={c.title} />
+                </ListItem>
+              </Link>
             ))}
           </List>
         </Box>

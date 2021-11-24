@@ -12,10 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
 import { logout } from '../../utils/common';
 import './Header.scss';
 
@@ -37,6 +38,7 @@ export const Header: React.FC<IHeaderProps> = () => {
   const [headerSelect, setHeaderSelect] = useState(HeaderSelect.OtherPage);
   const navigate = useNavigate();
   const Context = useAppContextApi();
+  const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
 
   const toggleNav = (open: boolean) => (event: any) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -88,18 +90,20 @@ export const Header: React.FC<IHeaderProps> = () => {
   }, []);
 
   useEffect(() => {
-    if (headerSelect === HeaderSelect.Members) {
-      navigate('/members/' + Context?.currentClassId, {
-        replace: true,
-        state: headerSelect,
-      });
-    } else if (headerSelect === HeaderSelect.NewsFeed) {
-      navigate('/class-detail/' + Context?.currentClassId, {
-        replace: true,
-        state: headerSelect,
-      });
+    if (Context?.currentClassId) {
+      if (headerSelect === HeaderSelect.Members) {
+        navigate('/members/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      } else if (headerSelect === HeaderSelect.NewsFeed) {
+        navigate('/class-detail/' + Context?.currentClassId, {
+          replace: true,
+          state: headerSelect,
+        });
+      }
     }
-  }, [headerSelect]);
+  }, [headerSelect, Context?.currentClassId]);
 
   return (
     <div>
@@ -111,7 +115,9 @@ export const Header: React.FC<IHeaderProps> = () => {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" className="header__title">
-                HDH - Classroom <img src={FaviIcon} alt="icon" width="30" height="30" />
+                <Link to="/">
+                  HDH - Classroom <img src={FaviIcon} alt="icon" width="30" height="30" />
+                </Link>
               </Typography>
             </div>
             {Context?.currentClassId && (
@@ -160,11 +166,11 @@ export const Header: React.FC<IHeaderProps> = () => {
                 open={Boolean(anchorElAdd)}
                 onClose={handleCloseAddMenu}
               >
-                <MenuItem onClick={handleOpenJoinClassDialog}>Join Class</MenuItem>
-                <MenuItem onClick={handleOpenCreateClassDialog}>Create Class</MenuItem>
+                <MenuItem onClick={handleOpenJoinClassDialog}>Tham gia lớp học</MenuItem>
+                <MenuItem onClick={handleOpenCreateClassDialog}>Tạo mới lớp học</MenuItem>
               </Menu>
               <div>
-                <Avatar onClick={handleOpenProfileMenu} className="header__icon" />
+                <Avatar src={avatarRand} onClick={handleOpenProfileMenu} className="header__icon" />
                 <Menu
                   id="avt-menu"
                   anchorEl={anchorElAvt}
@@ -172,7 +178,7 @@ export const Header: React.FC<IHeaderProps> = () => {
                   open={Boolean(anchorElAvt)}
                   onClose={handleCloseProfileMenu}
                 >
-                  <MenuItem onClick={showEditProfile}>Cập nhật profile</MenuItem>
+                  <MenuItem onClick={showEditProfile}>Cập nhật thông tin</MenuItem>
                   <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
                 </Menu>
               </div>

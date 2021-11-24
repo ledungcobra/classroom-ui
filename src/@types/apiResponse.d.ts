@@ -15,9 +15,12 @@ interface IResGetListClasses {
   name: string;
   title: string;
   description: string;
+  classBackground: any;
   section: string;
   room: string;
   owner: string;
+  iconColor: string;
+  createUsername: string;
 }
 
 interface IResClassDetailData {
@@ -57,20 +60,23 @@ interface IResClassStatusComment {
 
 type Role = 'ROLE_STUDENT' | 'ROLE_TEACHER';
 interface IUser {
-  displayName: string;
-  avatar?: string;
   id: number;
-  role?: Role;
+  username: string;
+  firstName: string;
+  middleName: number;
+  email: Role;
+  profileImageUrl: string | undefined | null;
 }
 
 type TStatus = 'INVITED' | 'JOINED';
 
 interface IResMember extends IUser {
-  status?: TStatus;
+  status?: 'INVITED';
 }
 interface IResMembers {
   students: IResMember[];
   teachers: IResMember[];
+  owner: string;
 }
 
 interface IUserProfileInfo {
@@ -81,4 +87,16 @@ interface IUserProfileInfo {
   personalEmail: string;
   studentId?: string;
   personalPhoneNumber?: string;
+}
+
+interface IErrorResponse {
+  status: number;
+  result: number;
+  message: string;
+  content: string;
+}
+
+interface IClassDetailRes {
+  data?: IResClassDetailData;
+  error?: IErrorResponse;
 }

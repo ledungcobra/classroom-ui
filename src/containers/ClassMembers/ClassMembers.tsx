@@ -126,12 +126,19 @@ const ClassMembers = (props: ClassMemberProps) => {
   // Add Member
   const [addMemberVariant, setAddMemberVariant] = useState<AddMemberVariant | null>(null);
   const handleAddMember = (emails: string[]) => {
-    apiClass.postInviteMemberToClass({
-      classCode,
-      courseId: parseInt(classId!!),
-      personReceives: emails,
-      role: addMemberVariant === 'student' ? 2 : 1,
-    });
+    apiClass
+      .postInviteMemberToClass({
+        classCode,
+        courseId: parseInt(classId!!),
+        personReceives: emails,
+        role: addMemberVariant === 'student' ? 2 : 1,
+      })
+      .then(() => {
+        Context?.openSnackBar('Gửi thành công');
+      })
+      .catch((e) => {
+        Context?.openSnackBarError('Gửi yêu cầu thất bại');
+      });
   };
 
   const [studentReverse, setStudentReverse] = useState(false);

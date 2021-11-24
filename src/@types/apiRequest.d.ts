@@ -40,8 +40,8 @@ interface IUserProfileInfo {
   middleName: string;
   lastName: string;
   personalEmail: string;
-  studentId?: string;
   personalPhoneNumber?: string;
+  studentID?: string;
 }
 
 interface IParamChangePassword {

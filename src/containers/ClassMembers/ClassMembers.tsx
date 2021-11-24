@@ -46,7 +46,7 @@ const convertResponse = (data: any): IResMembers => {
 const ClassMembers = (props: ClassMemberProps) => {
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
-  navigate('/');
+
   const [members, setMembers] = React.useState<IResMembers>({
     students: [],
     teachers: [],
@@ -334,8 +334,8 @@ const ClassMembers = (props: ClassMemberProps) => {
                       }}
                       size="medium"
                       color="success"
-                      value={checkStudents[index].checked}
-                      checked={checkStudents[index].checked}
+                      value={!!checkStudents[index]?.checked}
+                      checked={!!checkStudents[index]?.checked}
                     />
                     <Avatar
                       alt={s.email + 'avatar'}

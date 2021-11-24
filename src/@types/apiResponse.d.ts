@@ -100,3 +100,25 @@ interface IClassDetailRes {
   data?: IResClassDetailData;
   error?: IErrorResponse;
 }
+
+interface IUserInfoData {
+  id: number;
+  username: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: number;
+  email: string;
+  profileImageUrl: string | null | undefined;
+  personalEmail: string;
+  studentID: string | null | undefined;
+  phoneNumber: string;
+  personalPhoneNumber: string;
+  userStatus: number;
+}
+interface IUserInfo {
+  status: number;
+  result: number;
+  message: string;
+  content: IUserInfoData | any;
+}

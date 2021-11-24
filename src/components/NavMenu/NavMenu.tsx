@@ -77,8 +77,8 @@ export const NavMenu: React.FC<INavMenuProps> = ({ anchor, open, toggle }) => {
               Lớp học đã tham gia
             </Typography>
             {classess.map((c, index) => (
-              <Link className="nav-menu__custom-link" to={`/class-detail/${c.id}`}>
-                <ListItem button key={index} sx={{ width: '100%' }}>
+              <Link key={index} className="nav-menu__custom-link" to={`/class-detail/${c.id}`}>
+                <ListItem button sx={{ width: '100%' }}>
                   <ListItemIcon>
                     <div
                       className="nav-menu__character-icon"

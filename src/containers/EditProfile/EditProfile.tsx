@@ -1,8 +1,8 @@
 import { Button, Container, Grid, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
-import { AppContext } from '../../App';
-import { DropImageZone } from '../../components';
+import { useAppContextApi, useAppSelector } from '../../redux';
+import { apiUser } from '../../services/apis/apiUser';
 import { getCamelCaseArray as normalizeCamelCase, isValidEmail, isValidPhone } from '../../utils';
 
 interface IEditProfileProps {}
@@ -22,9 +22,27 @@ type TextFieldName =
   | 'personalEmail'
   | 'phoneNumber'
   | 'personalPhoneNumber'
-  | 'studentId';
+  | 'studentID';
 
+interface IPasswordChangeState {
+  password: string;
+  newPassword?: string;
+  rePassword?: string;
+  dirty: MyMap;
+  errors: MyMap;
+}
 export const EditProfile = (props: IEditProfileProps) => {
+  const [currentUserInfoData, setCurrentUserInfoData] = React.useState<IUserInfoData | undefined>();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const [passwordState, setPasswordState] = React.useState<IPasswordChangeState>({
+    dirty: {} as MyMap,
+    errors: {} as MyMap,
+    password: '',
+    newPassword: '',
+    rePassword: '',
+  });
+  const Context = useAppContextApi();
+
   const [userProfileState, setUserProfileState] = React.useState<IUserProfileInfoState>({
     dirty: {} as MyMap,
     firstName: '',
@@ -32,11 +50,88 @@ export const EditProfile = (props: IEditProfileProps) => {
     lastName: '',
     personalEmail: '',
     phoneNumber: '',
+    studentID: '',
     errors: {} as MyMap,
   });
+
   const [error, setError] = React.useState('');
   const timeOutRef = React.useRef<any>(null);
-  const myRole: Role = 'ROLE_STUDENT';
+
+  const handleUpdatePassword = () => {
+    if (
+      passwordState.password === '' ||
+      passwordState.newPassword === '' ||
+      passwordState.rePassword === ''
+    ) {
+      Context?.openSnackBarError('Password không thể trống');
+      return;
+    }
+
+    if (passwordState.newPassword !== passwordState.rePassword) {
+      Context?.openSnackBarError('Mật khẩu cũ và mới không trùng khớp');
+      return;
+    }
+
+    Context?.showLoading();
+    apiUser
+      .postChangeUserPassword({
+        currentPassword: passwordState.password,
+        currentUser: currentUser ?? '',
+        newPassword: passwordState.newPassword!!,
+      })
+      .then(() => {
+        Context?.openSnackBar('Thay đổi mật khẩu thành công');
+        setPasswordState((prev) => {
+          return {
+            ...prev,
+            dirty: {} as MyMap,
+            errors: {} as MyMap,
+            password: '',
+            newPassword: '',
+            rePassword: '',
+          };
+        });
+      })
+      .catch((e) => {
+        Context?.openSnackBarError('Đổi password lỗi');
+      })
+      .finally(() => {
+        Context?.hideLoading();
+      });
+  };
+  // Load user info
+  React.useEffect(() => {
+    if (currentUserInfoData) return;
+    Context?.showLoading();
+    apiUser
+      .getUserInfo({
+        username: currentUser,
+      })
+      .then((data: IUserInfo) => {
+        if (data.result === 1) {
+          setCurrentUserInfoData(data.content);
+          const { content } = data;
+
+          setUserProfileState({
+            ...userProfileState,
+            firstName: content.firstName,
+            lastName: content.lastName,
+            personalEmail: content.personalEmail,
+            middleName: content.middleName,
+            phoneNumber: content.phoneNumber,
+            studentID: content.studentID,
+          });
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình lấy thông tin user');
+        }
+      })
+      .catch(() => {
+        Context?.openSnackBarError('Có lỗi xảy ra trong quá trình lấy thông tin user');
+      })
+      .finally(() => {
+        Context?.hideLoading();
+      });
+  }, []);
 
   // Effect to clear error
   React.useEffect(() => {
@@ -46,10 +141,10 @@ export const EditProfile = (props: IEditProfileProps) => {
       }
       timeOutRef.current = setTimeout(() => {
         setError('');
-        setUserProfileState({
-          ...userProfileState,
+        setUserProfileState((prev) => ({
+          ...prev,
           errors: {} as MyMap,
-        });
+        }));
       }, 3000);
     }
   }, [error]);
@@ -84,8 +179,9 @@ export const EditProfile = (props: IEditProfileProps) => {
 
   const handleOnChange = (e: any) => {
     const { name, value } = e.target;
+    console.log(value);
 
-    setUserProfileState({
+    setUserProfileState((userProfileState) => ({
       ...userProfileState,
       dirty: {
         ...userProfileState.dirty,
@@ -96,30 +192,43 @@ export const EditProfile = (props: IEditProfileProps) => {
         ...userProfileState.errors,
         [name]: validateField(name),
       },
-    });
+    }));
 
-    setUserProfileState({
+    setUserProfileState((userProfileState) => ({
       ...userProfileState,
       errors: {
         ...userProfileState.errors,
         [name]: validateField(name),
       },
-    });
+    }));
   };
 
-  const Context = React.useContext(AppContext);
   const handleSubmitForm = () => {
-    // TODO SUBMIT FORM
-    Context?.openSnackBar('Submited');
+    Context?.showLoading();
+    apiUser
+      .postUpdateProfile({
+        ...userProfileState,
+        currentUser,
+      })
+      .then(() => {
+        Context?.openSnackBar('Cập nhật profile thành công');
+      })
+      .catch((e) => {
+        console.log(e);
+        Context?.openSnackBarError('Lỗi cập nhật profile');
+      })
+      .finally(() => {
+        Context?.hideLoading();
+      });
   };
 
   return (
     <Container maxWidth="lg" sx={{ marginTop: '100px' }}>
-      <form onChange={handleOnChange}>
-        <Grid container>
-          <Grid item md={8} xs={12}>
+      <Grid container spacing="15px">
+        <Grid item md={7} xs={12}>
+          <form onChange={handleOnChange}>
             <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
-              Update Profile
+              Cập nhật profile
             </Typography>
 
             <Grid container spacing={2}>
@@ -130,29 +239,20 @@ export const EditProfile = (props: IEditProfileProps) => {
                   error={!!userProfileState.errors['phoneNumber']}
                   required
                   type="tel"
+                  value={userProfileState.phoneNumber}
                   name="phoneNumber"
                   id="phoneNumber"
                   placeholder="Phone Number"
                   variant="standard"
                 />
               </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Personal phone number"
-                  error={!!userProfileState.errors['personalPhoneNumber']}
-                  type="tel"
-                  name="personalPhoneNumber"
-                  id="personalPhoneNumber"
-                  placeholder="Phone Number"
-                  variant="standard"
-                />
-              </Grid>
+
               <Grid item md={6}>
                 <TextField
                   fullWidth
                   label="Personal email"
                   error={!!userProfileState.errors['personalEmail']}
+                  value={userProfileState.personalEmail}
                   type="email"
                   name="personalEmail"
                   id="personalEmail"
@@ -167,6 +267,7 @@ export const EditProfile = (props: IEditProfileProps) => {
                   type="text"
                   name="firstName"
                   id="firstName"
+                  value={userProfileState.firstName}
                   required
                   error={!!userProfileState.errors['firstName']}
                   placeholder="First Name"
@@ -180,6 +281,7 @@ export const EditProfile = (props: IEditProfileProps) => {
                   type="text"
                   name="middleName"
                   id="middleName"
+                  value={userProfileState.middleName}
                   required
                   error={!!userProfileState.errors['middleName']}
                   placeholder="Middle Name"
@@ -193,43 +295,119 @@ export const EditProfile = (props: IEditProfileProps) => {
                   type="text"
                   name="lastName"
                   id="lastName"
+                  value={userProfileState.lastName}
                   required
                   error={!!userProfileState.errors['lastName']}
                   placeholder="Last Name"
                   variant="standard"
                 />
               </Grid>
-              {myRole === 'ROLE_STUDENT' && (
-                <Grid item md={6}>
-                  <TextField
-                    fullWidth
-                    label="Student ID"
-                    type="text"
-                    name="studentId"
-                    id="studentId"
-                    required
-                    error={!!userProfileState.errors['studentId']}
-                    placeholder="Student ID"
-                    variant="standard"
-                  />
-                </Grid>
-              )}
+
+              <Grid item md={6}>
+                <TextField
+                  fullWidth
+                  label="Student ID"
+                  type="text"
+                  name="studentID"
+                  id="studentID"
+                  value={userProfileState.studentID}
+                  required
+                  error={!!userProfileState.errors['studentID']}
+                  placeholder="Student ID"
+                  variant="standard"
+                />
+              </Grid>
             </Grid>
 
             <Box display="flex" alignItems="flex-end" flexDirection="column">
               <Button onClick={handleSubmitForm} variant="contained">
-                Update
+                Cập nhật
               </Button>
               <Typography variant="body2" color="red" style={{ alignSelf: 'flex-start' }}>
                 {error}
               </Typography>
             </Box>
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <DropImageZone onUpload={(file) => {}} />
-          </Grid>
+          </form>
         </Grid>
-      </form>
+        <Grid item md={5} xs={12}>
+          <form
+            onChange={(e: any) => {
+              const { name, value } = e.target;
+              setPasswordState((prev) => ({
+                ...passwordState,
+                dirty: {
+                  ...prev.dirty,
+                  [name]: true,
+                },
+                [name]: value,
+              }));
+            }}
+          >
+            <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
+              Cập nhật mật khẩu
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Typography variant="h1" color="initial"></Typography>
+              <Grid item md={12}>
+                <TextField
+                  fullWidth
+                  label="Password"
+                  type="password"
+                  name="password"
+                  id="password"
+                  value={passwordState.password}
+                  required
+                  error={!!passwordState.errors['password']}
+                  placeholder="Password"
+                  variant="standard"
+                />
+              </Grid>
+
+              <Grid item md={12}>
+                <TextField
+                  fullWidth
+                  label="New Password"
+                  type="password"
+                  name="newPassword"
+                  id="newPassword"
+                  value={passwordState.newPassword}
+                  required
+                  error={!!passwordState.errors['newPassword']}
+                  placeholder="New Password"
+                  variant="standard"
+                />
+              </Grid>
+              <Grid item md={12}>
+                <TextField
+                  fullWidth
+                  label="Confirm Password"
+                  type="password"
+                  name="rePassword"
+                  id="rePassword"
+                  value={passwordState.rePassword}
+                  required
+                  error={!!passwordState.errors['rePassword']}
+                  placeholder="Re Password"
+                  variant="standard"
+                />
+              </Grid>
+              <Box height="100px" />
+              <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
+                <Button
+                  onClick={() => {
+                    handleUpdatePassword();
+                  }}
+                  variant="contained"
+                >
+                  Cập nhật
+                </Button>
+              </Box>
+            </Grid>
+          </form>
+        </Grid>
+        {/* <DropImageZone onUpload={(file) => {}} /> */}
+      </Grid>
     </Container>
   );
 };

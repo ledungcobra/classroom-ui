@@ -35,6 +35,7 @@ export default function App() {
 
   const [classId, setClassId] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
+
   const showLoading = () => {
     setLoading(true);
   };

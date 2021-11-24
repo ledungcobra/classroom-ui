@@ -28,7 +28,7 @@ export const apiClass = {
   },
 
   postAddMember: async (body: IParamAddStudent) => {
-    const url = basicUrlWithoutSlash + '/add-student/invite-link';
+    const url = basicUrlWithoutSlash + '/add-member/invite-link';
     return (await axiosMain.post(url, body)).data;
   },
 

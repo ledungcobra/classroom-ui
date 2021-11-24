@@ -8,6 +8,7 @@ import {
   setCurrentUser,
   setEmail,
   setFullName,
+  parseParams,
 } from '../../utils/common';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
 import { TextField } from '@mui/material';
@@ -26,16 +27,6 @@ import { Link } from 'react-router-dom';
 type FormValues = {
   username: string;
   password: string;
-};
-
-const parseParams = (params = '') => {
-  const rawParams = params.replace('?', '').split('&');
-  const extractedParams: any | string[] = {};
-  rawParams.forEach((item: any | string[]) => {
-    item = item.split('=');
-    extractedParams[item[0]] = item[1];
-  });
-  return extractedParams;
 };
 
 export const Login = () => {

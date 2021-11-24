@@ -108,8 +108,6 @@ export const getRandomRGBColorCSSFunction = (maxR: number, maxG: number, maxB: n
   return `rgb(${Math.random() * maxR}, ${Math.random() * maxG}, ${Math.random() * maxB})`;
 };
 
-// /http://localhost:3000/class-join?classToken=[token]&role=[role]
-
 export const convertClassDetailResponse = (data: any): IClassDetailRes => {
   console.log(data);
   if (data.status === 200) {
@@ -132,4 +130,14 @@ export const convertClassDetailResponse = (data: any): IClassDetailRes => {
   } else {
     return { error: data as IErrorResponse };
   }
+};
+
+export const parseParams = (params = '') => {
+  const rawParams = params.replace('?', '').split('&');
+  const extractedParams: any | string[] = {};
+  rawParams.forEach((item: any | string[]) => {
+    item = item.split('=');
+    extractedParams[item[0]] = item[1];
+  });
+  return extractedParams;
 };

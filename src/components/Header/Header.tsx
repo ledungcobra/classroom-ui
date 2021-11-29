@@ -23,6 +23,7 @@ interface IHeaderProps {}
 enum HeaderSelect {
   NewsFeed,
   Members,
+  Exercise,
   OtherPage,
 }
 
@@ -82,7 +83,10 @@ export const Header: React.FC<IHeaderProps> = () => {
 
   useEffect(() => {
     // TODO:
-    if (location.pathname.includes('class-detail')) {
+
+    if (location.pathname.includes('class-detail/exercise-manager')) {
+      setHeaderSelect(HeaderSelect.Exercise);
+    } else if (location.pathname.includes('class-detail')) {
       setHeaderSelect(HeaderSelect.NewsFeed);
     } else if (location.pathname.includes('/members')) {
       setHeaderSelect(HeaderSelect.Members);
@@ -147,6 +151,27 @@ export const Header: React.FC<IHeaderProps> = () => {
                 >
                   <Typography variant="h6" fontWeight="500">
                     Mọi người
+                  </Typography>
+                </div>
+                <div
+                  className={`header__center-container__item
+              ${
+                headerSelect === HeaderSelect.Exercise
+                  ? 'header__center-container__item--selected'
+                  : ''
+              }`}
+                  onClick={() => {
+                    if (headerSelect !== HeaderSelect.Exercise) {
+                      setHeaderSelect(HeaderSelect.Exercise);
+                      navigate('/class-detail/' + Context?.currentClassId + '/exercise-manager', {
+                        replace: true,
+                        state: HeaderSelect.Exercise,
+                      });
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="500">
+                    Bài tập
                   </Typography>
                 </div>
               </div>

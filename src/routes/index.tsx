@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header } from '../components';
-import { Classes, EditProfile, Login, Singup } from '../containers';
+import { Classes, EditProfile, ExerciseManager, Login, Singup } from '../containers';
 import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
 import ClassMembers from '../containers/ClassMembers/ClassMembers';
 import { JoinClass } from '../containers/JoinClass/JoinClass';
@@ -86,6 +86,18 @@ export const Routers = () => {
           element={
             <WithAuthRouter
               component={EditProfile}
+              layout={OnlyHeaderLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+            />
+          }
+        />
+        <Route
+          path="/class-detail/:id/exercise-manager"
+          element={
+            <WithAuthRouter
+              component={ExerciseManager}
               layout={OnlyHeaderLayout}
               isHasHeader={true}
               header={Header}

@@ -80,7 +80,31 @@ interface IParamAddStudent {
   invitee: string;
 }
 
-interface IParamGetClassAssignments {
-  classId: number;
+interface IParamGetClassAssignment {
+  courseId: number;
+  currentUser: string;
+  SortColumn: '+Order' | '-Order';
+}
+
+interface IParamAddClassAssignment {
+  courseId: number;
+  name: string;
+  description: string;
+  maxGrade: number;
+  currentUser: string;
+}
+
+interface IParamUpdateClassAssignment {
+  courseId: number;
+  assignmentsId: number;
+  name: string;
+  description: string;
+  maxGrade: number;
+  currentUser: string;
+}
+
+interface IParamDeleteClassAssignment {
+  courseId: number;
+  assignmentsId: number;
   currentUser: string;
 }

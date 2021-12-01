@@ -5,3 +5,4 @@ export * from './EditProfile/EditProfile';
 export * from './Home/Home';
 export * from './Login/Login';
 export * from './Singup/Singup';
+export * from './ExerciseManager/ExerciseManager';

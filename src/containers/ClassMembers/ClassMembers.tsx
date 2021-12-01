@@ -102,7 +102,6 @@ const ClassMembers = (props: ClassMemberProps) => {
         });
     }
   }, [classId]);
-  // TODO: CHANGE THIS
 
   useEffect(() => {
     if (members?.students?.length > 0) {

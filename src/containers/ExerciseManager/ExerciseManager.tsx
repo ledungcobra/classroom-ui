@@ -9,7 +9,10 @@ import React, { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router';
 import { GREEN_COLOR } from '../../constants';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
+
+import { apiClass } from '../../services/apis/apiClass';
+
 import './ExerciseManager.scss';
 
 interface Props {}
@@ -19,28 +22,9 @@ interface IExercise {
   name?: string;
   maxGrade?: number;
   order?: number;
+  description?: string;
+  courseId?: number;
 }
-
-const exercises: IExercise[] = [
-  {
-    id: 1,
-    maxGrade: 10,
-    name: 'Bài tập về nhà',
-    order: 1,
-  },
-  {
-    id: 2,
-    maxGrade: 10,
-    name: 'Bài tập 2',
-    order: 2,
-  },
-  {
-    id: 3,
-    maxGrade: 10,
-    name: 'Bài tập 3',
-    order: 3,
-  },
-];
 
 interface ExerciseItemProps {
   onAddExercise?: (exercise: IExercise) => void;
@@ -70,6 +54,7 @@ const ExerciseItem = ({
   const onSave = () => {
     if (exerciseState) {
       onUpdateExercise?.(exerciseState!!);
+      setEditing(false);
       Context?.openSnackBar('Thêm bài tập thành công');
     } else {
       Context?.openSnackBar('Bạn chưa nhập liệu gì');
@@ -211,22 +196,135 @@ const getListStyle = (isDraggingOver: boolean) => ({
 export const ExerciseManager = (props: Props) => {
   const { id } = useParams();
   const Context = useAppContextApi();
-  const [exercisesState, setExercisesState] = React.useState(exercises);
+  const [exercisesState, setExercisesState] = React.useState(new Array<IExercise>());
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
+  useEffect(() => {
+    if (id && currentUser !== null) {
+      Context?.showLoading();
+      apiClass
+        .getClassAssignments({
+          courseId: parseInt(id),
+          currentUser,
+          SortColumn: '+Order',
+        })
+        .then((res) => {
+          Context?.hideLoading();
+          if (res?.result == 1) {
+            setExercisesState(res?.content.data as IExercise[]);
+            Context?.openSnackBar('Tải bài tập thành công');
+          } else {
+            Context?.openSnackBarError('Có lỗi xảy ra trong quá trình tải');
+          }
+          Context?.setCurrentClassId(parseInt(id));
+        })
+        .catch((e) => {
+          Context?.hideLoading();
+          Context?.openSnackBarError('Không thể tải bài tập');
+        });
+    }
+  }, [id, currentUser]);
 
   const onAddExercise = (exercise: IExercise) => {
-    if (!exercise) return;
-
-    setExercisesState((prev) => {
-      return [
-        ...prev,
-        {
-          ...exercise,
-          id: (findMax(prev, (current, max) => current!!.id!! > max!!.id!!)?.id ?? 0) + 1,
-          order: (findMax(prev, (current, max) => current!!.order!! > max!!.order!!)?.id ?? 0) + 1,
-        },
-      ];
-    });
+    Context?.showLoading();
+    apiClass
+      .postAddClassAssignment({
+        courseId: parseInt(id as string),
+        currentUser: currentUser,
+        maxGrade: exercise.maxGrade,
+        name: exercise.name,
+        description: exercise.description,
+      } as IParamAddClassAssignment)
+      .then((res) => {
+        Context?.hideLoading();
+        if (res?.result == 1) {
+          const exercise = res?.content as IExercise;
+          setExercisesState((prev) => {
+            return [
+              ...prev,
+              {
+                ...exercise,
+              },
+            ];
+          });
+          Context?.openSnackBar('Thêm bài tập thành công');
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình thêm bài tập');
+        }
+      })
+      .catch((e) => {
+        Context?.hideLoading();
+        Context?.openSnackBarError('Không thể thêm bài tập');
+      });
   };
+
+  const onUpdateExercise = (exercise: IExercise) => {
+    Context?.showLoading();
+    apiClass
+      .putUpdateClassAssignment({
+        courseId: parseInt(id as string),
+        assignmentsId: exercise.id,
+        currentUser: currentUser,
+        maxGrade: exercise.maxGrade,
+        name: exercise.name,
+        description: exercise.description,
+      } as IParamUpdateClassAssignment)
+      .then((res) => {
+        Context?.hideLoading();
+        if (res?.result == 1) {
+          const exercise = res?.content as IExercise;
+          setExercisesState((prev) => {
+            let stateNew = prev.map((i) => {
+              if (i.id == exercise.id) {
+                return exercise;
+              }
+              return i;
+            });
+            return [...stateNew];
+          });
+          Context?.openSnackBar('Cập nhật bài tập thành công');
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình cập nhật bài tập');
+        }
+      })
+      .catch((e) => {
+        Context?.hideLoading();
+        Context?.openSnackBarError('Không thể cập nhật bài tập');
+      });
+  };
+
+  const onDeleteExercise = (exId?: number) => {
+    Context?.showLoading();
+
+    apiClass
+      .deleteClassAssignment({
+        assignmentsId: exId,
+        courseId: parseInt(id as string),
+        currentUser: currentUser,
+      } as IParamDeleteClassAssignment)
+      .then((res) => {
+        Context?.hideLoading();
+        if (res?.result == 1) {
+          setExercisesState((prev) => {
+            let stateNew = prev.filter((i) => {
+              if (i.id == exId) {
+                return false;
+              }
+              return true;
+            });
+            return [...stateNew];
+          });
+          Context?.openSnackBar('Xoá bài tập thành công');
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình xoá bài tập');
+        }
+      })
+      .catch((e) => {
+        Context?.hideLoading();
+        Context?.openSnackBarError('Không thể xoá bài tập');
+      });
+  };
+
   useEffect(() => {
     if (id && id !== '' && typeof id === 'number') {
       Context?.setCurrentClassId(+id);
@@ -244,14 +342,49 @@ export const ExerciseManager = (props: Props) => {
 
     return result;
   };
+
   const onDragEnd = (result: any) => {
-    // dropped outside the list
+    //dropped outside the list
     if (!result.destination) {
       return;
     }
 
+    Context?.showLoading();
+    let source = exercisesState[result.source.index];
+    let destination = exercisesState[result.destination.index];
+
+    let body = {
+      courseId: parseInt(id as string),
+      assignmentSimples: [
+        {
+          id: source.id,
+          order: destination.order,
+        },
+        {
+          id: destination.id,
+          order: source.order,
+        },
+      ],
+      currentUser: currentUser,
+    };
+
     const items = reorder(exercisesState, result.source.index, result.destination.index);
     setExercisesState(items);
+
+    apiClass
+      .postSortClassAssignment(body)
+      .then((res) => {
+        Context?.hideLoading();
+        if (res?.result == 1) {
+          Context?.openSnackBar('Sắp xếp bài tập thành công');
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình sắp xếp bài tập');
+        }
+      })
+      .catch((e) => {
+        Context?.hideLoading();
+        Context?.openSnackBarError('Không thể sắp xếp bài tập');
+      });
   };
   return (
     <Container maxWidth="md" sx={{ marginTop: '40px' }}>
@@ -274,7 +407,11 @@ export const ExerciseManager = (props: Props) => {
                         {...provided.dragHandleProps}
                         style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
                       >
-                        <ExerciseItem exercise={item} />
+                        <ExerciseItem
+                          exercise={item}
+                          onUpdateExercise={onUpdateExercise}
+                          onDeleteExercise={onDeleteExercise}
+                        />
                       </div>
                     )}
                   </Draggable>

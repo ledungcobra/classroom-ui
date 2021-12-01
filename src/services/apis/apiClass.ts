@@ -35,4 +35,39 @@ export const apiClass = {
   postDeleteMember: async (body: { courseId: number; userId: number; currentUser: string }) => {
     return (await axiosMain.post(basicUrlWithoutSlash + '/remove-member', body)).data;
   },
+
+  getClassAssignments: async (params: IParamGetClassAssignment) => {
+    const url =
+      basicUrlWithoutSlash +
+      '/' +
+      params.courseId +
+      `/assignments?CurrentUser=${params.currentUser}&SortColumn=${params.SortColumn}`;
+    return (await axiosMain.get(url)).data;
+  },
+
+  postAddClassAssignment: async (body: IParamAddClassAssignment) => {
+    const url = basicUrlWithoutSlash + '/' + body.courseId + '/assignments';
+    return (await axiosMain.post(url, body)).data;
+  },
+
+  putUpdateClassAssignment: async (body: IParamUpdateClassAssignment) => {
+    const url = basicUrlWithoutSlash + '/' + body.courseId + '/assignments/' + body.assignmentsId;
+    return (await axiosMain.put(url, body)).data;
+  },
+
+  deleteClassAssignment: async (body: IParamDeleteClassAssignment) => {
+    const url =
+      basicUrlWithoutSlash +
+      '/' +
+      body.courseId +
+      '/assignments/' +
+      body.assignmentsId +
+      `?CurrentUser=${body.currentUser}`;
+    return (await axiosMain.delete(url)).data;
+  },
+
+  postSortClassAssignment: async (body: any) => {
+    const url = basicUrlWithoutSlash + '/' + body.courseId + '/assignments-sort';
+    return (await axiosMain.post(url, body)).data;
+  },
 };

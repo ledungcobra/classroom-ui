@@ -79,3 +79,8 @@ interface IParamAddStudent {
   currentUser: string;
   invitee: string;
 }
+
+interface IParamGetClassAssignments {
+  classId: number;
+  currentUser: string;
+}

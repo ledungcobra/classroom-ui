@@ -9,7 +9,10 @@ import React, { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router';
 import { GREEN_COLOR } from '../../constants';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
+
+import { apiClass } from '../../services/apis/apiClass';
+
 import './ExerciseManager.scss';
 
 interface Props {}
@@ -211,22 +214,52 @@ const getListStyle = (isDraggingOver: boolean) => ({
 export const ExerciseManager = (props: Props) => {
   const { id } = useParams();
   const Context = useAppContextApi();
-  const [exercisesState, setExercisesState] = React.useState(exercises);
+  const [exercisesState, setExercisesState] = React.useState(new Array<IResClassAssignment>());
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
+  useEffect(() => {
+    if (id && currentUser !== null) {
+      console.log('Class id =' + id);
+      Context?.showLoading();
+      apiClass
+        .getClassAssignments({
+          classId: parseInt(id),
+          currentUser,
+        })
+        .then((res) => {
+          Context?.hideLoading();
+          console.log(res);
+          if (res?.result == 1) {
+            console.log(res);
+            setExercisesState(res?.content.data as IResClassAssignment[]);
+            Context?.openSnackBar('Tải bài tập thành công');
+          } else {
+            Context?.openSnackBarError('Có lỗi xảy ra trong quá trình tải');
+          }
+          Context?.setCurrentClassId(parseInt(id));
+        })
+        .catch((e) => {
+          Context?.hideLoading();
+          Context?.openSnackBarError('Không thể tải bài tập');
+          // navigate('/');
+        });
+    }
+  }, [id, currentUser]);
 
   const onAddExercise = (exercise: IExercise) => {
-    if (!exercise) return;
-
-    setExercisesState((prev) => {
-      return [
-        ...prev,
-        {
-          ...exercise,
-          id: (findMax(prev, (current, max) => current!!.id!! > max!!.id!!)?.id ?? 0) + 1,
-          order: (findMax(prev, (current, max) => current!!.order!! > max!!.order!!)?.id ?? 0) + 1,
-        },
-      ];
-    });
+    // if (!exercise) return;
+    // setExercisesState((prev) => {
+    //   return [
+    //     ...prev,
+    //     {
+    //       ...exercise,
+    //       id: (findMax(prev, (current, max) => current!!.id!! > max!!.id!!)?.id ?? 0) + 1,
+    //       order: (findMax(prev, (current, max) => current!!.order!! > max!!.order!!)?.id ?? 0) + 1,
+    //     },
+    //   ];
+    // });
   };
+
   useEffect(() => {
     if (id && id !== '' && typeof id === 'number') {
       Context?.setCurrentClassId(+id);
@@ -246,12 +279,11 @@ export const ExerciseManager = (props: Props) => {
   };
   const onDragEnd = (result: any) => {
     // dropped outside the list
-    if (!result.destination) {
-      return;
-    }
-
-    const items = reorder(exercisesState, result.source.index, result.destination.index);
-    setExercisesState(items);
+    // if (!result.destination) {
+    //   return;
+    // }
+    // const items = reorder(exercisesState, result.source.index, result.destination.index);
+    // setExercisesState(items);
   };
   return (
     <Container maxWidth="md" sx={{ marginTop: '40px' }}>

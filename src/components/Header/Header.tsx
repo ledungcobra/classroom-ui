@@ -84,7 +84,7 @@ export const Header: React.FC<IHeaderProps> = () => {
   useEffect(() => {
     // TODO:
 
-    if (location.pathname.includes('class-detail/exercise-manager')) {
+    if (/class-detail\/\d+?\/exercise-manager/.test(location.pathname)) {
       setHeaderSelect(HeaderSelect.Exercise);
     } else if (location.pathname.includes('class-detail')) {
       setHeaderSelect(HeaderSelect.NewsFeed);

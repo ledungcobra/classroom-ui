@@ -35,4 +35,13 @@ export const apiClass = {
   postDeleteMember: async (body: { courseId: number; userId: number; currentUser: string }) => {
     return (await axiosMain.post(basicUrlWithoutSlash + '/remove-member', body)).data;
   },
+
+  getClassAssignments: async (params: IParamGetClassAssignments) => {
+    const url =
+      basicUrlWithoutSlash +
+      '/' +
+      params.classId +
+      `/assignments?CurrentUser=${params.currentUser}`;
+    return (await axiosMain.get(url)).data;
+  },
 };

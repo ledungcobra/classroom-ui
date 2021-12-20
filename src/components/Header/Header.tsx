@@ -24,6 +24,7 @@ enum HeaderSelect {
   NewsFeed,
   Members,
   Exercise,
+  Grades,
   OtherPage,
 }
 
@@ -90,6 +91,8 @@ export const Header: React.FC<IHeaderProps> = () => {
       setHeaderSelect(HeaderSelect.NewsFeed);
     } else if (location.pathname.includes('/members')) {
       setHeaderSelect(HeaderSelect.Members);
+    } else if (location.pathname.includes('/grades')) {
+      setHeaderSelect(HeaderSelect.Grades);
     } else {
       // setHeaderSelect(HeaderSelect.OtherPage);
     }
@@ -172,6 +175,28 @@ export const Header: React.FC<IHeaderProps> = () => {
                 >
                   <Typography variant="h6" fontWeight="500">
                     Bài tập
+                  </Typography>
+                </div>
+
+                <div
+                  className={`header__center-container__item
+              ${
+                headerSelect === HeaderSelect.Grades
+                  ? 'header__center-container__item--selected'
+                  : ''
+              }`}
+                  onClick={() => {
+                    if (headerSelect !== HeaderSelect.Grades) {
+                      setHeaderSelect(HeaderSelect.Grades);
+                      navigate('/class-detail/' + Context?.currentClassId + '/grades', {
+                        replace: true,
+                        state: HeaderSelect.Grades,
+                      });
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="500">
+                    Điểm
                   </Typography>
                 </div>
               </div>

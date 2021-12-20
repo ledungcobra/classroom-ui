@@ -49,7 +49,6 @@ interface MoreButtonEventData {
 export const ClassDetail = () => {
   const Context = useAppContextApi();
   const { id } = useParams<any>();
-  const navigate = useNavigate();
   const [classDetailData, setDetailData] = React.useState<IResClassDetailData | null>(null);
   const [classList, setClassList] = React.useState([]);
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);

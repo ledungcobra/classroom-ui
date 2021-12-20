@@ -10,9 +10,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router';
 import { GREEN_COLOR } from '../../constants';
 import { useAppContextApi, useAppSelector } from '../../redux';
-
 import { apiClass } from '../../services/apis/apiClass';
-
 import './ExerciseManager.scss';
 
 interface Props {}
@@ -21,6 +19,7 @@ interface IExercise {
   id?: number;
   name?: string;
   maxGrade?: number;
+  gradeScale?: number;
   order?: number;
   description?: string;
   courseId?: number;

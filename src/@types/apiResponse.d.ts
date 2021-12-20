@@ -122,3 +122,12 @@ interface IUserInfo {
   message: string;
   content: IUserInfoData | any;
 }
+
+interface IResClassAssignment {
+  id: number;
+  courseId: number;
+  name: string;
+  description: string;
+  maxGrade: number;
+  order: number;
+}

@@ -1,0 +1,76 @@
+@import '../../assets/scss/variable.scss';
+
+.grade-data-sheet{
+
+  border-spacing: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  tr th {
+    min-width: 260px;
+    padding: 5px 50px;
+    color: rgba(40,40,40,0.8);
+    border-bottom: solid 3px $color-light-green;
+    background-color: rgba(#9e9e9e,0.1);
+  }
+
+  tr:nth-child(2n){
+    background-color: rgba(#9e9e9e,0.3);
+  }
+
+  & th{
+    text-align: center;
+  }
+
+  & td{
+    text-align: center;
+    border-top: 1px solid rgba(#9e9e9e,0.5);
+    border-bottom: 2px solid rgba( $color-light-green,0.8);
+    border-left: 1px solid rgba(#9e9e9e,0.5);
+    border-right: 1px solid rgba(#9e9e9e,0.5);
+
+  }
+}
+
+.grades-container{
+  overflow-y: auto;
+  max-height: 80vh;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  min-width: 70%;
+}
+
+[contenteditable] {
+  outline: 0px solid transparent;
+}
+
+.grade-input{
+  border: none;
+  border-bottom: 1px solid $color-green-light-3;
+}
+
+.grade-input{
+  width: 45px;
+  margin-left: 2px;
+  word-wrap: break-word;
+  word-break: break-all;
+  background-color: transparent;
+}
+
+input:focus{
+  outline: none;
+}
+
+.show-on-hover{
+  & .more-button{
+    visibility: hidden;
+  }
+}
+
+.show-on-hover:hover{
+  & .more-button{
+    visibility: visible;
+  }
+}

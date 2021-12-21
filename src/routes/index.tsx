@@ -4,6 +4,7 @@ import { Footer, Header } from '../components';
 import { Classes, EditProfile, ExerciseManager, Login, Singup } from '../containers';
 import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
 import ClassMembers from '../containers/ClassMembers/ClassMembers';
+import Grades from '../containers/Grades/Grades';
 import { JoinClass } from '../containers/JoinClass/JoinClass';
 import { BlankLayout, HeaderFooterLayout, OnlyHeaderLayout } from '../layouts';
 import { WithAuthRouter } from './WithAuthRouter';
@@ -98,6 +99,19 @@ export const Routers = () => {
           element={
             <WithAuthRouter
               component={ExerciseManager}
+              layout={OnlyHeaderLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+            />
+          }
+        />
+
+        <Route
+          path="/class-detail/:id/grades"
+          element={
+            <WithAuthRouter
+              component={Grades}
               layout={OnlyHeaderLayout}
               isHasHeader={true}
               header={Header}

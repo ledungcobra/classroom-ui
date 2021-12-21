@@ -5,12 +5,9 @@ import Favicon from 'react-favicon';
 import './App.scss';
 import ImageFavicon from './assets/icons/favicon.ico';
 import { SUB_COLOR } from './constants';
+import { setRandomAvt, useAppDispatch } from './redux';
 import { Routers } from './routes';
-
-import { useAppDispatch } from './redux';
-import { setRandomAvt } from './redux';
 import { getRandomUInt } from './utils/common';
-
 import { avatars } from './utils/img';
 
 export interface IAppContext {

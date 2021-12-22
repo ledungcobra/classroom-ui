@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "ACAA,YAAY;ADCZ,AAAA,mBAAmB,CAAA;EACf,gBAAgB,EAAE,gBAAa;EAC/B,aAAa,EAAE,GAAG,CAAC,KAAK,CAAC,gBAAa,CAAE,UAAU;CACrD;;AAED,AAAA,mBAAmB,AAAA,MAAM,CAAA;EACrB,aAAa,EAAE,GAAG,CAAC,KAAK,CCER,OAAO,CDFqB,UAAU;EACtD,UAAU,EAAE,IAAI;CACnB;;AAED,AAAA,cAAc,CAAA;EACV,aAAa,EAAE,GAAG,CAAC,KAAK,CAAC,gBAAa,CAAE,UAAU;CACrD;;AACD,AAAA,cAAc,AAAA,MAAM,CAAA;EAChB,aAAa,EAAE,GAAG,CAAC,KAAK,CCNR,OAAO,CDMuB,UAAU;CAC3D",
+    "sources": [
+        "../../src/components/PostStatus/PostStatus.scss",
+        "../../src/assets/scss/variable.scss"
+    ],
+    "names": [],
+    "file": "PostStatus.css"
+}

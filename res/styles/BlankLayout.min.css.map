@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "AAEA,AAAA,aAAa,AAAC,CACZ,gBAAgB,CAAE,OAAO,CACzB,UAAU,CAAE,KAAK,CACjB,KAAK,CAAE,OAAO,CACd,KAAK,CAAE,IAAI,CACX,SAAS,CCWI,MAAM,CDVpB",
+    "sources": [
+        "../../src/layouts/BlankLayout/BlankLayout.scss",
+        "../../src/assets/scss/variable.scss"
+    ],
+    "names": [],
+    "file": "BlankLayout.min.css"
+}

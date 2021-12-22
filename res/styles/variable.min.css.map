@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "",
+    "sources": [
+        "../../src/assets/scss/variable.scss"
+    ],
+    "names": [],
+    "file": "variable.min.css"
+}

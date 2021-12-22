@@ -108,13 +108,48 @@ const Grades = () => {
 
   const handleReturnGradeToAll = () => {
     const exerciseId = moreVertEventData.data;
-    // TODO: HANDLE SAVE AND NOTIFY TO ALL STUDENTS GRADE OF THIS EXERCISE
+
+    const studentGrade = scores.map((s) => ({
+      mssv: s.mssv,
+      grade: s[exerciseId + 'grade'],
+      isFinalized: true,
+    }));
+
+    axiosMain
+      .post(`/course/${id}/assignments/${exerciseId}/update-grade-normal`, {
+        isFinalized: true,
+        scores: studentGrade,
+        currentUser: currentUser,
+      })
+      .then(({ data }) => {
+        if (data.status === 200) {
+          Context?.openSnackBar('Trả tất cả bài thành công');
+        }
+      })
+      .catch((e) => {
+        Context?.openSnackBar('Trả tất cả bài thất bại');
+      });
   };
 
   const handleReturnGradeToOneStudent = () => {
     const studentId = moreVertEventData.data.studentId;
     const exerciseId = moreVertEventData.data.exerciseId;
-    // TODO: HANDLE SAVE AND NOTIFY TO THE STUDENT
+    const grade = scores.filter((s) => s.id === +studentId)[0][exerciseId + 'grade'];
+    axiosMain
+      .post(`/course/${id}/assignments/${exerciseId}/update-grade-finalized`, {
+        mssv: studentId.toString(),
+        grade: grade,
+        isFinalized: true,
+        currentUser: currentUser,
+      })
+      .then(({ data }) => {
+        if (data.status === 200) {
+          Context?.openSnackBar('Trả bài thành công');
+        }
+      })
+      .catch((e) => {
+        Context?.openSnackBar('Trả bài thất bại');
+      });
   };
 
   const openMenu = (event: React.MouseEvent<HTMLElement>, type: TypeMoreButton, data?: any) => {
@@ -200,21 +235,25 @@ const Grades = () => {
       .then((response) => {
         console.log(response);
 
-        axiosMain
-          .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
-          .then(({ data }) => {
-            if (data.status === 200) {
-              const content = data.content;
-              setHeader((prev) => transformTableHeader(content.header));
-              setScores((prev) => transformRows(content.scores));
-            } else {
-              Context?.openSnackBar('Preload bảng điểm thất bại');
-            }
-          })
-          .catch((e) => {
-            Context?.openSnackBar('Preload bảng điểm thất bại');
-            console.log(e);
-          });
+        window.location.reload();
+
+        // axiosMain
+        //   .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
+        //   .then(({ data }) => {
+        //     if (data.status === 200) {
+        //       const content = data.content;
+        //       setHeader((prev) => transformTableHeader(content.header));
+        //       setScores((prev) => transformRows(content.scores));
+
+        //     } else {
+        //       Context?.openSnackBar('Preload bảng điểm thất bại');
+        //     }
+        //   })
+        //   .catch((e) => {
+        //     Context?.openSnackBar('Preload bảng điểm thất bại');
+        //     console.log(e);
+        //   });
+
         // Context?.openSnackBar('Upload điểm cho ' + moreVertEventData.data + ' thành công');
       })
       .catch((error) => console.log(error))
@@ -236,7 +275,7 @@ const Grades = () => {
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
         <Button variant="outlined" color="primary" onClick={handleOpenUploadDialog}>
-          Upload Bảng điểm
+          Upload Danh sách SV
         </Button>
         <Button color="primary" variant="outlined" onClick={handleDownloadScoreTemplate}>
           Bảng điểm mẫu

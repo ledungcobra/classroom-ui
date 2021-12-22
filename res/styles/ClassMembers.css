@@ -1,0 +1,8 @@
+.class-members {
+  margin-top: 10px;
+  padding: '20px 40px';
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+/*# sourceMappingURL=ClassMembers.css.map */

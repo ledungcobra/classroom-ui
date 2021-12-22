@@ -1,0 +1,35 @@
+/* Colors */
+.only-footer {
+  width: 100%;
+  max-width: 2560px;
+  color: #000;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.only-footer__footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  z-index: 999;
+}
+
+.only-footer__center {
+  padding-bottom: 80px;
+}
+
+.only-footer__container {
+  width: 100%;
+  max-width: 2560px;
+}
+/*# sourceMappingURL=OnlyFooterLayout.css.map */

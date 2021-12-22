@@ -1,0 +1,10 @@
+{
+    "version": 3,
+    "mappings": "AAEA,AAAA,YAAY,AAAC,CACX,KAAK,CAAE,IAAI,CACX,SAAS,CCcI,MAAM,CDbnB,KAAK,CAAE,IAAI,CACX,gBAAgB,CAAE,OAAO,CACzB,UAAU,CAAE,KAAK,CAkBlB,AAjBE,AAAD,oBAAS,AAAC,CACR,QAAQ,CAAE,KAAK,CACf,MAAM,CAAE,CAAC,CACT,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,CAAC,CACR,OAAO,CAAE,IAAI,CACb,eAAe,CAAE,MAAM,CACvB,WAAW,CAAE,MAAM,CACnB,OAAO,CAAE,GAAG,CACb,AACA,AAAD,oBAAS,AAAC,CACR,cAAc,CAAE,IAAI,CACrB,AACA,AAAD,uBAAY,AAAC,CACX,KAAK,CAAE,IAAI,CACX,SAAS,CCLE,MAAM,CDMlB",
+    "sources": [
+        "../../src/layouts/OnlyFooterLayout/OnlyFooterLayout.scss",
+        "../../src/assets/scss/variable.scss"
+    ],
+    "names": [],
+    "file": "OnlyFooterLayout.min.css"
+}

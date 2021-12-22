@@ -1,103 +1,12 @@
+// @ts-nocheck
 import { MoreVert } from '@mui/icons-material';
 import { Button, Container, IconButton, Menu, MenuItem } from '@mui/material';
 import { Box } from '@mui/system';
-import axios from 'axios';
 import React from 'react';
+import { useParams } from 'react-router';
+import { useAppContextApi, useAppSelector } from '../../redux';
+import axiosMain from '../../services/axios/axiosMain';
 import './Grades.scss';
-
-const dummyData = {
-  header: [
-    {
-      id: 1,
-      name: 'Test 1 ',
-      maxGrade: 20,
-      gradeScale: 30,
-    },
-    {
-      id: 2,
-      name: 'Test 2',
-      maxGrade: 20,
-      gradeScale: 30,
-    },
-    {
-      id: 3,
-      name: 'Test 1 ',
-      maxGrade: 20,
-      gradeScale: 30,
-    },
-  ],
-  scores: [
-    {
-      id: 1,
-
-      mssv: '18120331',
-      name: 'nguyen vẵn test',
-      grades: [
-        {
-          id: 1,
-          grade: -1,
-          maxGrade: 20,
-        },
-        {
-          id: 2,
-          grade: -1,
-          maxGrade: 20,
-        },
-        {
-          id: 3,
-          grade: -1,
-          maxGrade: 20,
-        },
-      ],
-    },
-  ],
-};
-
-/**
- *
- * @param row
- * @returns [{
- *  key, title, id
- * }]
- */
-const transformTableHeader = (row: any) => {
-  return [
-    { key: 'name', title: 'Họ tên' },
-    { key: 'mssv', title: 'MSSV' },
-    ...row.map((h: any) => ({
-      ...h,
-      key: h.id + '',
-      title: h.name,
-    })),
-  ];
-};
-
-/**
- *
- * @param rows
- * @returns [
- *  {
- * name, mssv, id, [exerciseId + 'grade']..., [exerciseId +'max']...
- * }
- * ]
- */
-const transformRows = (rows: any[]) => {
-  return rows.map((s) => {
-    return {
-      name: s.name,
-      mssv: s.mssv,
-      id: s.id,
-
-      ...s.grades.reduce((total: any, exercise: any) => {
-        return {
-          [exercise.id + 'grade']: exercise.grade,
-          [exercise.id + 'max']: exercise.maxGrade,
-          ...total,
-        };
-      }, {}),
-    };
-  });
-};
 
 enum TypeMoreButton {
   NONE,
@@ -111,14 +20,83 @@ interface MoreButtonEventData {
 }
 
 const Grades = () => {
+  /**
+   *
+   * @param row
+   * @returns [{
+   *  key, title, id
+   * }]
+   */
+  const transformTableHeader = (row: any) => {
+    return [
+      { key: 'name', title: 'Họ tên' },
+      { key: 'mssv', title: 'MSSV' },
+      ...row.map((h: any) => ({
+        ...h,
+        key: h.id + '',
+        title: h.name,
+      })),
+    ];
+  };
+
+  /**
+   *
+   * @param rows
+   * @returns [
+   *  {
+   * name, mssv, id, [exerciseId + 'grade']..., [exerciseId +'max']...
+   * }
+   * ]
+   */
+  const transformRows = (rows: any[]) => {
+    return [
+      ...rows.map((s) => {
+        return {
+          name: s.name,
+          mssv: s.mssv,
+          id: s.id,
+          ...s.grades.reduce((total: any, exercise: any) => {
+            return {
+              [exercise.id + 'grade']: exercise.grade,
+              [exercise.id + 'max']: exercise.maxGrade,
+              ...total,
+            };
+          }, {}),
+        };
+      }),
+    ];
+  };
+
   const [moreVertEventData, setMoreButtonEventData] = React.useState<MoreButtonEventData>({
     type: TypeMoreButton.NONE,
     data: null,
   });
 
   const uploadRef = React.useRef();
-  const header = transformTableHeader(dummyData.header);
-  let [scoreData, setScores] = React.useState(transformRows(dummyData.scores));
+  const [header, setHeader] = React.useState<any[]>([]);
+  let [scores, setScores] = React.useState<any[]>([]);
+  const Context = useAppContextApi();
+
+  const { id } = useParams<any>();
+  let currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const loadGradeData = () => {};
+  React.useEffect(() => {
+    axiosMain
+      .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
+      .then(({ data }) => {
+        if (data.status === 200) {
+          const content = data.content;
+          setHeader(transformTableHeader(content.header));
+          setScores(transformRows(content.scores));
+        } else {
+          Context?.openSnackBar('Preload bảng điểm thất bại');
+        }
+      })
+      .catch((e) => {
+        Context?.openSnackBar('Preload bảng điểm thất bại');
+        console.log(e);
+      });
+  }, []);
 
   // Menu more
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -159,7 +137,7 @@ const Grades = () => {
     event: React.MouseEvent<HTMLElement>,
     exerciseId: number,
   ) => {
-    openMenu(event, TypeMoreButton.ONE_STUDENT, exerciseId);
+    openMenu(event, TypeMoreButton.ALL_STUDENT, exerciseId);
   };
 
   const handleUpdateGradesState = (studentId: number, exerciseId: number, newValue: number) => {
@@ -183,7 +161,7 @@ const Grades = () => {
     });
   };
 
-  const handleUploadScores = () => {
+  const handleOpenUploadDialog = () => {
     if (uploadRef.current) {
       (uploadRef.current as any).click();
     }
@@ -205,22 +183,42 @@ const Grades = () => {
     console.log(fileObject);
     let formData = new FormData();
     formData.append('file', fileObject);
+    formData.append('CurrentUser', currentUser);
 
+    const exerciseId = moreVertEventData.data;
     // TODO: CHANGE URL
-    uploadFile('http://localhost/UploadFile', formData);
+    uploadFile(`/course/${id}/assignments/${exerciseId}/update-grade`, formData);
   };
 
   const uploadFile = (baseUrl: string, formData: FormData) => {
-    axios
+    axiosMain
       .post(baseUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((response) => {
-        console.log('Success ' + response);
+        console.log(response);
+
+        axiosMain
+          .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
+          .then(({ data }) => {
+            if (data.status === 200) {
+              const content = data.content;
+              setHeader((prev) => transformTableHeader(content.header));
+              setScores((prev) => transformRows(content.scores));
+            } else {
+              Context?.openSnackBar('Preload bảng điểm thất bại');
+            }
+          })
+          .catch((e) => {
+            Context?.openSnackBar('Preload bảng điểm thất bại');
+            console.log(e);
+          });
+        // Context?.openSnackBar('Upload điểm cho ' + moreVertEventData.data + ' thành công');
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
+      .finally(handleCloseMenu);
   };
 
   const handleDownloadTotalScore = () => {
@@ -232,69 +230,62 @@ const Grades = () => {
     );
     if (newWindow) newWindow.opener = null;
   };
+  console.log('RERENDER');
+
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
-        <Button variant="outlined" color="primary" onClick={handleUploadScores}>
+        <Button variant="outlined" color="primary" onClick={handleOpenUploadDialog}>
           Upload Bảng điểm
-          <input
-            // @ts-ignore
-            ref={uploadRef}
-            type="file"
-            style={{ display: 'none' }}
-            accept=".csv"
-            // @ts-ignore
-            onChange={handleChangeChooseFile}
-          />
         </Button>
         <Button color="primary" variant="outlined" onClick={handleDownloadScoreTemplate}>
-          Download Mẫu
+          Bảng điểm mẫu
         </Button>
 
         <Button color="primary" onClick={handleDownloadTotalScore}>
-          Download Bảng điểm tổng kết
+          Bảng điểm tổng kết
         </Button>
       </Box>
       <table className="grade-data-sheet">
-        <tr>
-          {header.map((h, i) => (
-            <th key={h.key + 'header'}>
-              <Box
-                className="show-on-hover"
-                display={'flex'}
-                justifyContent={'space-around'}
-                alignItems="center"
-              >
-                <div>
-                  {h.key !== 'mssv' && h.key !== 'name' ? (
-                    <>
-                      {h.title}
-                      <hr />
-                      Phần trăm {h.gradeScale}%
-                    </>
-                  ) : (
-                    h.title
+        <thead>
+          <tr>
+            {header.map((h, i) => (
+              <th key={h.key + 'header'}>
+                <Box
+                  className="show-on-hover"
+                  display={'flex'}
+                  justifyContent={'space-around'}
+                  alignItems="center"
+                >
+                  <div>
+                    {h.key !== 'mssv' && h.key !== 'name' ? (
+                      <>
+                        {h.title}
+                        <hr />
+                        Phần trăm {h.gradeScale}%
+                      </>
+                    ) : (
+                      h.title
+                    )}
+                  </div>
+                  {i > 1 && (
+                    <IconButton
+                      className="more-button"
+                      onClick={(e) => openMoreVertOneGradeAllStudentStudent(e, parseInt(h.key))}
+                    >
+                      <MoreVert />
+                    </IconButton>
                   )}
-                </div>
-                {i > 1 && (
-                  <IconButton
-                    className="more-button"
-                    onClick={(e) => openMoreVertOneGradeAllStudentStudent(e, parseInt(h.key))}
-                  >
-                    <MoreVert />
-                  </IconButton>
-                )}
-              </Box>
-            </th>
-          ))}
-        </tr>
+                </Box>
+              </th>
+            ))}
+          </tr>
+        </thead>
         <tbody>
-          {scoreData.map((studentScore) => {
+          {scores.map((studentScore) => {
             return (
               <tr key={studentScore.mssv}>
                 {header.map((h) => {
-                  var td = null;
-
                   if (h.key === 'mssv' || h.key === 'name') {
                     return <td key={studentScore.mssv + h.key}>{studentScore[h.key + '']}</td>;
                   }
@@ -306,6 +297,9 @@ const Grades = () => {
                         justifyContent="space-around"
                         alignItems="center"
                       >
+                        {console.log(
+                          studentScore[h.key + 'grade'] + '/' + studentScore[h.key + 'max'],
+                        )}
                         <div>
                           <GradeEditable
                             value={studentScore[h.key + 'grade']}
@@ -320,7 +314,6 @@ const Grades = () => {
                           onClick={(e) => {
                             openMoreVertOneGradeOneStudent(
                               e,
-
                               parseInt(studentScore.id),
                               parseInt(h.id),
                             );
@@ -363,6 +356,25 @@ const Grades = () => {
         >
           Trả bài
         </MenuItem>
+
+        {moreVertEventData.type === TypeMoreButton.ALL_STUDENT && (
+          <MenuItem
+            onClick={() => {
+              handleOpenUploadDialog();
+            }}
+          >
+            Upload điểm
+            <input
+              // @ts-ignore
+              ref={uploadRef}
+              type="file"
+              style={{ display: 'none' }}
+              accept=".csv, .xls, .xlsx"
+              // @ts-ignore
+              onChange={handleChangeChooseFile}
+            />
+          </MenuItem>
+        )}
       </Menu>
     </Container>
   );
@@ -371,7 +383,6 @@ const Grades = () => {
 // @ts-ignore
 const GradeEditable = ({ value, studentId, exerciseId, handleUpdateGradesState }) => {
   const [state, setState] = React.useState(value);
-
   const onLeaveInput = () => {
     console.log('On leave input');
     handleUpdateGradesState(studentId, exerciseId, +state);
@@ -383,7 +394,7 @@ const GradeEditable = ({ value, studentId, exerciseId, handleUpdateGradesState }
       type="number"
       onBlur={onLeaveInput}
       style={{ display: 'inline' }}
-      value={state}
+      // value={state}
       defaultValue={state}
       onChange={(e) => setState(e.target.value)}
     />

@@ -1,0 +1,114 @@
+/* Colors */
+.header {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
+.header__menu-button {
+  margin-right: 0.5rem;
+  color: black;
+}
+
+.header__title {
+  font-size: 1.38rem;
+  color: #5f6368;
+  margin-left: 1rem !important;
+  cursor: pointer;
+}
+
+.header__title a {
+  text-decoration: none;
+}
+
+.header__app-bar {
+  background-color: white !important;
+  color: black !important;
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+}
+
+.header__tool-bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.header__left-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.header__center-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 10px;
+}
+
+.header__center-container__item {
+  cursor: pointer;
+  padding-left: 10px;
+  padding-right: 10px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom: "2";
+  position: relative;
+}
+
+.header__center-container__item--selected {
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.header__center-container__item--selected:hover {
+  background-color: rgba(143, 205, 128, 0.1);
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.header__center-container__item--selected:after {
+  bottom: 0px;
+  left: 0px;
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  font-weight: 600;
+  background-color: #137333;
+}
+
+.header__right-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.header__icon {
+  margin-right: 15px;
+  color: #5f6368;
+  cursor: pointer;
+}
+/*# sourceMappingURL=Header.css.map */

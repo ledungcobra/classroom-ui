@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,UAAU,CAAA;EACN,OAAO,EAAE,QAAQ;EACjB,UAAU,EAAE,KAAK;CAKpB;;AAHI,AAAD,wBAAe,CAAA;EACX,SAAS,EAAE,MAAM;CACpB",
+    "sources": [
+        "../../src/components/DropImageZone/DropImageZone.scss"
+    ],
+    "names": [],
+    "file": "DropImageZone.css"
+}

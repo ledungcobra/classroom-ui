@@ -297,7 +297,8 @@ const Grades = () => {
     }
 
     const totalGrade = key_GradeScale.reduce(
-      (acc, currentKeyGradeScale) => acc + studentScore[currentKeyGradeScale.key],
+      (acc, currentKeyGradeScale) =>
+        acc + studentScore[currentKeyGradeScale.key] * currentKeyGradeScale.gradeScale,
       0,
     );
     return totalGrade / totalGradeScale;

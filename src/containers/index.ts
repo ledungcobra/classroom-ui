@@ -1,8 +1,8 @@
 export * from './Classes/Classes';
 export * from './ClassMembers/ClassMembers';
-
 export * from './EditProfile/EditProfile';
+export * from './ExerciseManager/ExerciseManager';
+export * from './Grades/Grades';
 export * from './Home/Home';
 export * from './Login/Login';
 export * from './Singup/Singup';
-export * from './ExerciseManager/ExerciseManager';

@@ -48,6 +48,7 @@ const Grades = () => {
    * }
    * ]
    */
+
   const transformRows = (rows: any[]) => {
     return [
       ...rows.map((s) => {
@@ -109,6 +110,7 @@ const Grades = () => {
   const handleReturnGradeToAll = () => {
     const exerciseId = moreVertEventData.data;
 
+    // TODO: HANDLE SAVE AND NOTIFY TO ALL STUDENTS GRADE OF THIS EXERCISE
     const studentGrade = scores.map((s) => ({
       mssv: s.mssv,
       grade: s[exerciseId + 'grade'],
@@ -270,7 +272,24 @@ const Grades = () => {
     if (newWindow) newWindow.opener = null;
   };
   console.log('RERENDER');
+  const calculateAverage = (studentScore) => {
+    const key_GradeScale = header
+      .filter((e) => e.id)
+      .map((exercise) => ({ key: exercise.id + 'grade', gradeScale: exercise.gradeScale }));
+    console.log(key_GradeScale);
+    const totalGradeScale = key_GradeScale.reduce((acc, current) => acc + current.gradeScale, 0);
+    console.log(totalGradeScale);
 
+    if (totalGradeScale === 0) {
+      return 0;
+    }
+
+    const totalGrade = key_GradeScale.reduce(
+      (acc, currentKeyGradeScale) => acc + studentScore[currentKeyGradeScale.key],
+      0,
+    );
+    return totalGrade / totalGradeScale;
+  };
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
@@ -318,6 +337,7 @@ const Grades = () => {
                 </Box>
               </th>
             ))}
+            <th>Trung bình</th>
           </tr>
         </thead>
         <tbody>
@@ -364,6 +384,7 @@ const Grades = () => {
                     </td>
                   );
                 })}
+                <td>{calculateAverage(studentScore)}</td>
               </tr>
             );
           })}

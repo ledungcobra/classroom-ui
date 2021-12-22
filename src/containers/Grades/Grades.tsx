@@ -247,15 +247,16 @@ const Grades = () => {
     console.log(key_GradeScale);
     const totalGradeScale = key_GradeScale.reduce((acc, current) => acc + current.gradeScale, 0);
     console.log(totalGradeScale);
-    // if(totalGradeScale === 0){
-    //   return 0;
-    // }
+
+    if (totalGradeScale === 0) {
+      return 0;
+    }
 
     const totalGrade = key_GradeScale.reduce(
       (acc, currentKeyGradeScale) => acc + studentScore[currentKeyGradeScale.key],
       0,
     );
-    console.log(totalGrade);
+    return totalGrade / totalGradeScale;
   };
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">

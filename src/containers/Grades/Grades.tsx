@@ -14,6 +14,11 @@ enum TypeMoreButton {
   ONE_STUDENT,
 }
 
+enum TypeUploadExcelFile {
+  STUDENT_LIST,
+  GRADE_LIST,
+}
+
 interface MoreButtonEventData {
   type: TypeMoreButton;
   data: any | null;
@@ -74,6 +79,7 @@ const Grades = () => {
 
   const uploadRef = React.useRef();
   const [header, setHeader] = React.useState<any[]>([]);
+  const [typeUploadFile, setTypeUploadFile] = React.useState(null);
   let [scores, setScores] = React.useState<any[]>([]);
   const Context = useAppContextApi();
 
@@ -196,18 +202,30 @@ const Grades = () => {
     });
   };
 
-  const handleOpenUploadDialog = () => {
+  const handleOpenUploadDialog = (type: TypeUploadExcelFile) => {
     if (uploadRef.current) {
       (uploadRef.current as any).click();
+      setTypeUploadFile(type);
     }
   };
 
   const handleDownloadScoreTemplate = () => {
-    // TODO: CHANGE URL
     const newWindow = window.open(
-      'http://localhost/download/DDGame.jar',
-      '_blank',
-      'noopener,noreferrer',
+      process.env.REACT_APP_BASE_API + `course/download-template-update-grade`,
+    );
+    if (newWindow) newWindow.opener = null;
+  };
+
+  const handleDownloadStudentTemplate = () => {
+    const newWindow = window.open(
+      process.env.REACT_APP_BASE_API + `course/download-template-update-member`,
+    );
+    if (newWindow) newWindow.opener = null;
+  };
+
+  const handleDownloadTotalScore = () => {
+    const newWindow = window.open(
+      process.env.REACT_APP_BASE_API + `course/${id}/download-grade-board`,
     );
     if (newWindow) newWindow.opener = null;
   };
@@ -221,8 +239,12 @@ const Grades = () => {
     formData.append('CurrentUser', currentUser);
 
     const exerciseId = moreVertEventData.data;
-    // TODO: CHANGE URL
-    uploadFile(`/course/${id}/assignments/${exerciseId}/update-grade`, formData);
+
+    if (typeUploadFile == TypeUploadExcelFile.GRADE_LIST) {
+      uploadFile(`/course/${id}/assignments/${exerciseId}/update-grade`, formData);
+    } else if (typeUploadFile == TypeUploadExcelFile.STUDENT_LIST) {
+      uploadFile(`/course/${id}/update-student`, formData);
+    }
   };
 
   const uploadFile = (baseUrl: string, formData: FormData) => {
@@ -235,7 +257,7 @@ const Grades = () => {
       .then((response) => {
         console.log(response);
 
-        window.location.reload();
+        //window.location.reload();
 
         // axiosMain
         //   .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
@@ -260,28 +282,26 @@ const Grades = () => {
       .finally(handleCloseMenu);
   };
 
-  const handleDownloadTotalScore = () => {
-    // TODO: CHANGE URL
-    const newWindow = window.open(
-      'http://localhost/download/DDGame.jar',
-      '_blank',
-      'noopener,noreferrer',
-    );
-    if (newWindow) newWindow.opener = null;
-  };
-  console.log('RERENDER');
-
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
-        <Button variant="outlined" color="primary" onClick={handleOpenUploadDialog}>
+        <Button variant="outlined" color="primary" onClick={handleDownloadStudentTemplate}>
+          Template Danh sách SV
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => {
+            handleOpenUploadDialog(TypeUploadExcelFile.STUDENT_LIST);
+          }}
+        >
           Upload Danh sách SV
         </Button>
-        <Button color="primary" variant="outlined" onClick={handleDownloadScoreTemplate}>
-          Bảng điểm mẫu
+        <Button color="success" variant="outlined" onClick={handleDownloadScoreTemplate}>
+          Template Bảng điểm
         </Button>
 
-        <Button color="primary" onClick={handleDownloadTotalScore}>
+        <Button color="success" variant="outlined" onClick={handleDownloadTotalScore}>
           Bảng điểm tổng kết
         </Button>
       </Box>
@@ -399,22 +419,22 @@ const Grades = () => {
         {moreVertEventData.type === TypeMoreButton.ALL_STUDENT && (
           <MenuItem
             onClick={() => {
-              handleOpenUploadDialog();
+              handleOpenUploadDialog(TypeUploadExcelFile.GRADE_LIST);
             }}
           >
             Upload điểm
-            <input
-              // @ts-ignore
-              ref={uploadRef}
-              type="file"
-              style={{ display: 'none' }}
-              accept=".csv, .xls, .xlsx"
-              // @ts-ignore
-              onChange={handleChangeChooseFile}
-            />
           </MenuItem>
         )}
       </Menu>
+      <input
+        // @ts-ignore
+        ref={uploadRef}
+        type="file"
+        style={{ display: 'none' }}
+        accept=".csv, .xls, .xlsx"
+        // @ts-ignore
+        onChange={handleChangeChooseFile}
+      />
     </Container>
   );
 };

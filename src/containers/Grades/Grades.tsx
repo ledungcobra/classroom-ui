@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { MoreVert } from '@mui/icons-material';
+import MoreVert from '@mui/icons-material/MoreVert';
 import { Button, Container, IconButton, Menu, MenuItem } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
@@ -378,9 +378,6 @@ const Grades = () => {
                         justifyContent="space-around"
                         alignItems="center"
                       >
-                        {console.log(
-                          studentScore[h.key + 'grade'] + '/' + studentScore[h.key + 'max'],
-                        )}
                         <div>
                           <GradeEditable
                             value={studentScore[h.key + 'grade']}

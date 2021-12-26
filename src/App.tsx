@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { IconButton, Snackbar } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import Snackbar from '@mui/material/Snackbar';
 import React, { useEffect } from 'react';
 import Favicon from 'react-favicon';
 import './App.scss';

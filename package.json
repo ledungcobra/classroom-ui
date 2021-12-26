@@ -11,13 +11,16 @@
     "@mui/styles": "^5.0.2",
     "@reduxjs/toolkit": "^1.6.2",
     "axios": "^0.24.0",
+    "babel-plugin-import": "^1.13.3",
     "copy-to-clipboard": "^3.3.1",
+    "customize-cra": "^1.0.0",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.1",
     "npm": "^8.1.4",
     "react": "^17.0.2",
+    "react-app-rewired": "^2.1.9",
     "react-beautiful-dnd": "^13.1.0",
     "react-datasheet-grid": "^3.3.9",
     "react-dom": "^17.0.2",
@@ -49,9 +52,9 @@
     "eslint-config-prettier": "^8.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

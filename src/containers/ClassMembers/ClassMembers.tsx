@@ -1,4 +1,4 @@
-import { MoreVertOutlined } from '@mui/icons-material';
+import MoreVertOutlined from '@mui/icons-material/MoreVertOutlined';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import {

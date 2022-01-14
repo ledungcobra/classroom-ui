@@ -93,8 +93,34 @@ const Grades = () => {
       .then(({ data }) => {
         if (data.status === 200) {
           const content = data.content;
-          setHeader(transformTableHeader(content.header));
-          setScores(transformRows(content.scores));
+
+          const header = content.header;
+          const scores = content.scores;
+
+          const totalGrade = header.reduce((acc, current) => acc + current.maxGrade, 0);
+          const headerConverted = header.map((header) => ({
+            ...header,
+            gradeScale: parseFloat((header.maxGrade * 100.0) / totalGrade).toFixed(2),
+          }));
+
+          const scoresConverted = scores.map((score) => {
+            const grades = score.grades;
+            score.grades = headerConverted.map((header) => {
+              const foundGrades = grades.filter((g) => g.id === header.id);
+              if (foundGrades.length > 0) {
+                return foundGrades[0];
+              } else {
+                return {
+                  id: header.id,
+                  grade: null,
+                  maxGrade: header.maxGrade,
+                };
+              }
+            });
+            return score;
+          });
+          setHeader(transformTableHeader(headerConverted));
+          setScores(transformRows(scoresConverted));
         } else {
           Context?.openSnackBar('Preload bảng điểm thất bại');
         }
@@ -188,8 +214,6 @@ const Grades = () => {
       const newScores: any[] = [];
       for (let studentScore of oldScores) {
         if (studentScore.id === studentId) {
-          console.log('Found student');
-
           const score = {
             ...studentScore,
             [exerciseId + 'grade']: newValue,
@@ -199,7 +223,6 @@ const Grades = () => {
           newScores.push(studentScore);
         }
       }
-      console.log(newScores);
       return newScores;
     });
   };
@@ -235,7 +258,6 @@ const Grades = () => {
   const handleChangeChooseFile = (event: any) => {
     const fileObject = event.target.files[0];
     if (!fileObject) return;
-    console.log(fileObject);
     let formData = new FormData();
     formData.append('file', fileObject);
     formData.append('CurrentUser', currentUser);
@@ -257,52 +279,21 @@ const Grades = () => {
         },
       })
       .then((response) => {
-        console.log(response);
-
-        //window.location.reload();
-
-        // axiosMain
-        //   .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
-        //   .then(({ data }) => {
-        //     if (data.status === 200) {
-        //       const content = data.content;
-        //       setHeader((prev) => transformTableHeader(content.header));
-        //       setScores((prev) => transformRows(content.scores));
-
-        //     } else {
-        //       Context?.openSnackBar('Preload bảng điểm thất bại');
-        //     }
-        //   })
-        //   .catch((e) => {
-        //     Context?.openSnackBar('Preload bảng điểm thất bại');
-        //     console.log(e);
-        //   });
-
-        // Context?.openSnackBar('Upload điểm cho ' + moreVertEventData.data + ' thành công');
+        Context?.openSnackBar('Upload thành');
       })
-      .catch((error) => console.log(error))
+      .catch((error) => Context?.openSnackBar('Upload file thất bại'))
       .finally(handleCloseMenu);
   };
 
   const calculateAverage = (studentScore) => {
-    const key_GradeScale = header
-      .filter((e) => e.id)
-      .map((exercise) => ({ key: exercise.id + 'grade', gradeScale: exercise.gradeScale }));
-    console.log(key_GradeScale);
-    const totalGradeScale = key_GradeScale.reduce((acc, current) => acc + current.gradeScale, 0);
-    console.log(totalGradeScale);
-
-    if (totalGradeScale === 0) {
-      return 0;
-    }
-
-    const totalGrade = key_GradeScale.reduce(
-      (acc, currentKeyGradeScale) =>
-        acc + studentScore[currentKeyGradeScale.key] * currentKeyGradeScale.gradeScale,
-      0,
-    );
-    return totalGrade / totalGradeScale;
+    const result = parseFloat(
+      header.slice(2).reduce((acc, current) => {
+        return acc + current.gradeScale * (+studentScore[current.id + 'grade'] ?? 0);
+      }, 0) / 100.0,
+    ).toFixed(2);
+    return result;
   };
+
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
@@ -463,7 +454,6 @@ const Grades = () => {
 const GradeEditable = ({ value, studentId, exerciseId, handleUpdateGradesState }) => {
   const [state, setState] = React.useState(value);
   const onLeaveInput = () => {
-    console.log('On leave input');
     handleUpdateGradesState(studentId, exerciseId, +state);
   };
 

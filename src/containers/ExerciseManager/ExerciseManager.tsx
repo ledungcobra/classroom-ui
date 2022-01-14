@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/system/Box';
-
+import React, { useEffect } from 'react';
 // @ts-ignore
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router';
@@ -18,7 +17,8 @@ import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
 import './ExerciseManager.scss';
 
-interface Props {}
+interface Props {
+}
 
 interface IExercise {
   id?: number;
@@ -31,29 +31,25 @@ interface IExercise {
 }
 
 interface ExerciseItemProps {
-  onAddExercise?: (exercise: IExercise) => void;
+  onAddExercise?: (exercise: IExercise, onDone: () => void) => void;
   onDeleteExercise?: (id?: number) => void;
   onUpdateExercise?: (exercise: IExercise) => void;
   exercise?: IExercise;
   isEditable?: boolean;
   isOld?: boolean;
 }
-const ExerciseItem = ({
-  onAddExercise,
-  isEditable: isEditting = false,
-  isOld = true,
-  exercise,
-  onDeleteExercise,
-  onUpdateExercise,
-}: ExerciseItemProps) => {
-  const Context = useAppContextApi();
 
+const ExerciseItem = ({
+                        onAddExercise,
+                        isEditable: isEditting = false,
+                        isOld = true,
+                        exercise,
+                        onDeleteExercise,
+                        onUpdateExercise,
+                      }: ExerciseItemProps) => {
+  const Context = useAppContextApi();
   const [editing, setEditing] = React.useState(isEditting);
   const [exerciseState, setExerciseState] = React.useState(exercise);
-  const [position, setPosition] = React.useState({
-    x: 0,
-    y: 0,
-  });
 
   const onSave = () => {
     if (exerciseState) {
@@ -69,17 +65,26 @@ const ExerciseItem = ({
     onDeleteExercise?.(id);
   };
 
+  const onDoneAddExercise = () => {
+    setExerciseState((prev) => {
+      return {
+        ...prev,
+        name: '',
+        maxGrade: 0,
+      };
+    });
+  };
   return (
-    <Card className="exercise-item" sx={{ marginBottom: '10px' }}>
-      <Box padding="15px">
+    <Card className='exercise-item' sx={{ marginBottom: '10px' }}>
+      <Box padding='15px'>
         <Grid container sx={{ height: '100%' }}>
           <Grid item md={11}>
-            <Box display="column" justifyContent="flex-start">
+            <Box display='column' justifyContent='flex-start'>
               <TextField
-                variant="filled"
-                placeholder="Tên bài tập"
-                type="text"
-                label="Tên bài tập"
+                variant='filled'
+                placeholder='Tên bài tập'
+                type='text'
+                label='Tên bài tập'
                 fullWidth
                 sx={{ marginBottom: '10px' }}
                 disabled={isOld && !editing}
@@ -92,11 +97,11 @@ const ExerciseItem = ({
                 }}
               />
               <TextField
-                variant="filled"
-                placeholder="Điểm tối đa"
-                type="number"
+                variant='filled'
+                placeholder='Điểm tối đa'
+                type='number'
                 fullWidth
-                label="Điểm tối đa"
+                label='Điểm tối đa'
                 disabled={isOld && !editing}
                 value={exerciseState?.maxGrade}
                 onChange={(e) => {
@@ -110,42 +115,35 @@ const ExerciseItem = ({
           </Grid>
           <Grid item md={1} sx={{ height: '100%' }}>
             <Box
-              display="flex"
-              flexDirection="column"
-              justifyContent="space-around"
-              gap="10px"
-              height="100%"
+              display='flex'
+              flexDirection='column'
+              justifyContent='space-around'
+              gap='10px'
+              height='100%'
             >
               {isOld ? (
                 <>
                   {!editing ? (
-                    <IconButton color="success" onClick={() => setEditing(true)}>
+                    <IconButton color='success' onClick={() => setEditing(true)}>
                       <EditIcon />
                     </IconButton>
                   ) : (
-                    <IconButton color="success" onClick={onSave}>
+                    <IconButton color='success' onClick={onSave}>
                       <SaveIcon />
                     </IconButton>
                   )}
                   <IconButton>
-                    <DeleteIcon color="error" onClick={() => onDelete(exerciseState?.id)} />
+                    <DeleteIcon color='error' onClick={() => onDelete(exerciseState?.id)} />
                   </IconButton>
                 </>
               ) : (
                 <>
                   <IconButton
-                    color="success"
+                    color='success'
                     onClick={() => {
-                      console.log('ADDED');
-                      setExerciseState((prev) => {
-                        return {
-                          ...prev,
-                          name: undefined,
-                          maxGrade: undefined,
-                        };
-                      });
+                      setExerciseState({ name: undefined, maxGrade: undefined });
                       if (exerciseState) {
-                        onAddExercise?.(exerciseState!!);
+                        onAddExercise?.(exerciseState!!, onDoneAddExercise);
                       } else {
                         Context?.openSnackBar('Bạn không có exercise để thêm');
                       }
@@ -161,23 +159,6 @@ const ExerciseItem = ({
       </Box>
     </Card>
   );
-};
-
-const findMax = (
-  exercises: IExercise[],
-  test: (current: IExercise, max: IExercise) => boolean,
-): IExercise | null => {
-  if (!exercises) return null;
-  if (exercises.length == 0) return null;
-  let max = exercises[0];
-
-  for (let i = 1; i < exercises.length; i++) {
-    // Test that make max fail
-    if (test(exercises[i], max)) {
-      max = exercises[i];
-    }
-  }
-  return max;
 };
 
 const grid = 8;
@@ -229,7 +210,7 @@ export const ExerciseManager = (props: Props) => {
     }
   }, [id, currentUser]);
 
-  const onAddExercise = (exercise: IExercise) => {
+  const onAddExercise = (exercise: IExercise, onDone: () => void) => {
     Context?.showLoading();
     apiClass
       .postAddClassAssignment({
@@ -251,6 +232,7 @@ export const ExerciseManager = (props: Props) => {
               },
             ];
           });
+          onDone();
           Context?.openSnackBar('Thêm bài tập thành công');
         } else {
           Context?.openSnackBarError('Có lỗi xảy ra trong quá trình thêm bài tập');
@@ -325,7 +307,7 @@ export const ExerciseManager = (props: Props) => {
       })
       .catch((e) => {
         Context?.hideLoading();
-        Context?.openSnackBarError('Không thể xoá bài tập');
+        Context?.openSnackBarError('Không thể xoá bài tập vì bạn đã nhập điểm cho sinh viên rồi');
       });
   };
 
@@ -391,11 +373,10 @@ export const ExerciseManager = (props: Props) => {
       });
   };
   return (
-    <Container maxWidth="md" sx={{ marginTop: '40px' }}>
-      {/* Brief */}
-      <Box display="flex" flexDirection="column">
+    <Container maxWidth='md' sx={{ marginTop: '40px' }}>
+      <Box display='flex' flexDirection='column'>
         <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="droppable">
+          <Droppable droppableId='droppable'>
             {(provided: any, snapshot: any) => (
               <div
                 {...provided.droppableProps}

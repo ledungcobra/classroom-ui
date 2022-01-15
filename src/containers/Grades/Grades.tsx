@@ -122,11 +122,14 @@ const Grades = () => {
           setHeader(transformTableHeader(headerConverted));
           setScores(transformRows(scoresConverted));
         } else {
+          console.log(data);
+
           Context?.openSnackBar('Preload bảng điểm thất bại');
         }
       })
       .catch((e) => {
-        Context?.openSnackBar('Preload bảng điểm thất bại');
+        // TODO:
+        Context?.openSnackBar('Preload bảng điểm thất bại catch');
         console.log(e);
       });
   }, []);

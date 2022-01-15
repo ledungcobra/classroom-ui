@@ -73,6 +73,8 @@ const ClassMembers = (props: ClassMemberProps) => {
         })
         .then((data) => {
           const parsedData = convertClassDetailResponse(data);
+          console.log(data);
+
           if (parsedData.error) {
             Context?.openSnackBarError('Không thể lấy được mã lớp');
           } else {
@@ -123,7 +125,7 @@ const ClassMembers = (props: ClassMemberProps) => {
   };
 
   // Add Member
-  const [addMemberVariant, setAddMemberVariant] = useState<AddMemberVariant | null>(null);
+  const [addMemberVariant, setAddMemberPopupVariant] = useState<AddMemberVariant | null>(null);
   const handleAddMember = (emails: string[]) => {
     apiClass
       .postInviteMemberToClass({
@@ -156,10 +158,10 @@ const ClassMembers = (props: ClassMemberProps) => {
             <Typography variant="h4" color={GREEN_COLOR}>
               &nbsp;Giáo viên
             </Typography>
-            {currentUser === members.owner && (
+            {Context?.isTeacher && (
               <IconButton
                 onClick={() => {
-                  setAddMemberVariant('teacher');
+                  setAddMemberPopupVariant('teacher');
                 }}
               >
                 <PersonAddIcon sx={{ color: GREEN_COLOR }} />
@@ -184,7 +186,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                       {t.email}
                     </Typography>
                   </Box>
-                  {currentUser !== members.owner && (
+                  {currentUser === members.owner && (
                     <IconButton
                       onClick={(e) => {
                         openMenu(e, TypeMoreButton.TeacherSingle, {
@@ -212,8 +214,8 @@ const ClassMembers = (props: ClassMemberProps) => {
               <Typography variant="body1" color={GREEN_COLOR}>
                 {members.students.length + ' ' + 'sinh viên  '}
               </Typography>
-              {members.owner === currentUser && (
-                <IconButton onClick={() => setAddMemberVariant('student')}>
+              {Context?.isTeacher && (
+                <IconButton onClick={() => setAddMemberPopupVariant('student')}>
                   <PersonAddIcon sx={{ color: GREEN_COLOR }} />
                 </IconButton>
               )}
@@ -227,7 +229,6 @@ const ClassMembers = (props: ClassMemberProps) => {
                 checked={selectAll}
                 value={selectAll}
                 onChange={() => {
-                  console.log('CHANGE CHECK');
                   setSelectAll((prev) => {
                     setCheckStudents((students) =>
                       students.map((s) => {
@@ -250,108 +251,116 @@ const ClassMembers = (props: ClassMemberProps) => {
               >
                 Tác vụ
               </Button>
-
-              <Menu
-                anchorEl={anchorEl}
-                onClose={() => {
-                  setIsOpenMenu(false);
-                }}
-                open={isOpenMenu}
-              >
-                <MenuItem
-                  onClick={() => {
-                    console.log('MUTIPLE' + JSON.stringify(moreButtonEventData));
-
-                    // TODO handle ẩn
-                    if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
-                      setMembers((members) => {
-                        members.students = members!!.students.filter(
-                          (m) => m.id !== moreButtonEventData.data.id,
-                        );
-                        return { ...members };
-                      });
-                    } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
-                      setMembers((members) => {
-                        members!!.students = members!!.students.filter(
-                          (_, index) => !checkStudents[index].checked,
-                        );
-                        return { ...members };
-                      });
-                    }
+              {Context?.isTeacher && (
+                <Menu
+                  anchorEl={anchorEl}
+                  onClose={() => {
                     setIsOpenMenu(false);
                   }}
+                  open={isOpenMenu}
                 >
-                  Ẩn
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    Context?.showLoading();
-                    if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
-                      apiClass
-                        .postDeleteMember({
-                          currentUser,
-                          userId: moreButtonEventData.data.id,
-                          courseId: parseInt(classId!!),
-                        })
-                        .then(() => {
-                          Context?.openSnackBar('Xoá thành công');
-                          setMembers((members) => {
-                            members.students = members!!.students.filter(
-                              (m) => m.id !== moreButtonEventData.data.id,
-                            );
+                  <MenuItem
+                    onClick={() => {
+                      console.log('MUTIPLE' + JSON.stringify(moreButtonEventData));
 
-                            setCheckStudents(
-                              members.students.map((s) => ({ id: s.id, checked: false })),
-                            );
-                            return { ...members };
-                          });
-                        })
-                        .finally(() => {
-                          Context?.hideLoading();
+                      // TODO handle ẩn
+                      if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
+                        setMembers((members) => {
+                          members.students = members!!.students.filter(
+                            (m) => m.id !== moreButtonEventData.data.id,
+                          );
+                          return { ...members };
                         });
-                    } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
-                      Promise.all(
-                        checkStudents
-                          .filter((s) => s.checked)
-                          .map((s) => {
-                            return apiClass.postDeleteMember({
-                              courseId: parseInt(classId!!),
-                              currentUser,
-                              userId: s.id,
+                      } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
+                        setMembers((members) => {
+                          members!!.students = members!!.students.filter(
+                            (_, index) => !checkStudents[index].checked,
+                          );
+                          return { ...members };
+                        });
+                      }
+                      setIsOpenMenu(false);
+                    }}
+                  >
+                    Ẩn
+                  </MenuItem>
+
+                  <MenuItem
+                    onClick={() => {
+                      Context?.showLoading();
+                      if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
+                        apiClass
+                          .postDeleteMember({
+                            currentUser,
+                            userId: moreButtonEventData.data.id,
+                            courseId: parseInt(classId!!),
+                          })
+                          .then((response) => {
+                            if (response.status === 200) {
+                              Context?.openSnackBar('Xoá thành công');
+                              setMembers((members) => {
+                                members.students = members!!.students.filter(
+                                  (m) => m.id !== moreButtonEventData.data.id,
+                                );
+
+                                setCheckStudents(
+                                  members.students.map((s) => ({ id: s.id, checked: false })),
+                                );
+                                return { ...members };
+                              });
+                            } else if (response.status === 400) {
+                              Context?.openSnackBar(response.message);
+                            }
+                          })
+                          .finally(() => {
+                            Context?.hideLoading();
+                          });
+                      } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
+                        Promise.all(
+                          checkStudents
+                            .filter((s) => s.checked)
+                            .map((s) => {
+                              return apiClass.postDeleteMember({
+                                courseId: parseInt(classId!!),
+                                currentUser,
+                                userId: s.id,
+                              });
+                            }),
+                        )
+                          .then((responses) => {
+                            console.log(responses);
+
+                            Context?.openSnackBar('Xoá thành công');
+                            setMembers((members) => {
+                              const students = members.students.filter(
+                                (_, index) => !checkStudents[index].checked,
+                              );
+                              setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
+                              return {
+                                ...members,
+                                teachers: members.teachers,
+                                students,
+                              };
                             });
-                          }),
-                      )
-                        .then(() => {
-                          Context?.openSnackBar('Xoá thành công');
-                          setMembers((members) => {
-                            const students = members.students.filter(
-                              (_, index) => !checkStudents[index].checked,
-                            );
-                            setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
-                            return {
-                              ...members,
-                              teachers: members.teachers,
-                              students,
-                            };
+                          })
+                          .finally(() => {
+                            Context?.hideLoading();
                           });
-                        })
-                        .finally(() => {
-                          Context?.hideLoading();
-                        });
-                    }
-                    setIsOpenMenu(false);
-                  }}
-                >
-                  Xoá
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    setIsOpenMenu(false);
-                  }}
-                >
-                  Không làm gì cả
-                </MenuItem>
-              </Menu>
+                      }
+                      setIsOpenMenu(false);
+                    }}
+                  >
+                    Xoá
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setIsOpenMenu(false);
+                    }}
+                  >
+                    Không làm gì cả
+                  </MenuItem>
+                </Menu>
+              )}
             </Box>
             <IconButton onClick={() => setStudentReverse(!studentReverse)}>
               <SortByAlphaIcon />
@@ -392,17 +401,18 @@ const ClassMembers = (props: ClassMemberProps) => {
                         {s.email}
                       </Typography>
                     </Box>
-
-                    <IconButton
-                      onClick={(e) =>
-                        openMenu(e, TypeMoreButton.StudentSingle, {
-                          index,
-                          id: s.id,
-                        })
-                      }
-                    >
-                      <MoreVertOutlined />
-                    </IconButton>
+                    {Context?.isTeacher && (
+                      <IconButton
+                        onClick={(e) =>
+                          openMenu(e, TypeMoreButton.StudentSingle, {
+                            index,
+                            id: s.id,
+                          })
+                        }
+                      >
+                        <MoreVertOutlined />
+                      </IconButton>
+                    )}
                   </Box>
                   <Divider />
                 </Box>
@@ -418,7 +428,7 @@ const ClassMembers = (props: ClassMemberProps) => {
               ? ''
               : 'Giáo viên mà bạn thêm có thể làm mọi thứ bạn làm, trừ xóa lớp học.'
           }
-          onCancel={() => setAddMemberVariant(null)}
+          onCancel={() => setAddMemberPopupVariant(null)}
           variant={addMemberVariant}
           referenceLink={addMemberVariant === 'student' ? generateReferenceLink(classCode, 2) : ''}
         />

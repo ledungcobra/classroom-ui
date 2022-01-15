@@ -20,7 +20,7 @@ import Grid from '@mui/material/Grid';
 import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { PostStatus } from '../../components';
 import {
   BOX_SHADOW_STYLE,
@@ -63,26 +63,29 @@ export const ClassDetail = () => {
           currentUser,
         })
         .then((data) => {
-          Context?.hideLoading();
-          const response = convertClassDetailResponse(data);
-          if (!response.error) {
-            setDetailData(response.data as IResClassDetailData);
-            Context?.openSnackBar('Tải lớp học thành công');
+          if (data.status === 200) {
+            Context?.hideLoading();
+            const response = convertClassDetailResponse(data);
+            if (!response.error) {
+              setDetailData(response.data as IResClassDetailData);
+              Context?.openSnackBar('Tải lớp học thành công');
+              Context?.setIsTeacher(data.content.role === 1);
+            } else {
+              Context?.openSnackBarError(
+                response?.error?.message
+                  ? 'Bạn chưa gia nhập lớp này'
+                  : 'Có lỗi xảy ra trong quá trình tải',
+              );
+            }
+            Context?.setCurrentClassId(parseInt(id));
           } else {
-            Context?.openSnackBarError(
-              response?.error?.message
-                ? 'Bạn chưa gia nhập lớp này'
-                : 'Có lỗi xảy ra trong quá trình tải',
-            );
+            Context?.openSnackBar(data.message);
           }
-          Context?.setCurrentClassId(parseInt(id));
         })
         .catch((e) => {
-          Context?.hideLoading();
           Context?.openSnackBarError('Không thể tải lớp học');
-          // navigate('/');
-          console.error(e);
-        });
+        })
+        .finally(Context?.hideLoading);
     }
   }, [currentUser, id]);
 

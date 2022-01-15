@@ -73,7 +73,6 @@ const ClassMembers = (props: ClassMemberProps) => {
         })
         .then((data) => {
           const parsedData = convertClassDetailResponse(data);
-          console.log(data);
 
           if (parsedData.error) {
             Context?.openSnackBarError('Không thể lấy được mã lớp');

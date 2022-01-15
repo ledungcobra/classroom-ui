@@ -52,10 +52,8 @@ export const ClassDetail = () => {
   const [classDetailData, setDetailData] = React.useState<IResClassDetailData | null>(null);
   const [classList, setClassList] = React.useState([]);
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
-
   useEffect(() => {
     if (id && currentUser !== null) {
-      console.log('Class id =' + id);
       Context?.showLoading();
       apiClass
         .getClassDetail({
@@ -64,12 +62,12 @@ export const ClassDetail = () => {
         })
         .then((data) => {
           if (data.status === 200) {
+            Context?.setRoleTeacher(data.content.role);
             Context?.hideLoading();
             const response = convertClassDetailResponse(data);
             if (!response.error) {
               setDetailData(response.data as IResClassDetailData);
               Context?.openSnackBar('Tải lớp học thành công');
-              Context?.setIsTeacher(data.content.role === 1);
             } else {
               Context?.openSnackBarError(
                 response?.error?.message
@@ -77,7 +75,6 @@ export const ClassDetail = () => {
                   : 'Có lỗi xảy ra trong quá trình tải',
               );
             }
-            Context?.setCurrentClassId(parseInt(id));
           } else {
             Context?.openSnackBar(data.message);
           }
@@ -85,7 +82,10 @@ export const ClassDetail = () => {
         .catch((e) => {
           Context?.openSnackBarError('Không thể tải lớp học');
         })
-        .finally(Context?.hideLoading);
+        .finally(() => {
+          Context?.hideLoading();
+          Context?.setCurrentClassId(parseInt(id));
+        });
     }
   }, [currentUser, id]);
 

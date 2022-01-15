@@ -109,7 +109,6 @@ export const getRandomRGBColorCSSFunction = (maxR: number, maxG: number, maxB: n
 };
 
 export const convertClassDetailResponse = (data: any): IClassDetailRes => {
-  console.log(data);
   if (data.status === 200) {
     const content = data.content.course;
 

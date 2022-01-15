@@ -1,7 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Favicon from 'react-favicon';
 import './App.scss';
 import ImageFavicon from './assets/icons/favicon.ico';
@@ -20,7 +20,7 @@ export interface IAppContext {
   setCurrentClassId: (classId: number | null) => void;
   currentClassId: number | null;
   isTeacher: boolean;
-  setIsTeacher: (isAuthor: boolean) => void;
+  setRoleTeacher: (role: number) => void;
   openSnackBarError: (message: string) => void;
   headerSelect: HeaderSelect | null;
   setHeaderSelect: (value: HeaderSelect) => void;
@@ -28,7 +28,7 @@ export interface IAppContext {
 
 interface IAppState {
   classId: number | null;
-  isTeacher: boolean;
+  roleTeacher: number | null;
   selectedHeader: HeaderSelect | null;
 }
 
@@ -41,11 +41,13 @@ export default function App() {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [isError, setIsError] = React.useState(false);
-  const [state, setState] = useLocalStorage<IAppState>('appstate', {
+  const [localStorageState, setLocalStorageState] = useLocalStorage<IAppState>('appstate', {
     classId: null,
-    isTeacher: false,
+    roleTeacher: null,
     selectedHeader: null,
   });
+
+  const [currentClassId, setCurrentClassId] = useState(localStorageState.classId);
 
   const [loading, setLoading] = React.useState(false);
 
@@ -56,6 +58,7 @@ export default function App() {
   const hideLoading = () => {
     setLoading(false);
   };
+
   const handleClose = (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -69,6 +72,9 @@ export default function App() {
     setOpen(true);
     setIsError(false);
   };
+
+  const setHeaderSelect = (selection: HeaderSelect) =>
+    setLocalStorageState({ ...localStorageState, selectedHeader: selection });
 
   const showSnackBarError = (message: string) => {
     setMessage(message);
@@ -88,17 +94,17 @@ export default function App() {
         showLoading,
         hideLoading,
         loading,
-        currentClassId: state.classId,
-        setCurrentClassId: (classId) => setState({ ...state, classId }),
+        currentClassId: localStorageState.classId,
+        setCurrentClassId: (classId) => {
+          setLocalStorageState({ ...localStorageState, classId });
+        },
         openSnackBarError: showSnackBarError,
-        isTeacher: state.isTeacher,
-        headerSelect: state.headerSelect,
-        setHeaderSelect: (selection) => setState({ ...state, headerSelect: selection }),
-        setIsTeacher: (isTeacher) => {
-          setState({
-            ...state,
-            isTeacher,
-          });
+        isTeacher: localStorageState.roleTeacher === 1,
+        headerSelect: localStorageState.selectedHeader,
+        setHeaderSelect,
+        setRoleTeacher: (role) => {
+          if (role === null) return;
+          setLocalStorageState({ ...localStorageState, roleTeacher: role });
         },
       }}
     >

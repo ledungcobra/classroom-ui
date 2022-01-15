@@ -12,6 +12,8 @@ export const Classes = () => {
 
   useEffect(() => {
     Context?.showLoading();
+    Context?.setRoleTeacher(0);
+    Context?.setCurrentClassId(null);
     const initFetch = () => {
       batch(() => {
         dispatch(

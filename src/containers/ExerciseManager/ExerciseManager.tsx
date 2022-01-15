@@ -17,8 +17,7 @@ import { useAppContextApi, useAppSelector } from '../../redux';
 import { apiClass } from '../../services/apis/apiClass';
 import './ExerciseManager.scss';
 
-interface Props {
-}
+interface Props {}
 
 interface IExercise {
   id?: number;
@@ -40,13 +39,13 @@ interface ExerciseItemProps {
 }
 
 const ExerciseItem = ({
-                        onAddExercise,
-                        isEditable: isEditting = false,
-                        isOld = true,
-                        exercise,
-                        onDeleteExercise,
-                        onUpdateExercise,
-                      }: ExerciseItemProps) => {
+  onAddExercise,
+  isEditable: isEditting = false,
+  isOld = true,
+  exercise,
+  onDeleteExercise,
+  onUpdateExercise,
+}: ExerciseItemProps) => {
   const Context = useAppContextApi();
   const [editing, setEditing] = React.useState(isEditting);
   const [exerciseState, setExerciseState] = React.useState(exercise);
@@ -75,16 +74,16 @@ const ExerciseItem = ({
     });
   };
   return (
-    <Card className='exercise-item' sx={{ marginBottom: '10px' }}>
-      <Box padding='15px'>
+    <Card className="exercise-item" sx={{ marginBottom: '10px' }}>
+      <Box padding="15px">
         <Grid container sx={{ height: '100%' }}>
           <Grid item md={11}>
-            <Box display='column' justifyContent='flex-start'>
+            <Box display="column" justifyContent="flex-start">
               <TextField
-                variant='filled'
-                placeholder='Tên bài tập'
-                type='text'
-                label='Tên bài tập'
+                variant="filled"
+                placeholder="Tên bài tập"
+                type="text"
+                label="Tên bài tập"
                 fullWidth
                 sx={{ marginBottom: '10px' }}
                 disabled={isOld && !editing}
@@ -97,11 +96,11 @@ const ExerciseItem = ({
                 }}
               />
               <TextField
-                variant='filled'
-                placeholder='Điểm tối đa'
-                type='number'
+                variant="filled"
+                placeholder="Điểm tối đa"
+                type="number"
                 fullWidth
-                label='Điểm tối đa'
+                label="Điểm tối đa"
                 disabled={isOld && !editing}
                 value={exerciseState?.maxGrade}
                 onChange={(e) => {
@@ -115,31 +114,31 @@ const ExerciseItem = ({
           </Grid>
           <Grid item md={1} sx={{ height: '100%' }}>
             <Box
-              display='flex'
-              flexDirection='column'
-              justifyContent='space-around'
-              gap='10px'
-              height='100%'
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-around"
+              gap="10px"
+              height="100%"
             >
               {isOld ? (
                 <>
                   {!editing ? (
-                    <IconButton color='success' onClick={() => setEditing(true)}>
+                    <IconButton color="success" onClick={() => setEditing(true)}>
                       <EditIcon />
                     </IconButton>
                   ) : (
-                    <IconButton color='success' onClick={onSave}>
+                    <IconButton color="success" onClick={onSave}>
                       <SaveIcon />
                     </IconButton>
                   )}
                   <IconButton>
-                    <DeleteIcon color='error' onClick={() => onDelete(exerciseState?.id)} />
+                    <DeleteIcon color="error" onClick={() => onDelete(exerciseState?.id)} />
                   </IconButton>
                 </>
               ) : (
                 <>
                   <IconButton
-                    color='success'
+                    color="success"
                     onClick={() => {
                       setExerciseState({ name: undefined, maxGrade: undefined });
                       if (exerciseState) {
@@ -373,10 +372,10 @@ export const ExerciseManager = (props: Props) => {
       });
   };
   return (
-    <Container maxWidth='md' sx={{ marginTop: '40px' }}>
-      <Box display='flex' flexDirection='column'>
+    <Container maxWidth="md" sx={{ marginTop: '40px' }}>
+      <Box display="flex" flexDirection="column">
         <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId='droppable'>
+          <Droppable droppableId="droppable">
             {(provided: any, snapshot: any) => (
               <div
                 {...provided.droppableProps}

@@ -11,16 +11,17 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
 import { useAppContextApi, useAppSelector } from '../../redux';
 import { logout } from '../../utils/common';
+import { UserNotification } from '../Notification/UserNotification';
 import './Header.scss';
 
 interface IHeaderProps {}
-enum HeaderSelect {
+export enum HeaderSelect {
   NewsFeed,
   Members,
   Exercise,
@@ -36,7 +37,6 @@ export const Header: React.FC<IHeaderProps> = () => {
   const [anchorElAdd, setAnchorElAdd] = useState(null);
   const [anchorElAvt, setAnchorElAvt] = useState(null);
   const location = useLocation();
-  const [headerSelect, setHeaderSelect] = useState(HeaderSelect.OtherPage);
   const navigate = useNavigate();
   const Context = useAppContextApi();
   const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
@@ -82,21 +82,17 @@ export const Header: React.FC<IHeaderProps> = () => {
     navigate('/edit-profile');
   };
 
-  useEffect(() => {
-    // TODO:
-
-    if (/class-detail\/\d+?\/exercise-manager/.test(location.pathname)) {
-      setHeaderSelect(HeaderSelect.Exercise);
-    } else if (location.pathname.includes('class-detail')) {
-      setHeaderSelect(HeaderSelect.NewsFeed);
-    } else if (location.pathname.includes('/members')) {
-      setHeaderSelect(HeaderSelect.Members);
-    } else if (location.pathname.includes('/grades')) {
-      setHeaderSelect(HeaderSelect.Grades);
-    } else {
-      // setHeaderSelect(HeaderSelect.OtherPage);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (/class-detail\/\d+?\/exercise-manager/.test(location.pathname)) {
+  //     setHeaderSelect(HeaderSelect.Exercise);
+  //   } else if (location.pathname.includes('class-detail')) {
+  //     setHeaderSelect(HeaderSelect.NewsFeed);
+  //   } else if (location.pathname.includes('/members')) {
+  //     setHeaderSelect(HeaderSelect.Members);
+  //   } else if (location.pathname.includes('/grades')) {
+  //     setHeaderSelect(HeaderSelect.Grades);
+  //   }
+  // }, []);
 
   return (
     <div>
@@ -118,13 +114,13 @@ export const Header: React.FC<IHeaderProps> = () => {
                 <div
                   className={`header__center-container__item
               ${
-                headerSelect === HeaderSelect.NewsFeed
+                Context.headerSelect === HeaderSelect.NewsFeed
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
                   onClick={() => {
-                    if (headerSelect !== HeaderSelect.NewsFeed) {
-                      setHeaderSelect(HeaderSelect.NewsFeed);
+                    if (Context?.headerSelect !== HeaderSelect.NewsFeed) {
+                      Context?.setHeaderSelect(HeaderSelect.NewsFeed);
                       navigate('/class-detail/' + Context?.currentClassId, {
                         replace: true,
                         state: HeaderSelect.NewsFeed,
@@ -138,13 +134,13 @@ export const Header: React.FC<IHeaderProps> = () => {
                 </div>
                 <div
                   className={`header__center-container__item  ${
-                    headerSelect === HeaderSelect.Members
+                    Context?.headerSelect === HeaderSelect.Members
                       ? 'header__center-container__item--selected'
                       : ''
                   }`}
                   onClick={() => {
-                    if (HeaderSelect.Members !== headerSelect) {
-                      setHeaderSelect(HeaderSelect.Members);
+                    if (HeaderSelect.Members !== Context?.headerSelect) {
+                      Context?.setHeaderSelect(HeaderSelect.Members);
                       navigate('/members/' + Context?.currentClassId, {
                         replace: true,
                         state: HeaderSelect.Members,
@@ -156,38 +152,39 @@ export const Header: React.FC<IHeaderProps> = () => {
                     Mọi người
                   </Typography>
                 </div>
+                {Context?.isTeacher && (
+                  <div
+                    className={`header__center-container__item
+              ${
+                Context?.headerSelect === HeaderSelect.Exercise
+                  ? 'header__center-container__item--selected'
+                  : ''
+              }`}
+                    onClick={() => {
+                      if (Context?.headerSelect !== HeaderSelect.Exercise) {
+                        Context?.setHeaderSelect(HeaderSelect.Exercise);
+                        navigate('/class-detail/' + Context?.currentClassId + '/exercise-manager', {
+                          replace: true,
+                          state: HeaderSelect.Exercise,
+                        });
+                      }
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="500">
+                      Bài tập
+                    </Typography>
+                  </div>
+                )}
                 <div
                   className={`header__center-container__item
               ${
-                headerSelect === HeaderSelect.Exercise
+                Context?.headerSelect === HeaderSelect.Grades
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
                   onClick={() => {
-                    if (headerSelect !== HeaderSelect.Exercise) {
-                      setHeaderSelect(HeaderSelect.Exercise);
-                      navigate('/class-detail/' + Context?.currentClassId + '/exercise-manager', {
-                        replace: true,
-                        state: HeaderSelect.Exercise,
-                      });
-                    }
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Bài tập
-                  </Typography>
-                </div>
-
-                <div
-                  className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.Grades
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                  onClick={() => {
-                    if (headerSelect !== HeaderSelect.Grades) {
-                      setHeaderSelect(HeaderSelect.Grades);
+                    if (Context?.headerSelect !== HeaderSelect.Grades) {
+                      Context?.setHeaderSelect(HeaderSelect.Grades);
                       navigate('/class-detail/' + Context?.currentClassId + '/grades', {
                         replace: true,
                         state: HeaderSelect.Grades,
@@ -213,6 +210,8 @@ export const Header: React.FC<IHeaderProps> = () => {
                 <MenuItem onClick={handleOpenJoinClassDialog}>Tham gia lớp học</MenuItem>
                 <MenuItem onClick={handleOpenCreateClassDialog}>Tạo mới lớp học</MenuItem>
               </Menu>
+
+              <UserNotification />
               <div>
                 <Avatar src={avatarRand} onClick={handleOpenProfileMenu} className="header__icon" />
                 <Menu

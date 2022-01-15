@@ -353,7 +353,7 @@ const Grades = () => {
                 </Box>
               </th>
             ))}
-            <th>Trung bình</th>
+            {header && header.length > 0 && <th>Trung bình</th>}
           </tr>
         </thead>
         <tbody>

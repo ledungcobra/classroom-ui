@@ -21,7 +21,6 @@ import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { PostStatus } from '../../components';
 import {
   BOX_SHADOW_STYLE,
   DEFAULT_USER_AVATAR,
@@ -30,7 +29,11 @@ import {
   SUB_COLOR,
 } from '../../constants';
 // import { classList, detailData } from '../../constants/dumydata';
-import { useAppContextApi, useAppSelector } from '../../redux';
+import { useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
+import {
+  setCurrentClassId,
+  setIsTeacher,
+} from '../../redux/slices/classContextSlides/classContextSlides';
 import { apiClass } from '../../services/apis/apiClass';
 import { convertClassDetailResponse, generateReferenceLink } from '../../utils';
 import './ClassDetail.scss';
@@ -52,6 +55,8 @@ export const ClassDetail = () => {
   const [classDetailData, setDetailData] = React.useState<IResClassDetailData | null>(null);
   const [classList, setClassList] = React.useState([]);
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (id && currentUser !== null) {
       Context?.showLoading();
@@ -62,7 +67,7 @@ export const ClassDetail = () => {
         })
         .then((data) => {
           if (data.status === 200) {
-            Context?.setRoleTeacher(data.content.role);
+            dispatch(setIsTeacher(data.content.role === 1));
             Context?.hideLoading();
             const response = convertClassDetailResponse(data);
             if (!response.error) {
@@ -84,7 +89,7 @@ export const ClassDetail = () => {
         })
         .finally(() => {
           Context?.hideLoading();
-          Context?.setCurrentClassId(parseInt(id));
+          dispatch(setCurrentClassId(parseInt(id)));
         });
     }
   }, [currentUser, id]);
@@ -296,35 +301,25 @@ export const ClassDetail = () => {
               <Grid item xs={12} md={9} className="classDetail__body__rightPart">
                 {/* Up status section */}
                 <div className="classDetail__body__rightPart__up-status-section">
-                  {!postStatusClicked ? (
-                    <Card
-                      variant="outlined"
-                      sx={BOX_SHADOW_STYLE}
-                      onClick={() => {
-                        setPostStatusClicked((prev) => !prev);
-                      }}
-                    >
-                      <CardContent>
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
-                          <Typography variant="subtitle1" color={SUB_COLOR} className="status-text">
-                            Thông báo nội dụng nào đó cho lớp học của bạn
-                          </Typography>
-                          <IconButton>
-                            <PublishedWithChangesOutlinedIcon />
-                          </IconButton>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <PostStatus
-                      classList={classList}
-                      onCancel={() => setPostStatusClicked(false)}
-                      onPost={(content) => {
-                        //TODO: do post
-                      }}
-                    />
-                  )}
+                  <Card
+                    variant="outlined"
+                    sx={BOX_SHADOW_STYLE}
+                    onClick={() => {
+                      setPostStatusClicked((prev) => !prev);
+                    }}
+                  >
+                    <CardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
+                        <Typography variant="subtitle1" color={SUB_COLOR} className="status-text">
+                          Thông báo nội dụng nào đó cho lớp học của bạn
+                        </Typography>
+                        <IconButton>
+                          <PublishedWithChangesOutlinedIcon />
+                        </IconButton>
+                      </Box>
+                    </CardContent>
+                  </Card>
                 </div>
                 <div className="classDetail__body__rightPart__statuses">
                   {classDetailData.classStatus.map((stt, index) => (
@@ -467,7 +462,6 @@ export const ClassDetail = () => {
             >
               <MenuItem
                 onClick={() => {
-                  // TODO:
                   handleCopy(
                     Context?.openSnackBar,
                     generateReferenceLink(classDetailData.classCode, 2),
@@ -478,7 +472,6 @@ export const ClassDetail = () => {
               </MenuItem>
               <MenuItem
                 onClick={() => {
-                  // TODO:
                   handleCopy(Context?.openSnackBar, classDetailData.classCode);
                 }}
               >

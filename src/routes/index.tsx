@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header } from '../components';
-import { Classes, EditProfile, ExerciseManager, Login, Singup } from '../containers';
+import { Classes, EditProfile, ExerciseManager, GradeReview, Login, Singup } from '../containers';
 import { ClassDetail } from '../containers/ClassDetail/ClassDetail';
 import ClassMembers from '../containers/ClassMembers/ClassMembers';
 import Grades from '../containers/Grades/Grades';
@@ -116,6 +116,21 @@ export const Routers = () => {
               isHasHeader={true}
               header={Header}
               isHasFooter={true}
+            />
+          }
+        />
+
+        <Route
+          path="/class-detail/:id/grade-review"
+          caseSensitive
+          element={
+            <WithUnAuthRouter
+              component={GradeReview}
+              layout={OnlyHeaderLayout}
+              isHasHeader={true}
+              header={Header}
+              isHasFooter={true}
+              footer={Footer}
             />
           }
         />

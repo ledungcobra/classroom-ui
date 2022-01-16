@@ -1,13 +1,13 @@
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Favicon from 'react-favicon';
 import './App.scss';
 import ImageFavicon from './assets/icons/favicon.ico';
 import { HeaderSelect } from './components';
 import { SUB_COLOR } from './constants';
-import { setRandomAvt, useAppDispatch, useLocalStorage } from './redux';
+import { setRandomAvt, useAppDispatch } from './redux';
 import { Routers } from './routes';
 import { getRandomUInt } from './utils/common';
 import { avatars } from './utils/img';
@@ -17,13 +17,7 @@ export interface IAppContext {
   showLoading: () => void;
   hideLoading: () => void;
   loading: boolean;
-  setCurrentClassId: (classId: number | null) => void;
-  currentClassId: number | null;
-  isTeacher: boolean;
-  setRoleTeacher: (role: number) => void;
   openSnackBarError: (message: string) => void;
-  headerSelect: HeaderSelect | null;
-  setHeaderSelect: (value: HeaderSelect) => void;
 }
 
 interface IAppState {
@@ -41,14 +35,6 @@ export default function App() {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [isError, setIsError] = React.useState(false);
-  const [localStorageState, setLocalStorageState] = useLocalStorage<IAppState>('appstate', {
-    classId: null,
-    roleTeacher: null,
-    selectedHeader: null,
-  });
-
-  const [currentClassId, setCurrentClassId] = useState(localStorageState.classId);
-
   const [loading, setLoading] = React.useState(false);
 
   const showLoading = () => {
@@ -73,9 +59,6 @@ export default function App() {
     setIsError(false);
   };
 
-  const setHeaderSelect = (selection: HeaderSelect) =>
-    setLocalStorageState({ ...localStorageState, selectedHeader: selection });
-
   const showSnackBarError = (message: string) => {
     setMessage(message);
     setOpen(true);
@@ -94,18 +77,7 @@ export default function App() {
         showLoading,
         hideLoading,
         loading,
-        currentClassId: localStorageState.classId,
-        setCurrentClassId: (classId) => {
-          setLocalStorageState({ ...localStorageState, classId });
-        },
         openSnackBarError: showSnackBarError,
-        isTeacher: localStorageState.roleTeacher === 1,
-        headerSelect: localStorageState.selectedHeader,
-        setHeaderSelect,
-        setRoleTeacher: (role) => {
-          if (role === null) return;
-          setLocalStorageState({ ...localStorageState, roleTeacher: role });
-        },
       }}
     >
       <div className="app">

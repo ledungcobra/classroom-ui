@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import AddMember from '../../components/AddMember/AddMember';
 import { DEFAULT_USER_AVATAR, GREEN_COLOR } from '../../constants';
 import { useAppContextApi, useAppSelector } from '../../redux';
@@ -49,8 +49,8 @@ interface CheckStatus {
   checked: boolean;
 }
 const ClassMembers = (props: ClassMemberProps) => {
-  const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
 
   const [members, setMembers] = React.useState<IResMembers>({
     students: [],
@@ -157,7 +157,7 @@ const ClassMembers = (props: ClassMemberProps) => {
             <Typography variant="h4" color={GREEN_COLOR}>
               &nbsp;Giáo viên
             </Typography>
-            {Context?.isTeacher && (
+            {isTeacher && (
               <IconButton
                 onClick={() => {
                   setAddMemberPopupVariant('teacher');
@@ -213,7 +213,7 @@ const ClassMembers = (props: ClassMemberProps) => {
               <Typography variant="body1" color={GREEN_COLOR}>
                 {members.students.length + ' ' + 'sinh viên  '}
               </Typography>
-              {Context?.isTeacher && (
+              {isTeacher && (
                 <IconButton onClick={() => setAddMemberPopupVariant('student')}>
                   <PersonAddIcon sx={{ color: GREEN_COLOR }} />
                 </IconButton>
@@ -250,7 +250,7 @@ const ClassMembers = (props: ClassMemberProps) => {
               >
                 Tác vụ
               </Button>
-              {Context?.isTeacher && (
+              {isTeacher && (
                 <Menu
                   anchorEl={anchorEl}
                   onClose={() => {
@@ -400,7 +400,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                         {s.email}
                       </Typography>
                     </Box>
-                    {Context?.isTeacher && (
+                    {isTeacher && (
                       <IconButton
                         onClick={(e) =>
                           openMenu(e, TypeMoreButton.StudentSingle, {

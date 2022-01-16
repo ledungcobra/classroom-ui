@@ -1,3 +1,5 @@
+import { classReducer } from './../slices/classContextSlides/classContextSlides';
+import { editorReducer } from './../slices/editorSlides/editorSlice';
 import { combineReducers } from '@reduxjs/toolkit';
 import { loginReducer } from '../slices/apiSlices/authSlice';
 import classesSlice from '../slices/apiSlices/classesSlice';
@@ -9,6 +11,8 @@ const rootReducer = combineReducers({
   authReducer,
   classesSlice,
   utilsReducer,
+  editorReducer,
+  classReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

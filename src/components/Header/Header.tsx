@@ -15,7 +15,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
-import { useAppContextApi, useAppSelector } from '../../redux';
+import { useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
+import { setHeaderSelect } from '../../redux/slices/classContextSlides/classContextSlides';
 import { logout } from '../../utils/common';
 import { UserNotification } from '../Notification/UserNotification';
 import './Header.scss';
@@ -36,6 +37,10 @@ export const Header: React.FC<IHeaderProps> = () => {
   const [leftNavOpenStatus, setLeftNavOpenStatus] = useState(false);
   const [anchorElAdd, setAnchorElAdd] = useState(null);
   const [anchorElAvt, setAnchorElAvt] = useState(null);
+  const currentClassId = useAppSelector((state) => state.classReducer.currentClassId);
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
+  const headerSelect = useAppSelector((state) => state.classReducer.headerSelect);
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
   const Context = useAppContextApi();
@@ -97,18 +102,18 @@ export const Header: React.FC<IHeaderProps> = () => {
                 </Link>
               </Typography>
             </div>
-            {Context?.currentClassId && (
+            {currentClassId && (
               <div className="header__center-container">
                 <div
                   className={`header__center-container__item
               ${
-                Context.headerSelect === HeaderSelect.NewsFeed
+                headerSelect === HeaderSelect.NewsFeed
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
                   onClick={() => {
-                    Context?.setHeaderSelect(HeaderSelect.NewsFeed);
-                    navigate('/class-detail/' + Context?.currentClassId, {
+                    dispatch(setHeaderSelect(HeaderSelect.NewsFeed));
+                    navigate('/class-detail/' + currentClassId, {
                       replace: true,
                       state: HeaderSelect.NewsFeed,
                     });
@@ -120,13 +125,13 @@ export const Header: React.FC<IHeaderProps> = () => {
                 </div>
                 <div
                   className={`header__center-container__item  ${
-                    Context?.headerSelect === HeaderSelect.Members
+                    headerSelect === HeaderSelect.Members
                       ? 'header__center-container__item--selected'
                       : ''
                   }`}
                   onClick={() => {
-                    Context?.setHeaderSelect(HeaderSelect.Members);
-                    navigate('/members/' + Context?.currentClassId, {
+                    dispatch(setHeaderSelect(HeaderSelect.Members));
+                    navigate('/members/' + currentClassId, {
                       replace: true,
                       state: HeaderSelect.Members,
                     });
@@ -136,17 +141,17 @@ export const Header: React.FC<IHeaderProps> = () => {
                     Mọi người
                   </Typography>
                 </div>
-                {Context?.isTeacher && (
+                {isTeacher && (
                   <div
                     className={`header__center-container__item
               ${
-                Context?.headerSelect === HeaderSelect.Exercise
+                headerSelect === HeaderSelect.Exercise
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
                     onClick={() => {
-                      Context?.setHeaderSelect(HeaderSelect.Exercise);
-                      navigate('/class-detail/' + Context?.currentClassId + '/exercise-manager', {
+                      dispatch(setHeaderSelect(HeaderSelect.Exercise));
+                      navigate('/class-detail/' + currentClassId + '/exercise-manager', {
                         replace: true,
                         state: HeaderSelect.Exercise,
                       });
@@ -157,25 +162,28 @@ export const Header: React.FC<IHeaderProps> = () => {
                     </Typography>
                   </div>
                 )}
-                <div
-                  className={`header__center-container__item
+
+                {isTeacher && (
+                  <div
+                    className={`header__center-container__item
               ${
-                Context?.headerSelect === HeaderSelect.Grades
+                headerSelect === HeaderSelect.Grades
                   ? 'header__center-container__item--selected'
                   : ''
               }`}
-                  onClick={() => {
-                    Context?.setHeaderSelect(HeaderSelect.Grades);
-                    navigate('/class-detail/' + Context?.currentClassId + '/grades', {
-                      replace: true,
-                      state: HeaderSelect.Grades,
-                    });
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Điểm
-                  </Typography>
-                </div>
+                    onClick={() => {
+                      dispatch(setHeaderSelect(HeaderSelect.Grades));
+                      navigate('/class-detail/' + currentClassId + '/grades', {
+                        replace: true,
+                        state: HeaderSelect.Grades,
+                      });
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="500">
+                      Điểm
+                    </Typography>
+                  </div>
+                )}
               </div>
             )}
             <div className="header__right-container">

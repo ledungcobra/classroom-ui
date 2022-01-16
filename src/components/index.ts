@@ -6,4 +6,4 @@ export * from './Header/Header';
 export * from './JoinClass/JoinClass';
 export * from './NavMenu/NavMenu';
 export * from './Notification/UserNotification';
-export * from './PostStatus/PostStatus';
+export * from './PostStatus/PostComment';

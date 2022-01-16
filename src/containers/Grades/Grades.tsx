@@ -86,7 +86,7 @@ const Grades = () => {
 
   const { id } = useParams<any>();
   let currentUser = useAppSelector((state) => state.authReducer.currentUser);
-  const loadGradeData = () => {};
+
   React.useEffect(() => {
     axiosMain
       .get(`/course/${id}/all-grades?currentUser=${currentUser}`)
@@ -128,7 +128,6 @@ const Grades = () => {
         }
       })
       .catch((e) => {
-        // TODO:
         Context?.openSnackBar('Preload bảng điểm thất bại catch');
         console.log(e);
       });

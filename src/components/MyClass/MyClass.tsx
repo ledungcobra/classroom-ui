@@ -3,7 +3,8 @@ import { Avatar } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { HeaderSelect } from '..';
-import { useAppContextApi } from '../../redux';
+import { useAppContextApi, useAppDispatch } from '../../redux';
+import { setHeaderSelect } from '../../redux/slices/classContextSlides/classContextSlides';
 // import { Link } from 'react-router-dom';
 import './MyClass.scss';
 interface IMyClassProps {
@@ -25,6 +26,7 @@ export const MyClass: React.FC<IMyClassProps> = ({
 }) => {
   const Context = useAppContextApi();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   return (
     <li className="joined__list">
@@ -39,7 +41,7 @@ export const MyClass: React.FC<IMyClassProps> = ({
               className="joined__title"
               onClick={() => {
                 navigate(`/class-detail/${id}`);
-                Context?.setHeaderSelect(HeaderSelect.NewsFeed);
+                dispatch(setHeaderSelect(HeaderSelect.NewsFeed));
               }}
             >
               <h2>{name}</h2>

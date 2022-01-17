@@ -2,32 +2,14 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ControlCameraOutlined';
 import InfoIcon from '@mui/icons-material/Info';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import PublishedWithChangesOutlinedIcon from '@mui/icons-material/PublishedWithChangesOutlined';
-import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
-import {
-  Avatar,
-  Card,
-  CardContent,
-  Divider,
-  IconButton,
-  Menu,
-  MenuItem,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Avatar, Card, CardContent, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { Box } from '@mui/system';
 import copy from 'copy-to-clipboard';
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import {
-  BOX_SHADOW_STYLE,
-  DEFAULT_USER_AVATAR,
-  GREEN_COLOR,
-  MAIN_COLOR,
-  SUB_COLOR,
-} from '../../constants';
+import { useParams } from 'react-router-dom';
+import { IExercise } from '..';
+import { BOX_SHADOW_STYLE, DEFAULT_USER_AVATAR, GREEN_COLOR, SUB_COLOR } from '../../constants';
 // import { classList, detailData } from '../../constants/dumydata';
 import { useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
 import {
@@ -51,52 +33,13 @@ interface MoreButtonEventData {
 
 export const ClassDetail = () => {
   const Context = useAppContextApi();
-  const { id } = useParams<any>();
-  const [classDetailData, setDetailData] = React.useState<IResClassDetailData | null>(null);
-  const [classList, setClassList] = React.useState([]);
-  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
-  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (id && currentUser !== null) {
-      Context?.showLoading();
-      apiClass
-        .getClassDetail({
-          classId: parseInt(id),
-          currentUser,
-        })
-        .then((data) => {
-          if (data.status === 200) {
-            dispatch(setIsTeacher(data.content.role === 1));
-            Context?.hideLoading();
-            const response = convertClassDetailResponse(data);
-            if (!response.error) {
-              setDetailData(response.data as IResClassDetailData);
-              Context?.openSnackBar('Tải lớp học thành công');
-            } else {
-              Context?.openSnackBarError(
-                response?.error?.message
-                  ? 'Bạn chưa gia nhập lớp này'
-                  : 'Có lỗi xảy ra trong quá trình tải',
-              );
-            }
-          } else {
-            Context?.openSnackBar(data.message);
-          }
-        })
-        .catch((e) => {
-          Context?.openSnackBarError('Không thể tải lớp học');
-        })
-        .finally(() => {
-          Context?.hideLoading();
-          dispatch(setCurrentClassId(parseInt(id)));
-        });
-    }
-  }, [currentUser, id]);
-
+  const exercisesList = useFetchExercises();
+  if (exercisesList && exercisesList.length > 0) {
+    console.log(exercisesList);
+  }
+  const classDetailData = useFetchClassDetail();
   const [infoClicked, setInfoClicked] = useState<boolean>(false);
-  const [postStatusClicked, setPostStatusClicked] = useState(false);
-
   const [moreButtonEventData, setMoreButtonEventData] = useState<MoreButtonEventData>({
     type: TypeMoreButton.None,
   });
@@ -113,9 +56,6 @@ export const ClassDetail = () => {
     setAnchorEl(event.currentTarget);
     setMoreButtonEventData({ type, data });
   };
-
-  // Event handle
-  const handlePostComment = () => {};
 
   return (
     <>
@@ -249,199 +189,46 @@ export const ClassDetail = () => {
                     </CardContent>
                   </Card>
                 </div>
-                <div className="classDetail__body__leftPart__bottom">
-                  <Card sx={{ borderRadius: '7px', padding: '5px' }}>
-                    <CardContent>
-                      <Box display="flex" flexDirection="column" alignItems="flex-start">
-                        <Typography variant="h6" color="black" textAlign="left" fontWeight="bold">
-                          Sắp đến hạn
-                        </Typography>
-                        <Box
-                          display="flex"
-                          flexDirection="column"
-                          gap="10px"
-                          className="classDetail__body__leftPart__bottom__deadlines"
-                        >
-                          {classDetailData.classDeadline.map((dl, index) => (
-                            <div
-                              key={index}
-                              className="classDetail__body__leftPart__bottom__deadlines__item"
-                            >
-                              <Typography variant="h6" color="lightgray" textAlign="left">
-                                Đến hạn {dl.day}
-                              </Typography>
-                              <Link to={`/details/${dl.id}`} className="myCustomLink">
-                                <Typography variant="h6" color={SUB_COLOR} textAlign="left">
-                                  {dl.hour} - {dl.name}
-                                </Typography>
-                              </Link>
-                            </div>
-                          ))}
-                        </Box>
-                        <Link
-                          to="/deadlines"
-                          className="myCustomLink myCustomLink--light-blue"
-                          style={{ display: 'block', width: '100%' }}
-                        >
-                          <Typography
-                            variant="h6"
-                            color="#137333"
-                            fontWeight="600"
-                            textAlign="right"
-                          >
-                            Xem tất cả
-                          </Typography>
-                        </Link>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </div>
               </Grid>
               {/* Right Part */}
               <Grid item xs={12} md={9} className="classDetail__body__rightPart">
-                {/* Up status section */}
                 <div className="classDetail__body__rightPart__up-status-section">
-                  <Card
-                    variant="outlined"
-                    sx={BOX_SHADOW_STYLE}
-                    onClick={() => {
-                      setPostStatusClicked((prev) => !prev);
-                    }}
-                  >
+                  <Card variant="outlined" sx={BOX_SHADOW_STYLE}>
                     <CardContent>
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box display="flex" alignItems="center" gap={3}>
                         <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
-                        <Typography variant="subtitle1" color={SUB_COLOR} className="status-text">
-                          Thông báo nội dụng nào đó cho lớp học của bạn
+                        <Typography variant="h6" color={SUB_COLOR} className="status-text">
+                          {exercisesList && exercisesList.length > 0
+                            ? 'Cấu trúc điểm'
+                            : 'Chưa có cấu trúc điểm'}
                         </Typography>
-                        <IconButton>
-                          <PublishedWithChangesOutlinedIcon />
-                        </IconButton>
                       </Box>
+                      {exercisesList && exercisesList.length > 0 && (
+                        <table className="grade-data-sheet">
+                          <thead>
+                            <tr>
+                              <th>Tên bài tập</th>
+                              <th>Điểm tối đa</th>
+                              <th>Phần trăm</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {exercisesList.map((e, index) => {
+                              return (
+                                <tr>
+                                  <td>{e.name}</td>
+                                  <td>{e.maxGrade}</td>
+                                  <td>{e.gradeScale}%</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
-                <div className="classDetail__body__rightPart__statuses">
-                  {classDetailData.classStatus.map((stt, index) => (
-                    <Card
-                      key={index}
-                      variant="outlined"
-                      sx={{ ...BOX_SHADOW_STYLE, marginBottom: '20px' }}
-                    >
-                      <CardContent>
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Box display="flex" gap="10px" alignItems="center">
-                            <Avatar alt="status-avatar" src={DEFAULT_USER_AVATAR} />
-                            <Box display="flex" flexDirection="column">
-                              <Typography
-                                variant="body1"
-                                color="black"
-                                className="status-text"
-                                fontWeight="600"
-                              >
-                                {stt.authorName}
-                              </Typography>
-                              <Typography variant="subtitle1" fontWeight="bold" color={SUB_COLOR}>
-                                {stt.time}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <IconButton
-                            onClick={(e) =>
-                              openMenu(e, TypeMoreButton.Status, {
-                                status: stt,
-                              })
-                            }
-                          >
-                            <MoreVertIcon />
-                          </IconButton>
-                        </Box>
-                        <div className="classDetail__body__rightPart__status">
-                          <Typography
-                            variant="body1"
-                            color="#363636"
-                            textAlign="left"
-                            dangerouslySetInnerHTML={{ __html: stt.status }}
-                          />
-                        </div>
-                      </CardContent>
-                      <Divider></Divider>
-                      <CardContent className="comments">
-                        <Box display="flex" gap="8px" marginBottom="10px">
-                          <PeopleAltOutlinedIcon />
-                          <Typography variant="body1" color={MAIN_COLOR} fontWeight="600">
-                            {stt.comments.length} bình luận về lớp học
-                          </Typography>
-                        </Box>
-                        {stt.comments.map((c, index) => (
-                          <div key={index} className="comments__item">
-                            <Box display="flex" justifyContent="space-between">
-                              <Box display="flex" gap="10px">
-                                <Avatar alt={'avatar' + index} src={DEFAULT_USER_AVATAR} />
-                                <div>
-                                  <Typography
-                                    variant="body1"
-                                    color={MAIN_COLOR}
-                                    fontWeight="500"
-                                    display="inline"
-                                  >
-                                    {c.author + ' '}
-                                    <Typography
-                                      variant="subtitle1"
-                                      color={SUB_COLOR}
-                                      display="inline"
-                                    >
-                                      {c.time}
-                                    </Typography>
-                                  </Typography>
-                                  <Typography variant="body2" color={MAIN_COLOR}>
-                                    {c.content}
-                                  </Typography>
-                                </div>
-                              </Box>
-                              <IconButton
-                                className="comments__item__option-button comment_more-btn"
-                                onClick={(e) => {
-                                  openMenu(e, TypeMoreButton.Comment, {
-                                    comment: c,
-                                  });
-                                }}
-                              >
-                                <MoreVertIcon />
-                              </IconButton>
-                            </Box>
-                          </div>
-                        ))}
-                      </CardContent>
-                      <Divider />
-                      <CardContent>
-                        <Box
-                          className="input-field"
-                          display="flex"
-                          gap="13px"
-                          justifyContent="space-between"
-                          alignItems="center"
-                        >
-                          <Avatar alt="author-post-avt" src={DEFAULT_USER_AVATAR} />
-                          <TextField
-                            fullWidth
-                            className="input-field__comment-input"
-                            variant="outlined"
-                            defaultValue=""
-                            placeholder="Thêm nhận xét trong lớp học"
-                            InputProps={{
-                              endAdornment: (
-                                <IconButton onClick={handlePostComment}>
-                                  <SendOutlinedIcon />
-                                </IconButton>
-                              ),
-                            }}
-                          />
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <div className="classDetail__body__rightPart__statuses"></div>
               </Grid>
             </Grid>
 
@@ -477,13 +264,7 @@ export const ClassDetail = () => {
               >
                 Sao chép mã lớp
               </MenuItem>
-              {/* <MenuItem
-                onClick={() => {
-                  // TODO : dat lai ma lop
-                }}
-              >
-                Đặt lại mã lớp
-              </MenuItem> */}
+
               <MenuItem onClick={handleCloseMenu}>Tắt</MenuItem>
             </Menu>
 
@@ -502,27 +283,9 @@ export const ClassDetail = () => {
                 horizontal: 'left',
               }}
             >
-              <MenuItem
-                onClick={() => {
-                  // TODO: chuyen len dau
-                }}
-              >
-                Chuyển lên đầu
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  // TODO: Chinh sua
-                }}
-              >
-                Chinh sửa
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  // TODO : handle xoá
-                }}
-              >
-                Xoá
-              </MenuItem>
+              <MenuItem>Chuyển lên đầu</MenuItem>
+              <MenuItem>Chinh sửa</MenuItem>
+              <MenuItem>Xoá</MenuItem>
               <MenuItem
                 onClick={() => {
                   handleCopy(
@@ -578,3 +341,95 @@ function handleCopy(openSnackBar: ((message: string) => void) | undefined, conte
   copy(content);
   openSnackBar('Copied');
 }
+
+/// HOOKS
+const useFetchClassDetail = (): IResClassDetailData | null => {
+  const [classDetailData, setDetailData] = React.useState<IResClassDetailData | null>(null);
+  const Context = useAppContextApi();
+  const dispatch = useAppDispatch();
+
+  const { id } = useParams<any>();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  useEffect(() => {
+    if (id && currentUser !== null) {
+      Context?.showLoading();
+      apiClass
+        .getClassDetail({
+          classId: parseInt(id),
+          currentUser,
+        })
+        .then((data) => {
+          if (data.status === 200) {
+            dispatch(setIsTeacher(data.content.role === 1));
+            Context?.hideLoading();
+            const response = convertClassDetailResponse(data);
+            if (!response.error) {
+              setDetailData(response.data as IResClassDetailData);
+              Context?.openSnackBar('Tải lớp học thành công');
+            } else {
+              Context?.openSnackBarError(
+                response?.error?.message
+                  ? 'Bạn chưa gia nhập lớp này'
+                  : 'Có lỗi xảy ra trong quá trình tải',
+              );
+            }
+          } else {
+            Context?.openSnackBar(data.message);
+          }
+        })
+        .catch((e) => {
+          Context?.openSnackBarError('Không thể tải lớp học');
+        })
+        .finally(() => {
+          Context?.hideLoading();
+          dispatch(setCurrentClassId(parseInt(id)));
+        });
+    }
+  }, [currentUser, id]);
+  return classDetailData;
+};
+
+const useFetchExercises = () => {
+  const { id } = useParams();
+  const Context = useAppContextApi();
+  const [exercisesState, setExercisesState] = React.useState(new Array<IExercise>());
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+
+  useEffect(() => {
+    if (id && currentUser !== null) {
+      Context?.showLoading();
+      apiClass
+        .getClassAssignments({
+          courseId: parseInt(id),
+          currentUser,
+          SortColumn: '+Order',
+        })
+        .then((res) => {
+          Context?.hideLoading();
+          if (res?.result == 1) {
+            const exercise = (res?.content.data as IExercise[]) ?? [];
+            const sortedExercise = exercise.sort(
+              (a: IExercise, b: IExercise) => a.order!! - b.order!!,
+            );
+
+            const total = sortedExercise.reduce((acc, curr) => acc + curr.maxGrade!!, 0);
+            sortedExercise.map((e) => {
+              e.gradeScale = +((e.maxGrade!! * 100.0) / total).toFixed(2);
+              return e;
+            });
+
+            setExercisesState(sortedExercise);
+            Context?.openSnackBar('Tải bài tập thành công');
+          } else {
+            Context?.openSnackBarError('Có lỗi xảy ra trong quá trình tải');
+          }
+        })
+        .catch((e) => {
+          Context?.hideLoading();
+          Context?.openSnackBarError('Không thể tải bài tập');
+        })
+        .finally(Context?.hideLoading);
+    }
+  }, [id, currentUser]);
+  return exercisesState;
+};

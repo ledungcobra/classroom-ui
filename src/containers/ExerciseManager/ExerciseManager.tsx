@@ -20,7 +20,7 @@ import './ExerciseManager.scss';
 
 interface Props {}
 
-interface IExercise {
+export interface IExercise {
   id?: number;
   name?: string;
   maxGrade?: number;

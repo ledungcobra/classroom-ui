@@ -2,7 +2,10 @@ import { useEffect } from 'react';
 import { batch } from 'react-redux';
 import { MyClass } from '../../components/MyClass/MyClass';
 import { doGetListClasses, useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
-import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
+import {
+  setCurrentClassId,
+  setIsTeacher,
+} from '../../redux/slices/classContextSlides/classContextSlides';
 import './Classes.scss';
 
 export const Classes = () => {
@@ -17,6 +20,8 @@ export const Classes = () => {
     const initFetch = () => {
       batch(() => {
         dispatch(setCurrentClassId(null));
+        dispatch(setIsTeacher(false));
+
         dispatch(
           doGetListClasses({
             currentUser,

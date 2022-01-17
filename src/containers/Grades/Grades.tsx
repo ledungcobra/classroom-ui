@@ -296,6 +296,8 @@ const Grades = () => {
     return result;
   };
 
+  const handleOpenInfoDialog = (studentId: number) => {};
+
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
       <Box sx={{ marginBottom: '20px' }} display="flex" gap="10px" justifyContent="flex-end">
@@ -360,7 +362,15 @@ const Grades = () => {
             return (
               <tr key={studentScore.mssv}>
                 {header.map((h) => {
-                  if (h.key === 'mssv' || h.key === 'name') {
+                  if (h.key === 'name') {
+                    return (
+                      <td key={studentScore.mssv + h.key}>
+                        <div onClick={() => handleOpenInfoDialog(studentScore.id)}>
+                          {studentScore[h.key + '']}
+                        </div>
+                      </td>
+                    );
+                  } else if (h.key === 'mssv') {
                     return <td key={studentScore.mssv + h.key}>{studentScore[h.key + '']}</td>;
                   }
                   return (

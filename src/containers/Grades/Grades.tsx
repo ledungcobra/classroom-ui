@@ -1,10 +1,23 @@
 // @ts-nocheck
+import { DialogTitle } from '@material-ui/core';
 import MoreVert from '@mui/icons-material/MoreVert';
-import { Button, Container, IconButton, Menu, MenuItem } from '@mui/material';
+import {
+  Alert,
+  Avatar,
+  Button,
+  Container,
+  Dialog,
+  DialogContent,
+  IconButton,
+  LinearProgress,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useParams } from 'react-router';
 import { useAppContextApi, useAppSelector } from '../../redux';
+import { apiUser } from '../../services/apis/apiUser';
 import axiosMain from '../../services/axios/axiosMain';
 import './Grades.scss';
 
@@ -24,68 +37,75 @@ interface MoreButtonEventData {
   data: any | null;
 }
 
+//#region Utils
+/**
+ *
+ * @param row
+ * @returns [{
+ *  key, title, id
+ * }]
+ */
+const transformTableHeader = (row: any) => {
+  return [
+    { key: 'name', title: 'Họ tên' },
+    { key: 'mssv', title: 'MSSV' },
+    ...row.map((h: any) => ({
+      ...h,
+      key: h.id + '',
+      title: h.name,
+    })),
+  ];
+};
+
+/**
+ *
+ * @param rows
+ * @returns [
+ *  {
+ * name, mssv, id, [exerciseId + 'grade']..., [exerciseId +'max']...
+ * }
+ * ]
+ */
+
+const transformRows = (rows: any[]) => {
+  return [
+    ...rows.map((s) => {
+      return {
+        name: s.name,
+        mssv: s.mssv,
+        username: 'tanhank2k',
+        id: s.id,
+        ...s.grades.reduce((total: any, exercise: any) => {
+          return {
+            [exercise.id + 'grade']: exercise.grade,
+            [exercise.id + 'max']: exercise.maxGrade,
+            ...total,
+          };
+        }, {}),
+      };
+    }),
+  ];
+};
+
+//#endregion
+
 const Grades = () => {
-  /**
-   *
-   * @param row
-   * @returns [{
-   *  key, title, id
-   * }]
-   */
-  const transformTableHeader = (row: any) => {
-    return [
-      { key: 'name', title: 'Họ tên' },
-      { key: 'mssv', title: 'MSSV' },
-      ...row.map((h: any) => ({
-        ...h,
-        key: h.id + '',
-        title: h.name,
-      })),
-    ];
-  };
-
-  /**
-   *
-   * @param rows
-   * @returns [
-   *  {
-   * name, mssv, id, [exerciseId + 'grade']..., [exerciseId +'max']...
-   * }
-   * ]
-   */
-
-  const transformRows = (rows: any[]) => {
-    return [
-      ...rows.map((s) => {
-        return {
-          name: s.name,
-          mssv: s.mssv,
-          id: s.id,
-          ...s.grades.reduce((total: any, exercise: any) => {
-            return {
-              [exercise.id + 'grade']: exercise.grade,
-              [exercise.id + 'max']: exercise.maxGrade,
-              ...total,
-            };
-          }, {}),
-        };
-      }),
-    ];
-  };
-
   const [moreVertEventData, setMoreButtonEventData] = React.useState<MoreButtonEventData>({
     type: TypeMoreButton.NONE,
     data: null,
   });
 
+  const [userInfo, setCurrentUserInfoData] = React.useState<IUserInfoData | undefined>();
+
   const uploadRef = React.useRef();
   const [header, setHeader] = React.useState<any[]>([]);
   const [typeUploadFile, setTypeUploadFile] = React.useState(null);
   let [scores, setScores] = React.useState<any[]>([]);
+  const [open, setOpen] = React.useState(false);
   const Context = useAppContextApi();
-
   const { id } = useParams<any>();
   let currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     axiosMain
@@ -133,7 +153,7 @@ const Grades = () => {
       });
   }, []);
 
-  // Menu more
+  //#region MenuMore
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenuMore = Boolean(anchorEl);
 
@@ -141,10 +161,35 @@ const Grades = () => {
     setAnchorEl(null);
   };
 
+  const openMenu = (event: React.MouseEvent<HTMLElement>, type: TypeMoreButton, data?: any) => {
+    setAnchorEl(event.currentTarget);
+    setMoreButtonEventData({ type, data });
+  };
+
+  const openMoreVertOneGradeOneStudent = (
+    event: React.MouseEvent<HTMLElement>,
+    studentId: number,
+    exerciseId: number,
+  ) => {
+    openMenu(event, TypeMoreButton.ONE_STUDENT, {
+      studentId,
+      exerciseId,
+    });
+  };
+
+  const openMoreVertOneGradeAllStudentStudent = (
+    event: React.MouseEvent<HTMLElement>,
+    exerciseId: number,
+  ) => {
+    openMenu(event, TypeMoreButton.ALL_STUDENT, exerciseId);
+  };
+
+  //#endregion
+
+  //#region Handle
+
   const handleReturnGradeToAll = () => {
     const exerciseId = moreVertEventData.data;
-
-    // TODO: HANDLE SAVE AND NOTIFY TO ALL STUDENTS GRADE OF THIS EXERCISE
     const studentGrade = scores.map((s) => ({
       mssv: s.mssv,
       grade: s[exerciseId + 'grade'],
@@ -186,29 +231,6 @@ const Grades = () => {
       .catch((e) => {
         Context?.openSnackBar('Trả bài thất bại');
       });
-  };
-
-  const openMenu = (event: React.MouseEvent<HTMLElement>, type: TypeMoreButton, data?: any) => {
-    setAnchorEl(event.currentTarget);
-    setMoreButtonEventData({ type, data });
-  };
-
-  const openMoreVertOneGradeOneStudent = (
-    event: React.MouseEvent<HTMLElement>,
-    studentId: number,
-    exerciseId: number,
-  ) => {
-    openMenu(event, TypeMoreButton.ONE_STUDENT, {
-      studentId,
-      exerciseId,
-    });
-  };
-
-  const openMoreVertOneGradeAllStudentStudent = (
-    event: React.MouseEvent<HTMLElement>,
-    exerciseId: number,
-  ) => {
-    openMenu(event, TypeMoreButton.ALL_STUDENT, exerciseId);
   };
 
   const handleUpdateGradesState = (studentId: number, exerciseId: number, newValue: number) => {
@@ -287,6 +309,39 @@ const Grades = () => {
       .finally(handleCloseMenu);
   };
 
+  const handleOpenInfoDialog = (username: string) => {
+    setOpen(true);
+    if (!username) {
+      setLoading(false);
+      return setCurrentUserInfoData(null);
+    }
+
+    setLoading(true);
+    apiUser
+      .getUserInfo({
+        username: username,
+      })
+      .then((data: IUserInfo) => {
+        if (data.result === 1) {
+          setCurrentUserInfoData(data.content);
+        } else {
+          Context?.openSnackBarError('Có lỗi xảy ra trong quá trình lấy thông tin user');
+        }
+      })
+      .catch(() => {
+        Context?.openSnackBarError('Có lỗi xảy ra trong quá trình lấy thông tin user');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
+  //#endregion
+
   const calculateAverage = (studentScore) => {
     const result = parseFloat(
       header.slice(2).reduce((acc, current) => {
@@ -295,8 +350,6 @@ const Grades = () => {
     ).toFixed(2);
     return result;
   };
-
-  const handleOpenInfoDialog = (studentId: number) => {};
 
   return (
     <Container maxWidth="lg" sx={{ marginTop: '40px' }} className="grades-container">
@@ -365,9 +418,12 @@ const Grades = () => {
                   if (h.key === 'name') {
                     return (
                       <td key={studentScore.mssv + h.key}>
-                        <div onClick={() => handleOpenInfoDialog(studentScore.id)}>
+                        <span
+                          className="username_clickable"
+                          onClick={() => handleOpenInfoDialog(studentScore.username)}
+                        >
                           {studentScore[h.key + '']}
-                        </div>
+                        </span>
                       </td>
                     );
                   } else if (h.key === 'mssv') {
@@ -458,6 +514,53 @@ const Grades = () => {
         // @ts-ignore
         onChange={handleChangeChooseFile}
       />
+      <Dialog open={open} onClose={handleCloseDialog}>
+        <DialogTitle>Thông tin sinh viên</DialogTitle>
+        <DialogContent>
+          {loading && <LinearProgress color="success" />}
+
+          {!loading &&
+            (userInfo !== null ? (
+              <>
+                <Box display="flex" justifyContent="flex-end">
+                  <Avatar />
+                </Box>
+
+                <Box display="flex">
+                  <strong>
+                    <span>Email: &nbsp; </span>
+                  </strong>
+                  <span>{userInfo?.email}</span>
+                </Box>
+                <Box display="flex">
+                  <strong>
+                    <span>Tên:&nbsp; </span>
+                  </strong>
+                  <span>{userInfo?.firstName}</span>
+                </Box>
+                <Box display="flex">
+                  <strong>
+                    <span>Họ:&nbsp; </span>
+                  </strong>
+                  <span>{userInfo?.lastName}</span>
+                </Box>
+                <Box display="flex">
+                  <strong>
+                    <span>Mã số sinh viên:&nbsp; </span>
+                  </strong>
+                  <span>{userInfo?.studentID}</span>
+                </Box>
+              </>
+            ) : (
+              <Alert severity="info">
+                Học sinh chưa liên kết tài khoản không thể xem thông tin
+              </Alert>
+            ))}
+          <Box display="flex" justifyContent="flex-end">
+            <Button onClick={handleCloseDialog}>Đóng</Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 };

@@ -40,7 +40,13 @@
   width: 42%;
   padding-left: 1.25rem;
   flex-direction: column;
-
+  & .restore-password{
+    border-bottom: 1px solid transparent;
+    &:hover{
+      border-bottom: 1px solid blue;
+    }
+    cursor: pointer;
+  }
   &__brand {
     display: flex;
     justify-content: center;

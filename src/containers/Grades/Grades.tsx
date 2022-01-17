@@ -73,6 +73,7 @@ const transformRows = (rows: any[]) => {
       return {
         name: s.name,
         mssv: s.mssv,
+        // TODO: change username
         username: 'tanhank2k',
         id: s.id,
         ...s.grades.reduce((total: any, exercise: any) => {

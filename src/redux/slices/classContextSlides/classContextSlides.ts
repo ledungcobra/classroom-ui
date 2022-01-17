@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { HeaderSelect } from '../../../components';
+import { doGetClassDetail } from '../../asyncThunk/classAction';
 
 interface TInitialState {
   currentClassId: number | null;
@@ -28,7 +29,14 @@ const classContextSlide = createSlice({
       state.headerSelect = action.payload;
     },
   },
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder.addCase(
+      doGetClassDetail.fulfilled,
+      (state, action: PayloadAction<ICommonResponse<{ course: any; role: number }>>) => {
+        state.isTeacher = action.payload.content.role === 1;
+      },
+    );
+  },
 });
 
 export const classReducer = classContextSlide.reducer;

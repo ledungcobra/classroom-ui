@@ -54,7 +54,7 @@
 
   &__item__wrapper:active, :visited,:link{
     text-decoration: none;
-    color: rgb(190, 0, 190);
+    color: green;
     border-left: 5px solid transparent;
     transition: ease-in-out all .3s;
     &:hover{

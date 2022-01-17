@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
+import { batch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import { PostComment } from '../../components';
 import {
@@ -28,33 +29,28 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../../redux';
+import { doGetClassDetail } from '../../redux/asyncThunk/classAction';
+import {
+  doGetGradeReview,
+  doGetGradeReviewComments,
+  doGetStudentGrade,
+  doStudentComment,
+  doStudentDeleteComment,
+  doTeacherComment,
+  doTeacherDeleteComment,
+} from '../../redux/asyncThunk/gradeReviewAction';
 import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
-import { gradeReviewResponse, GradeReviewStatus, response } from './Data';
-
-interface ICommentProps extends IComment {
-  handleClickMore: (event: React.MouseEvent<HTMLElement>, id: number) => void;
-}
+import { setError } from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
+import { GradeReviewStatus } from './Data';
 
 enum CommentState {
   Draft,
   Posted,
 }
-
-interface IComment {
-  message: string;
-  id?: number;
-  studentId?: number;
-  teacherId?: number;
-  username: string;
-  gradeReviewId?: number;
+interface ICommentProps extends IGradeReviewComment {
+  handleClickMore: (event: React.MouseEvent<HTMLElement>, id: number) => void;
   state: CommentState;
 }
-
-interface IEditorContext {
-  message: string;
-  setMessage: (m: string) => void;
-}
-export const EditorContext = React.createContext<IEditorContext | null>(null);
 
 export const GradeReview = () => {
   const [showPostStatus, setShowPostStatus] = React.useState(false);
@@ -62,42 +58,47 @@ export const GradeReview = () => {
   const openMenuMore = Boolean(anchorEl);
   const comment = useAppSelector((state) => state.editorReducer.comment);
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
 
   const { id } = useParams();
-  const currentUser = useAppSelector((state) => state.authReducer.currentUser);
   const selectedCommentId = useAppSelector((state) => state.editorReducer.currentCommentId);
   const currentClassId = useAppSelector((state) => state.classReducer.currentClassId);
-  const isTeacher = useAppSelector(state=> state.classReducer.isTeacher)
-  
+  const gradeReviewState = useAppSelector((state) => state.gradeReviewReducer);
+  const currentUserKey = 'classroom@current_user';
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
+  const [selectedGradeId, setSelectedGradeId] = React.useState<number | null>(null);
+
   React.useEffect(() => {
-    if (selectedCommentId !== null && comment !== '') {
-    }
-  }, [comment, selectedCommentId]);
-
-  const updateComment = (id: number, data: any) => {
-    setComments((old) => {
-      const i = old.findIndex((c) => c.id === selectedCommentId);
-      if (i < 0) return old;
-      return [
-        ...old.slice(0, i),
-        {
-          ...old[i],
-          message: comment,
-        },
-        ...old.slice(i + 1),
-      ];
+    batch(() => {
+      dispatch(
+        doGetStudentGrade({
+          courseId: +id!!,
+          currentUser: localStorage.getItem(currentUserKey) ?? '',
+        }),
+      );
+      dispatch(
+        doGetClassDetail({
+          classId: +id!!,
+          currentUser: localStorage.getItem(currentUserKey) ?? '',
+        }),
+      );
     });
-  };
+  }, []);
 
-  const [comments, setComments] = React.useState<IComment[]>([
-    {
-      id: 0,
-      username: 'tanhank2k',
-      message: 'Hello world',
-      state: CommentState.Posted,
-    },
-  ]);
   const Context = useAppContextApi();
+  React.useEffect(() => {
+    if (gradeReviewState.isLoading) {
+      Context?.showLoading();
+    } else {
+      Context?.hideLoading();
+    }
+
+    if (gradeReviewState.error) {
+      Context?.openSnackBarError(gradeReviewState.errorMessage);
+      dispatch(setError(false));
+    }
+  }, [gradeReviewState.isLoading, gradeReviewState.error]);
+
   const navigate = useNavigate();
 
   if (isNaN(+id!!)) return navigate('/');
@@ -110,17 +111,56 @@ export const GradeReview = () => {
     dispatch(setCurrentCommentId(id));
   };
 
-  const handleReviewButtonClicked = (myGradeId: number) => {};
+  const handleReviewButtonClicked = (
+    courseId: number,
+    gradeId?: number,
+    gradeReviewId?: number,
+  ) => {
+    if (gradeReviewId === 0) {
+      // TODO:Handle open dialog
+    } else {
+      setSelectedGradeId(gradeId ?? null);
+
+      batch(() => {
+        dispatch(
+          doGetGradeReview({
+            courseId: courseId,
+            gradeId: gradeId!!,
+            gradeReviewId: gradeReviewId!!,
+          }),
+        );
+        dispatch(
+          doGetGradeReviewComments({
+            CourseId: courseId!!,
+            CurrentUser: localStorage.getItem(currentUserKey) ?? '',
+            GradeId: gradeId!!,
+            GradeReviewId: gradeReviewId!!,
+          }),
+        );
+      });
+    }
+  };
   const handlePostComment = (content: string) => {
     if (selectedCommentId !== null) {
-      updateComment(selectedCommentId, { message: content });
+      // TODO Handle update comment
       dispatch(setComment(''));
       dispatch(setCurrentCommentId(null));
     } else {
-      setComments([
-        ...comments,
-        { message: content, id: 1, username: currentUser, state: CommentState.Posted },
-      ]);
+      // TODO: HANDLE POST
+      const body = {
+        courseId: +id!!,
+        currentUser: localStorage.getItem(currentUserKey) ?? '',
+        gradeId: selectedGradeId!!,
+        teacherId: 0,
+        gradeReviewId: gradeReviewState.gradeReview?.id!!,
+        message: content,
+      };
+
+      if (isTeacher) {
+        dispatch(doTeacherComment(body));
+      } else {
+        dispatch(doStudentComment({ ...body, studentId: 0 }));
+      }
     }
   };
 
@@ -129,9 +169,29 @@ export const GradeReview = () => {
   };
 
   const handleDeleteComment = () => {
-    setComments((cmts) => cmts.filter((cmt) => cmt.id !== selectedCommentId));
-    handleCloseMenu();
+    const comment = gradeReviewState.comments.data.find((c) => c.id === selectedCommentId);
+
+    if (!comment || !selectedGradeId) {
+      Context?.openSnackBarError('Có lỗi trong quá trình xoá comment');
+      return;
+    }
+
+    const params = {
+      courseId: +id!!,
+      currentUser: localStorage.getItem(currentUserKey) ?? '',
+      gradeId: selectedGradeId!!,
+      message: comment.message,
+      gradeReviewId: comment.gradeReviewId,
+      reviewCommentId: comment.id,
+    };
+
+    if (isTeacher) {
+      dispatch(doTeacherDeleteComment(params));
+    } else {
+      dispatch(doStudentDeleteComment(params));
+    }
     dispatch(setCurrentCommentId(null));
+    handleCloseMenu();
   };
 
   const handleEditComment = () => {
@@ -139,8 +199,8 @@ export const GradeReview = () => {
       Context?.openSnackBar('Có lỗi xẩy ra');
       return;
     }
-    const foundCmt = comments.find((cmt) => cmt.id === selectedCommentId);
-    dispatch(setComment(foundCmt?.message ?? ''));
+    // TODO: handle edit comment
+    // dispatch(setComment(foundCmt?.message ?? ''));
     handleCloseMenu();
     dispatch(setIsEditing(true));
   };
@@ -151,38 +211,48 @@ export const GradeReview = () => {
         <Grid item md={7} xs={12}>
           <Card sx={{ padding: '15px 10px', overflow: 'auto' }}>
             <CardContent>
-              <table className="grade-data-sheet">
-                <thead>
-                  <tr>
-                    <th>Tên bài tập</th>
-                    <th>Điểm</th>
-                    <th>Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {response?.content?.header?.map((h) => {
-                    const gradeData = response.content.score.grades.find((g) => g.id === h.id);
-                    return (
-                      <tr key={h.id}>
-                        <td>{h.name}</td>
-                        <td>
-                          {gradeData?.grade ?? 0}/<strong>{gradeData?.maxGrade ?? 0}</strong>
-                        </td>
-                        <td>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            sx={{ borderRadius: 0 }}
-                            onClick={() => handleReviewButtonClicked(h.id)}
-                          >
-                            Phúc khảo
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              {gradeReviewState.studentGrade && (
+                <table className="grade-data-sheet">
+                  <thead>
+                    <tr>
+                      <th>Tên bài tập</th>
+                      <th>Điểm</th>
+                      <th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gradeReviewState?.studentGrade?.header?.map((h) => {
+                      const gradeData = gradeReviewState?.studentGrade?.scores?.grades.find(
+                        (g) => g.id === h.id,
+                      );
+                      return (
+                        <tr key={h.id}>
+                          <td>{h.name}</td>
+                          <td>
+                            {gradeData?.grade ?? 0}/<strong>{gradeData?.maxGrade ?? 0}</strong>
+                          </td>
+                          <td>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              sx={{ borderRadius: 0 }}
+                              onClick={() =>
+                                handleReviewButtonClicked(
+                                  +id!!,
+                                  gradeData?.gradeId,
+                                  gradeData?.gradeReviewId,
+                                )
+                              }
+                            >
+                              Phúc khảo
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -192,108 +262,126 @@ export const GradeReview = () => {
           xs={12}
           sx={{ padding: '0px 5px 0px', maxHeight: '200vh', overflow: 'auto' }}
         >
-          <Card sx={{ overflow: 'auto' }}>
-            <CardContent>
-              {
-                <Box display="flex" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
-                  <Box display="flex" flexDirection="column" alignItems="flex-start">
-                    <p>
-                      <strong>Điểm mong muốn </strong>
-                      <i style={{ color: 'red' }}>
-                        <u>
-                          <span
-                            style={{
-                              borderRadius: '50%',
-                            }}
-                          >
-                            {gradeReviewResponse.content.gradeExpect}
-                          </span>
-                        </u>
-                      </i>
-                    </p>
-                    <Card sx={{ marginBottom: '20px' }}>
-                      <CardContent>
-                        <Box display="flex" alignItems="flex-start" flexDirection="column">
+          {gradeReviewState?.gradeReview && (
+            <Card sx={{ overflow: 'auto' }}>
+              <CardContent sx={{ width: '100%' }}>
+                {
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    sx={{ marginBottom: '20px', width: '100%' }}
+                  >
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start"
+                      sx={{ width: '100%' }}
+                    >
+                      <p>
+                        <strong>Điểm mong muốn </strong>
+                        <i style={{ color: 'red' }}>
+                          <u>
+                            <span
+                              style={{
+                                borderRadius: '50%',
+                              }}
+                            >
+                              {gradeReviewState?.gradeReview?.gradeExpect}
+                            </span>
+                          </u>
+                        </i>
+                      </p>
+                      <Card sx={{ marginBottom: '20px', width: '100%' }}>
+                        <CardContent sx={{ width: '100%' }}>
                           <Box
                             display="flex"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            gap="8px"
+                            alignItems="flex-start"
+                            flexDirection="column"
                             sx={{ width: '100%' }}
                           >
                             <Box
                               display="flex"
                               alignItems="center"
+                              justifyContent="space-between"
                               gap="8px"
                               sx={{ width: '100%' }}
                             >
-                              <Avatar />
-                              <Divider orientation="vertical" sx={{ height: '100%' }} />
-                              <h5>{gradeReviewResponse.content.mssv}</h5>
-                            </Box>
-                            {isTeacher &&
-                              gradeReviewResponse.content.status === GradeReviewStatus.Pending && (
-                                <Box
-                                  display="flex"
-                                  gap="5px"
-                                  alignItems="center"
-                                  alignSelf="flex-start"
-                                  sx={{ maxHeight: '5px' }}
-                                >
-                                  <Button
-                                    variant="outlined"
-                                    sx={{ borderRadius: '0' }}
-                                    color="success"
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                gap="8px"
+                                sx={{ width: '100%' }}
+                              >
+                                <Avatar />
+                                <Divider orientation="vertical" sx={{ height: '100%' }} />
+                                <h5>{gradeReviewState?.gradeReview?.mssv}</h5>
+                              </Box>
+                              {isTeacher &&
+                                gradeReviewState?.gradeReview?.status ===
+                                  GradeReviewStatus.Pending && (
+                                  <Box
+                                    display="flex"
+                                    gap="5px"
+                                    alignItems="center"
+                                    alignSelf="flex-start"
+                                    sx={{ maxHeight: '5px' }}
                                   >
-                                    Chấp nhận
-                                  </Button>
-                                  <Button
-                                    variant="outlined"
-                                    sx={{ borderRadius: '0' }}
-                                    color="error"
-                                  >
-                                    Từ chối
-                                  </Button>
-                                </Box>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{ borderRadius: '0' }}
+                                      color="success"
+                                    >
+                                      Chấp nhận
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{ borderRadius: '0' }}
+                                      color="error"
+                                    >
+                                      Từ chối
+                                    </Button>
+                                  </Box>
+                                )}
+
+                              {gradeReviewState?.gradeReview?.status ===
+                              GradeReviewStatus.Approve ? (
+                                <CheckCircleIcon sx={{ color: 'green' }} />
+                              ) : (
+                                <ThumbDownIcon sx={{ color: 'red' }} />
                               )}
-
-                            {gradeReviewResponse.content.status === GradeReviewStatus.Approve ? (
-                              <CheckCircleIcon sx={{ color: 'green' }} />
-                            ) : (
-                              <ThumbDownIcon sx={{ color: 'red' }} />
-                            )}
+                            </Box>
+                            <div>
+                              <p style={{ textAlign: 'left' }}>
+                                {gradeReviewState?.gradeReview?.message}
+                              </p>
+                            </div>
                           </Box>
-                          <div>
-                            <p style={{ textAlign: 'left' }}>
-                              {gradeReviewResponse.content.message}
-                            </p>
-                          </div>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                    {comments.map((cmt) => {
-                      return (
-                        <CommentItem
-                          key={cmt.id}
-                          handleClickMore={(event) => openMenu(event, cmt.id!!)}
-                          username={cmt.username}
-                          message={cmt.message}
-                          state={cmt.state}
-                        />
-                      );
-                    })}
-                  </Box>
-                </Box>
-              }
+                        </CardContent>
+                      </Card>
 
-              <PostComment
-                onCancel={() => setShowPostStatus(false)}
-                onPost={(content) => {
-                  handlePostComment(content);
-                }}
-              />
-            </CardContent>
-          </Card>
+                      {gradeReviewState?.comments?.data?.map((cmt) => {
+                        return (
+                          <CommentItem
+                            key={cmt.id}
+                            handleClickMore={(event) => openMenu(event, cmt.id!!)}
+                            state={CommentState.Posted}
+                            {...cmt}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                }
+
+                <PostComment
+                  onCancel={() => setShowPostStatus(false)}
+                  onPost={(content) => {
+                    handlePostComment(content);
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
 
@@ -323,6 +411,14 @@ export const GradeReview = () => {
 };
 
 const CommentItem: React.FC<ICommentProps> = (props) => {
+  const user = props.teacher ? props.teacher : props.student;
+  let displayName;
+
+  if (user?.firstName === null || user?.lastName === null) {
+  } else {
+    displayName = user?.firstName + ' ' + user?.lastName ?? '';
+  }
+
   return (
     <Card sx={{ width: '100%', marginBottom: '8px' }}>
       <CardContent>
@@ -331,7 +427,7 @@ const CommentItem: React.FC<ICommentProps> = (props) => {
             <Box display="flex" alignItems="center" gap="10px" sx={{ marginBottom: '10px' }}>
               <Avatar />
               <Divider orientation="vertical" sx={{ height: '100%' }} />
-              <h5>{props.username}</h5>
+              <h5>{displayName}</h5>
             </Box>
             <IconButton onClick={(event) => props.handleClickMore(event, props.id!!)}>
               <MoreVertIcon />

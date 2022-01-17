@@ -108,3 +108,107 @@ interface IParamDeleteClassAssignment {
   assignmentsId: number;
   currentUser: string;
 }
+
+interface IGetGradeReviewCommentsRequest {
+  CourseId: number;
+  GradeId: number;
+  CurrentUser: string;
+  GradeReviewId: number;
+}
+
+interface ICreateGradeReviewRequest {
+  courseId: number;
+  gradeId: number;
+  gradeExpect: number;
+  reason: string;
+  currentUser: string;
+}
+
+interface IApproveGradeReviewRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  approvalStatus: GradeReviewStatus;
+  currentUser: string;
+}
+
+interface IUpdateGradeReviewRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  gradeExpect: number;
+  reason: string;
+  currentUser: string;
+}
+
+interface IDeleteGradeReviewRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  currentUser: string;
+}
+
+interface ITeacherCommentRequest {
+  message: string;
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  currentUser: string;
+  teacherId: number;
+}
+
+interface ITeacherUpdateCommentRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  reviewCommentId: number;
+  message: string;
+  currentUser: string;
+}
+
+interface ITeacherDeleteCommentRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  reviewCommentId: number;
+  message: string;
+  currentUser: string;
+}
+
+interface IStudentCommentRequest {
+  message: string;
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  currentUser: string;
+  studentId: number;
+}
+
+interface IStudentUpdateCommentRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  reviewCommentId: number;
+  message: string;
+  currentUser: string;
+}
+
+interface IStudentDeleteCommentRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+  reviewCommentId: number;
+  message: string;
+  currentUser: string;
+}
+
+interface IGetGradeReviewRequest {
+  courseId: number;
+  gradeId: number;
+  gradeReviewId: number;
+}
+
+interface IGetStudentGradeRequest {
+  courseId: number | null;
+  currentUser: string | null;
+}

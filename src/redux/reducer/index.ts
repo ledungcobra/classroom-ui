@@ -1,3 +1,4 @@
+import { gradeReviewReducer } from './../slices/gradeReviewSlices/gradeReviewSlice';
 import { classReducer } from './../slices/classContextSlides/classContextSlides';
 import { editorReducer } from './../slices/editorSlides/editorSlice';
 import { combineReducers } from '@reduxjs/toolkit';
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   utilsReducer,
   editorReducer,
   classReducer,
+  gradeReviewReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

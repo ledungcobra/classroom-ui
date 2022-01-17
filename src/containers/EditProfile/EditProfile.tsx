@@ -1,4 +1,4 @@
-import { Button, Container, Grid, TextField, Typography } from '@mui/material';
+import { Button, Card, CardContent, Container, Grid, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { useAppContextApi, useAppSelector } from '../../redux';
@@ -227,106 +227,118 @@ export const EditProfile = (props: IEditProfileProps) => {
       <Grid container spacing="15px">
         <Grid item md={7} xs={12}>
           <form onChange={handleOnChange}>
-            <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
-              Cập nhật profile
-            </Typography>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
+                  Cập nhật profile
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      error={!!userProfileState.errors['phoneNumber']}
+                      required
+                      type="tel"
+                      value={userProfileState.phoneNumber}
+                      name="phoneNumber"
+                      id="phoneNumber"
+                      placeholder="Phone Number"
+                      variant="standard"
+                    />
+                  </Grid>
 
-            <Grid container spacing={2}>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Phone Number"
-                  error={!!userProfileState.errors['phoneNumber']}
-                  required
-                  type="tel"
-                  value={userProfileState.phoneNumber}
-                  name="phoneNumber"
-                  id="phoneNumber"
-                  placeholder="Phone Number"
-                  variant="standard"
-                />
-              </Grid>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="Personal email"
+                      error={!!userProfileState.errors['personalEmail']}
+                      value={userProfileState.personalEmail}
+                      type="email"
+                      name="personalEmail"
+                      id="personalEmail"
+                      placeholder="Personal Email"
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="First name"
+                      type="text"
+                      name="firstName"
+                      id="firstName"
+                      value={userProfileState.firstName}
+                      required
+                      error={!!userProfileState.errors['firstName']}
+                      placeholder="First Name"
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="Middle name"
+                      type="text"
+                      name="middleName"
+                      id="middleName"
+                      value={userProfileState.middleName}
+                      required
+                      error={!!userProfileState.errors['middleName']}
+                      placeholder="Middle Name"
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="Last name"
+                      type="text"
+                      name="lastName"
+                      id="lastName"
+                      value={userProfileState.lastName}
+                      required
+                      error={!!userProfileState.errors['lastName']}
+                      placeholder="Last Name"
+                      variant="standard"
+                    />
+                  </Grid>
 
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Personal email"
-                  error={!!userProfileState.errors['personalEmail']}
-                  value={userProfileState.personalEmail}
-                  type="email"
-                  name="personalEmail"
-                  id="personalEmail"
-                  placeholder="Personal Email"
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="First name"
-                  type="text"
-                  name="firstName"
-                  id="firstName"
-                  value={userProfileState.firstName}
-                  required
-                  error={!!userProfileState.errors['firstName']}
-                  placeholder="First Name"
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Middle name"
-                  type="text"
-                  name="middleName"
-                  id="middleName"
-                  value={userProfileState.middleName}
-                  required
-                  error={!!userProfileState.errors['middleName']}
-                  placeholder="Middle Name"
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Last name"
-                  type="text"
-                  name="lastName"
-                  id="lastName"
-                  value={userProfileState.lastName}
-                  required
-                  error={!!userProfileState.errors['lastName']}
-                  placeholder="Last Name"
-                  variant="standard"
-                />
-              </Grid>
-
-              <Grid item md={6}>
-                <TextField
-                  fullWidth
-                  label="Student ID"
-                  type="text"
-                  name="studentID"
-                  id="studentID"
-                  value={userProfileState.studentID}
-                  required
-                  error={!!userProfileState.errors['studentID']}
-                  placeholder="Student ID"
-                  variant="standard"
-                />
-              </Grid>
-            </Grid>
-
-            <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
-              <Button onClick={handleSubmitForm} style={{ marginTop: '40px' }} variant="contained">
-                Cập nhật
-              </Button>
-              <Typography variant="body2" color="red" style={{ alignSelf: 'flex-start' }}>
-                {error}
-              </Typography>
-            </Box>
+                  <Grid item md={6}>
+                    <TextField
+                      fullWidth
+                      label="Student ID"
+                      type="text"
+                      name="studentID"
+                      id="studentID"
+                      value={userProfileState.studentID}
+                      required
+                      disabled={!!userProfileState.studentID}
+                      error={!!userProfileState.errors['studentID']}
+                      placeholder="Student ID"
+                      variant="standard"
+                    />
+                  </Grid>
+                </Grid>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ width: '100%' }}
+                >
+                  <Typography variant="body2" color="red" style={{ alignSelf: 'flex-start' }}>
+                    {error}
+                  </Typography>
+                  <Button
+                    onClick={handleSubmitForm}
+                    style={{ marginTop: '40px' }}
+                    variant="contained"
+                  >
+                    Cập nhật
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
           </form>
         </Grid>
         <Grid item md={5} xs={12}>
@@ -343,62 +355,66 @@ export const EditProfile = (props: IEditProfileProps) => {
               }));
             }}
           >
-            <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
-              Cập nhật mật khẩu
-            </Typography>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" color="initial" textAlign="left" marginBottom="15px">
+                  Cập nhật mật khẩu
+                </Typography>
 
-            <Grid container spacing={2}>
-              <Typography variant="h1" color="initial"></Typography>
-              <Grid item md={12}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type="password"
-                  name="password"
-                  id="password"
-                  value={passwordState.password}
-                  required
-                  error={!!passwordState.errors['password']}
-                  placeholder="Password"
-                  variant="standard"
-                />
-              </Grid>
+                <Grid container spacing={2}>
+                  <Typography variant="h1" color="initial"></Typography>
+                  <Grid item md={12}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      type="password"
+                      name="password"
+                      id="password"
+                      value={passwordState.password}
+                      required
+                      error={!!passwordState.errors['password']}
+                      placeholder="Password"
+                      variant="standard"
+                    />
+                  </Grid>
 
-              <Grid item md={12}>
-                <TextField
-                  fullWidth
-                  label="New Password"
-                  type="password"
-                  name="newPassword"
-                  id="newPassword"
-                  value={passwordState.newPassword}
-                  required
-                  error={!!passwordState.errors['newPassword']}
-                  placeholder="New Password"
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item md={12}>
-                <TextField
-                  fullWidth
-                  label="Confirm Password"
-                  type="password"
-                  name="rePassword"
-                  id="rePassword"
-                  value={passwordState.rePassword}
-                  required
-                  error={!!passwordState.errors['rePassword']}
-                  placeholder="Re Password"
-                  variant="standard"
-                />
-              </Grid>
-              <Box height="100px" />
-            </Grid>
-            <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
-              <Button onClick={handleUpdatePassword} variant="contained">
-                Cập nhật
-              </Button>
-            </Box>
+                  <Grid item md={12}>
+                    <TextField
+                      fullWidth
+                      label="New Password"
+                      type="password"
+                      name="newPassword"
+                      id="newPassword"
+                      value={passwordState.newPassword}
+                      required
+                      error={!!passwordState.errors['newPassword']}
+                      placeholder="New Password"
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid item md={12}>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      type="password"
+                      name="rePassword"
+                      id="rePassword"
+                      value={passwordState.rePassword}
+                      required
+                      error={!!passwordState.errors['rePassword']}
+                      placeholder="Re Password"
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Box height="100px" />
+                </Grid>
+                <Box display="flex" justifyContent="flex-end" sx={{ width: '100%' }}>
+                  <Button onClick={handleUpdatePassword} variant="contained">
+                    Cập nhật
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
           </form>
         </Grid>
         {/* <DropImageZone onUpload={(file) => {}} /> */}

@@ -17,7 +17,7 @@ export interface IAppContext {
   showLoading: () => void;
   hideLoading: () => void;
   loading: boolean;
-  openSnackBarError: (message: string) => void;
+  openSnackBarError: (message: string, error?: any) => void;
 }
 
 interface IAppState {
@@ -59,10 +59,13 @@ export default function App() {
     setIsError(false);
   };
 
-  const showSnackBarError = (message: string) => {
+  const showSnackBarError = (message: string, error?: any) => {
     setMessage(message);
     setOpen(true);
     setIsError(true);
+    if (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

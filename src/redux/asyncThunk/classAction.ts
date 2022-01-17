@@ -5,7 +5,7 @@ export const doGetClassDetail = createAsyncThunk(
   'class/doGetClassDetail',
   async (params: IParamGetClassDetail) => {
     const response = await apiClass.getClassDetail(params);
-    return response.data;
+    return response;
   },
 );
 

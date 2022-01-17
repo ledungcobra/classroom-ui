@@ -27,6 +27,7 @@ export enum HeaderSelect {
   Members,
   Exercise,
   Grades,
+  GradeReview,
   OtherPage,
 }
 
@@ -87,6 +88,27 @@ export const Header: React.FC<IHeaderProps> = () => {
     navigate('/edit-profile');
   };
 
+  const createHeaderItem = (selection: HeaderSelect, navigateLink: string, headerName: string) => {
+    return (
+      <div
+        className={`header__center-container__item ${
+          headerSelect === selection ? 'header__center-container__item--selected' : ''
+        }`}
+        onClick={() => {
+          dispatch(setHeaderSelect(selection));
+          navigate(navigateLink, {
+            replace: true,
+            state: selection,
+          });
+        }}
+      >
+        <Typography variant="h6" fontWeight="500">
+          {headerName}
+        </Typography>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="header">
@@ -104,7 +126,7 @@ export const Header: React.FC<IHeaderProps> = () => {
             </div>
             {currentClassId && (
               <div className="header__center-container">
-                <div
+                {/* <div
                   className={`header__center-container__item
               ${
                 headerSelect === HeaderSelect.NewsFeed
@@ -122,68 +144,34 @@ export const Header: React.FC<IHeaderProps> = () => {
                   <Typography variant="h6" fontWeight="500">
                     Bảng tin
                   </Typography>
-                </div>
-                <div
-                  className={`header__center-container__item  ${
-                    headerSelect === HeaderSelect.Members
-                      ? 'header__center-container__item--selected'
-                      : ''
-                  }`}
-                  onClick={() => {
-                    dispatch(setHeaderSelect(HeaderSelect.Members));
-                    navigate('/members/' + currentClassId, {
-                      replace: true,
-                      state: HeaderSelect.Members,
-                    });
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Mọi người
-                  </Typography>
-                </div>
-                {isTeacher && (
-                  <div
-                    className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.Exercise
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                    onClick={() => {
-                      dispatch(setHeaderSelect(HeaderSelect.Exercise));
-                      navigate('/class-detail/' + currentClassId + '/exercise-manager', {
-                        replace: true,
-                        state: HeaderSelect.Exercise,
-                      });
-                    }}
-                  >
-                    <Typography variant="h6" fontWeight="500">
-                      Bài tập
-                    </Typography>
-                  </div>
+                </div> */}
+
+                {createHeaderItem(
+                  HeaderSelect.NewsFeed,
+                  '/class-detail/' + currentClassId,
+                  'Bảng tin',
                 )}
 
-                {isTeacher && (
-                  <div
-                    className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.Grades
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                    onClick={() => {
-                      dispatch(setHeaderSelect(HeaderSelect.Grades));
-                      navigate('/class-detail/' + currentClassId + '/grades', {
-                        replace: true,
-                        state: HeaderSelect.Grades,
-                      });
-                    }}
-                  >
-                    <Typography variant="h6" fontWeight="500">
-                      Điểm
-                    </Typography>
-                  </div>
-                )}
+                {createHeaderItem(HeaderSelect.Members, '/members/' + currentClassId, 'Mọi người')}
+                {isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.Exercise,
+                    '/class-detail/' + currentClassId + '/exercise-manager',
+                    ' Bài tập',
+                  )}
+                {isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.Grades,
+                    '/class-detail/' + currentClassId + '/grades',
+                    'Điểm',
+                  )}
+
+                {!isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.GradeReview,
+                    '/class-detail/' + currentClassId + '/grade-review',
+                    'Xem điểm',
+                  )}
               </div>
             )}
             <div className="header__right-container">

@@ -18,6 +18,7 @@ import { AppContext } from '../../App';
 import { GREEN_COLOR } from '../../constants';
 import { isValidEmail } from '../../utils';
 import './AddMember.scss';
+
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;

@@ -1,0 +1,676 @@
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import {
+  Avatar,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+  TextField,
+} from '@mui/material';
+import { Box } from '@mui/system';
+import React from 'react';
+import { batch } from 'react-redux';
+import { useLocation, useNavigate, useParams } from 'react-router';
+import { PostComment } from '../../components';
+import {
+  setComment,
+  setCurrentCommentId,
+  setIsEditing,
+  useAppContextApi,
+  useAppDispatch,
+  useAppSelector,
+} from '../../redux';
+import { doGetClassDetail } from '../../redux/asyncThunk/classAction';
+import {
+  doApprove,
+  doCreateGradeReview,
+  doGetGradeReview,
+  doGetGradeReviewComments,
+  doGetStudentGrade,
+  doStudentComment,
+  doStudentDeleteComment,
+  doStudentUpdateComment,
+  doTeacherComment,
+  doTeacherDeleteComment,
+  doTeacherUpdateComment,
+} from '../../redux/asyncThunk/gradeReviewAction';
+import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
+import { setError } from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
+import { parseParams } from '../../utils';
+import { GradeReviewStatus } from './Data';
+
+enum CommentState {
+  Draft,
+  Posted,
+}
+interface ICommentProps extends IGradeReviewComment {
+  handleClickMore: (event: React.MouseEvent<HTMLElement>, id: number) => void;
+  state: CommentState;
+}
+
+export const GradeReview = () => {
+  const [showPostStatus, setShowPostStatus] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenuMore = Boolean(anchorEl);
+  const comment = useAppSelector((state) => state.editorReducer.comment);
+  const dispatch = useAppDispatch();
+
+  const { id } = useParams();
+  const selectedCommentId = useAppSelector((state) => state.editorReducer.currentCommentId);
+  const currentClassId = useAppSelector((state) => state.classReducer.currentClassId);
+  const gradeReviewState = useAppSelector((state) => state.gradeReviewReducer);
+  const currentUserKey = 'classroom@current_user';
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
+  const [selectedGradeId, setSelectedGradeId] = React.useState<number | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [selectedGrade, setSelectedGrade] = React.useState<IGrade | null | undefined>(null);
+  const [inputExpectScore, setInputExpectScore] = React.useState<number | null>(null);
+  const [inputReason, setInputReason] = React.useState('');
+  const query = parseParams(useLocation().search);
+
+  React.useEffect(() => {
+    const gradeId = query.gradeId;
+    const gradeReviewId = query.gradeReviewId;
+
+    if (gradeId && gradeReviewId) {
+      batch(() => {
+        setSelectedGradeId(gradeId);
+        dispatch(
+          doGetClassDetail({
+            classId: +id!!,
+            currentUser: localStorage.getItem(currentUserKey) ?? '',
+          }),
+        );
+        dispatch(
+          doGetGradeReview({
+            courseId: +id!!,
+            gradeId: +gradeId!!,
+            gradeReviewId: +gradeReviewId!!,
+          }),
+        );
+        dispatch(
+          doGetGradeReviewComments({
+            CourseId: +id!!,
+            CurrentUser: localStorage.getItem(currentUserKey) ?? '',
+            GradeId: gradeId!!,
+            GradeReviewId: gradeReviewId!!,
+          }),
+        );
+      });
+    } else {
+      batch(() => {
+        dispatch(
+          doGetStudentGrade({
+            courseId: +id!!,
+            currentUser: localStorage.getItem(currentUserKey) ?? '',
+          }),
+        );
+        dispatch(
+          doGetClassDetail({
+            classId: +id!!,
+            currentUser: localStorage.getItem(currentUserKey) ?? '',
+          }),
+        );
+      });
+    }
+  }, []);
+
+  const Context = useAppContextApi();
+  React.useEffect(() => {
+    if (gradeReviewState.isLoading) {
+      Context?.showLoading();
+    } else {
+      Context?.hideLoading();
+    }
+
+    if (gradeReviewState.error) {
+      Context?.openSnackBarError(gradeReviewState.errorMessage);
+      dispatch(setError(false));
+    }
+  }, [gradeReviewState.isLoading, gradeReviewState.error]);
+
+  const navigate = useNavigate();
+
+  if (isNaN(+id!!)) return navigate('/');
+  if (currentClassId !== +id!!) {
+    dispatch(setCurrentClassId(+id!!));
+  }
+
+  const openMenu = (event: React.MouseEvent<HTMLElement>, id: number) => {
+    setAnchorEl(event.currentTarget);
+    dispatch(setCurrentCommentId(id));
+  };
+
+  const handleReviewButtonClicked = (
+    courseId: number,
+    gradeId?: number,
+    gradeReviewId?: number,
+  ) => {
+    if (gradeReviewId === 0) {
+      setOpen(true);
+    } else {
+      setSelectedGradeId(gradeId ?? null);
+
+      batch(() => {
+        dispatch(
+          doGetGradeReview({
+            courseId: courseId,
+            gradeId: gradeId!!,
+            gradeReviewId: gradeReviewId!!,
+          }),
+        );
+        dispatch(
+          doGetGradeReviewComments({
+            CourseId: courseId!!,
+            CurrentUser: localStorage.getItem(currentUserKey) ?? '',
+            GradeId: gradeId!!,
+            GradeReviewId: gradeReviewId!!,
+          }),
+        );
+      });
+    }
+
+    setSelectedGrade(
+      gradeReviewState.studentGrade?.scores.grades.find((g) => g.gradeId === gradeId),
+    );
+  };
+
+  const handleSubmitCreateGradeReview = (gradeExpect: number, reason: string) => {
+    if (gradeExpect > (selectedGrade?.maxGrade ?? 0) && gradeExpect < 0) {
+      Context?.openSnackBarError(
+        'Điểm mong muốn phải nằm trong khoảng ' + 0 + ' đến ' + selectedGrade?.maxGrade,
+      );
+      return;
+    }
+    if (selectedGrade) {
+      dispatch(
+        doCreateGradeReview({
+          courseId: +id!!,
+          gradeExpect: gradeExpect,
+          gradeId: selectedGrade.gradeId,
+          reason: reason,
+          currentUser: localStorage.getItem(currentUserKey),
+        }),
+      );
+    } else {
+      Context?.openSnackBarError('Có lỗi trong quá trình tạo grade review');
+    }
+  };
+  const handlePostComment = (content: string) => {
+    if (selectedGradeId === null) return;
+
+    if (selectedCommentId !== null) {
+      const body = {
+        courseId: +id!!,
+        currentUser: localStorage.getItem(currentUserKey) ?? '',
+        gradeId: selectedGradeId!!,
+        gradeReviewId: gradeReviewState.gradeReview?.id!!,
+        message: content,
+        reviewCommentId: selectedCommentId!!,
+      };
+
+      if (isTeacher) {
+        dispatch(doTeacherUpdateComment(body));
+      } else {
+        dispatch(doStudentUpdateComment(body));
+      }
+      dispatch(setComment(''));
+      dispatch(setCurrentCommentId(null));
+    } else {
+      const body = {
+        courseId: +id!!,
+        currentUser: localStorage.getItem(currentUserKey) ?? '',
+        gradeId: selectedGradeId!!,
+        teacherId: 0,
+        gradeReviewId: gradeReviewState.gradeReview?.id!!,
+        message: content,
+      };
+
+      if (isTeacher) {
+        dispatch(doTeacherComment(body));
+      } else {
+        dispatch(doStudentComment({ ...body, studentId: 0 }));
+      }
+    }
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteComment = () => {
+    const comment = gradeReviewState.comments.data.find((c) => c.id === selectedCommentId);
+
+    if (!comment || !selectedGradeId) {
+      Context?.openSnackBarError('Có lỗi trong quá trình xoá comment');
+      return;
+    }
+
+    const params = {
+      courseId: +id!!,
+      currentUser: localStorage.getItem(currentUserKey) ?? '',
+      gradeId: selectedGradeId!!,
+      message: comment.message,
+      gradeReviewId: comment.gradeReviewId,
+      reviewCommentId: comment.id,
+    };
+
+    if (isTeacher) {
+      dispatch(doTeacherDeleteComment(params));
+    } else {
+      dispatch(doStudentDeleteComment(params));
+    }
+    dispatch(setCurrentCommentId(null));
+    handleCloseMenu();
+  };
+
+  const handleEditComment = () => {
+    if (selectedCommentId === null) {
+      Context?.openSnackBar('Có lỗi xẩy ra');
+      return;
+    }
+    const comment = gradeReviewState.comments.data.find((c) => c.id === selectedCommentId);
+    if (comment) {
+      dispatch(setComment(comment.message));
+      dispatch(setIsEditing(true));
+    } else {
+      Context?.openSnackBarError('Có lỗi trong quá trình edit comment');
+    }
+    handleCloseMenu();
+  };
+
+  const calculateAverage = (grades: IGrade[]) => {
+    const total = grades.reduce((total, current) => total + current.maxGrade, 0);
+    grades = grades.map((g) => {
+      g.gradeScale = +((g.maxGrade * 100.0) / total).toFixed(2);
+      return g;
+    });
+    return grades.reduce((total, current) => total + current.grade * current.gradeScale, 0) / 100.0;
+  };
+
+  const handleApprove = (status: GradeReviewStatus) => {
+    dispatch(
+      doApprove({
+        courseId: +id!!,
+        approvalStatus: status,
+        gradeId: gradeReviewState.gradeReview?.gradeId!!,
+        gradeReviewId: gradeReviewState.gradeReview?.id!!,
+        currentUser: localStorage.getItem(currentUserKey) ?? '',
+      }),
+    );
+  };
+
+  return (
+    <Container maxWidth={isTeacher ? 'md' : 'xl'} sx={{ marginBottom: '10px' }}>
+      <Grid container spacing={3} sx={{ width: '100%', marginTop: '30px' }}>
+        <Grid item md={isTeacher ? 12 : 7} xs={12}>
+          {!isTeacher && (
+            <Card sx={{ padding: '15px 10px', overflow: 'auto' }}>
+              <CardContent>
+                {gradeReviewState.studentGrade && (
+                  <table className="grade-data-sheet">
+                    <thead>
+                      <tr>
+                        <th>Tên bài tập</th>
+                        <th>Điểm</th>
+                        <th>Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gradeReviewState?.studentGrade?.header?.map((h) => {
+                        const gradeData = gradeReviewState?.studentGrade?.scores?.grades.find(
+                          (g) => g.id === h.id,
+                        );
+
+                        return (
+                          <tr key={h.id}>
+                            <td>{h.name}</td>
+                            <td>
+                              {gradeData?.grade ?? 0}/<strong>{h.maxGrade ?? 0}</strong>
+                              {!gradeData && ' Chưa có điểm'}
+                            </td>
+                            <td>
+                              {gradeData && (
+                                <Button
+                                  variant="contained"
+                                  color="success"
+                                  sx={{ borderRadius: 0 }}
+                                  onClick={() =>
+                                    handleReviewButtonClicked(
+                                      +id!!,
+                                      gradeData?.gradeId,
+                                      gradeData?.gradeReviewId,
+                                    )
+                                  }
+                                >
+                                  Phúc khảo
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {gradeReviewState?.studentGrade.scores.grades.length ===
+                        gradeReviewState?.studentGrade?.header?.length && (
+                        <tr>
+                          <td>Điểm trung bình</td>
+                          <td>{calculateAverage(gradeReviewState?.studentGrade.scores.grades)}</td>
+                          <td></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
+        <Grid
+          item
+          md={isTeacher ? 12 : 5}
+          xs={12}
+          sx={{ padding: '0px 5px 0px', maxHeight: '200vh', overflow: 'auto' }}
+        >
+          {gradeReviewState?.gradeReview && (
+            <Card sx={{ overflow: 'auto' }}>
+              <CardContent sx={{ width: '100%' }}>
+                {
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    sx={{ marginBottom: '20px', width: '100%' }}
+                  >
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start"
+                      sx={{ width: '100%' }}
+                    >
+                      <Card
+                        sx={{
+                          width: '100%',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        <CardContent sx={{ width: '100%' }}>
+                          <Box
+                            display="flex"
+                            flexDirection="column"
+                            sx={{ width: '100%', backgroundColor: 'rgba(green,0.4)' }}
+                            alignItems="flex-start"
+                          >
+                            <p>
+                              <strong>Điểm mong muốn </strong>
+                              <i style={{ color: 'red' }}>
+                                <u>
+                                  <span
+                                    style={{
+                                      borderRadius: '50%',
+                                    }}
+                                  >
+                                    {gradeReviewState?.gradeReview?.gradeExpect}
+                                  </span>
+                                </u>
+                              </i>
+                            </p>
+                            <p>
+                              <strong>Môn </strong>
+                              <i style={{ color: 'red' }}>
+                                <u>
+                                  <span
+                                    style={{
+                                      borderRadius: '50%',
+                                    }}
+                                  >
+                                    {gradeReviewState?.gradeReview?.exerciseName}
+                                  </span>
+                                </u>
+                              </i>
+                            </p>
+
+                            <p>
+                              <strong>Điểm hiện tại </strong>
+                              <i>
+                                <u>
+                                  <span
+                                    style={{
+                                      borderRadius: '50%',
+                                    }}
+                                  >
+                                    {gradeReviewState?.gradeReview?.grade?.grade}/
+                                    {gradeReviewState?.gradeReview?.grade?.maxGrade}
+                                  </span>
+                                </u>
+                              </i>
+                            </p>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                      <Card sx={{ marginBottom: '20px', width: '100%' }}>
+                        <CardContent sx={{ width: '100%' }}>
+                          <Box
+                            display="flex"
+                            alignItems="flex-start"
+                            flexDirection="column"
+                            sx={{ width: '100%' }}
+                          >
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              gap="8px"
+                              sx={{ width: '100%' }}
+                            >
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                gap="8px"
+                                sx={{ width: '100%' }}
+                              >
+                                <Avatar />
+                                <Divider orientation="vertical" sx={{ height: '100%' }} />
+                                <h5>{gradeReviewState?.gradeReview?.mssv}</h5>
+                              </Box>
+                              <Box display="flex" alignItems="center" gap="10px">
+                                {isTeacher && (
+                                  <Box
+                                    display="flex"
+                                    gap="5px"
+                                    alignItems="center"
+                                    sx={{ marginTop: '5px' }}
+                                  >
+                                    <Button
+                                      variant="outlined"
+                                      sx={{ borderRadius: '0' }}
+                                      color="success"
+                                      onClick={() => {
+                                        handleApprove(GradeReviewStatus.Approve);
+                                      }}
+                                    >
+                                      Chấp nhận
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{ borderRadius: '0' }}
+                                      color="error"
+                                      onClick={() => handleApprove(GradeReviewStatus.Reject)}
+                                    >
+                                      Từ chối
+                                    </Button>
+                                  </Box>
+                                )}
+
+                                <Box>
+                                  {gradeReviewState?.gradeReview?.status ===
+                                  GradeReviewStatus.Approve ? (
+                                    <CheckCircleIcon sx={{ color: 'green' }} />
+                                  ) : gradeReviewState?.gradeReview?.status ===
+                                    GradeReviewStatus.Pending ? (
+                                    <PendingActionsIcon sx={{ color: 'green' }} />
+                                  ) : gradeReviewState?.gradeReview.status ===
+                                    GradeReviewStatus.Reject ? (
+                                    <ThumbDownIcon sx={{ color: 'red' }} />
+                                  ) : (
+                                    gradeReviewState?.gradeReview?.status ===
+                                      GradeReviewStatus.None && null
+                                  )}
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            <div>
+                              <p style={{ textAlign: 'left' }}>
+                                {gradeReviewState?.gradeReview?.message}
+                              </p>
+                            </div>
+                          </Box>
+                        </CardContent>
+                      </Card>
+
+                      {gradeReviewState?.comments?.data?.map((cmt) => {
+                        return (
+                          <CommentItem
+                            key={cmt.id}
+                            handleClickMore={(event) => openMenu(event, cmt.id!!)}
+                            state={CommentState.Posted}
+                            {...cmt}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                }
+
+                <PostComment
+                  onCancel={() => setShowPostStatus(false)}
+                  onPost={(content) => {
+                    handlePostComment(content);
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
+      </Grid>
+
+      <Menu
+        aria-labelledby="demo-positioned-button"
+        anchorEl={anchorEl}
+        open={openMenuMore}
+        onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <MenuItem onClick={handleEditComment}>
+          <EditIcon sx={{ color: 'green' }} />
+        </MenuItem>
+        <MenuItem sx={{ color: 'red' }} onClick={handleDeleteComment}>
+          <DeleteIcon />
+        </MenuItem>
+      </Menu>
+      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Nhập điểm phúc khảo</DialogTitle>
+        <DialogContent sx={{ minWidth: '100%' }}>
+          <TextField
+            fullWidth
+            type="number"
+            placeholder="Nhập vào điểmm muốn phúc khảo"
+            inputProps={{
+              min: 0,
+              max: selectedGrade?.maxGrade,
+            }}
+            error={
+              (inputExpectScore ?? 0) < 0 ||
+              (inputExpectScore ?? 0) > (selectedGrade?.maxGrade ?? 0)
+            }
+            value={inputExpectScore}
+            onChange={(e) => setInputExpectScore(parseFloat(e.target.value))}
+            sx={{ marginBottom: '10px' }}
+          />
+          <TextField
+            fullWidth
+            type="text"
+            placeholder="Lý do"
+            value={inputReason}
+            onChange={(e) => setInputReason(e.target.value)}
+            sx={{ marginBottom: '10px' }}
+          />
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              variant="outlined"
+              onClick={() => handleSubmitCreateGradeReview(inputExpectScore!!, inputReason)}
+            >
+              Gửi
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+    </Container>
+  );
+};
+
+const CommentItem: React.FC<ICommentProps> = (props) => {
+  const user = props.teacher ? props.teacher : props.student;
+  let displayName: string;
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
+
+  if (props.teacher) {
+    displayName = user?.firstName + ' ' + user?.middleName + ' ' + user?.lastName;
+  } else {
+    displayName = user?.fullName ?? '';
+  }
+
+  return (
+    <Card sx={{ width: '100%', marginBottom: '8px' }}>
+      <CardContent>
+        <Box display="flex" flexDirection="column" alignItems="flex-start">
+          <Box display="flex" justifyContent="space-between" sx={{ width: '100%' }}>
+            <Box display="flex" alignItems="center" gap="10px" sx={{ marginBottom: '10px' }}>
+              <Avatar />
+              <Divider orientation="vertical" sx={{ height: '100%' }} />
+              <h5>{displayName}</h5>
+            </Box>
+            {isTeacher && props.teacher ? (
+              <IconButton onClick={(event) => props.handleClickMore(event, props.id!!)}>
+                <MoreVertIcon />
+              </IconButton>
+            ) : !isTeacher && props.student ? (
+              <IconButton onClick={(event) => props.handleClickMore(event, props.id!!)}>
+                <MoreVertIcon />
+              </IconButton>
+            ) : null}
+          </Box>
+        </Box>
+        <Divider sx={{ borderBottom: '10px', width: '100%' }} />
+        <div style={{ textAlign: 'left' }}>
+          <span
+            dangerouslySetInnerHTML={{
+              __html: props.message,
+            }}
+          />
+          {props.state === CommentState.Draft && <DriveFileRenameOutlineIcon />}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

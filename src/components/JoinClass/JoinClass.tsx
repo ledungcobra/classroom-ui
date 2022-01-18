@@ -76,14 +76,11 @@ export const JoinClass: React.FC<IJoinClassProps> = ({ openStatus, handleCloseDi
               />
               <div className="join-class-dialog__container__top-head__title">Tham gia lớp học</div>
             </div>
-            <Button
-              className="join-class-dialog__btn"
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit}
-            >
-              Tham gia
-            </Button>
+            <div>
+              <Button className="" variant="contained" color="primary" onClick={handleSubmit}>
+                Tham gia
+              </Button>
+            </div>
           </div>
           <div className="join-class-dialog__form">
             <p className="join-class-dialog__form-text">Bạn đang đăng nhập với tên {currentUser}</p>

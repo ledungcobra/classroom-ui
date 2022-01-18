@@ -1,3 +1,7 @@
+import { notificationReducer } from './../slices/notificationSlices/notificationSlice';
+import { gradeReviewReducer } from './../slices/gradeReviewSlices/gradeReviewSlice';
+import { classReducer } from './../slices/classContextSlides/classContextSlides';
+import { editorReducer } from './../slices/editorSlides/editorSlice';
 import { combineReducers } from '@reduxjs/toolkit';
 import { loginReducer } from '../slices/apiSlices/authSlice';
 import classesSlice from '../slices/apiSlices/classesSlice';
@@ -9,6 +13,10 @@ const rootReducer = combineReducers({
   authReducer,
   classesSlice,
   utilsReducer,
+  editorReducer,
+  classReducer,
+  gradeReviewReducer,
+  notificationReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -11,20 +11,23 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { CreateClass, JoinClass, NavMenu } from '..';
 import FaviIcon from '../../assets/icons/favicon.ico';
-import { useAppContextApi, useAppSelector } from '../../redux';
+import { useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
+import { setHeaderSelect } from '../../redux/slices/classContextSlides/classContextSlides';
 import { logout } from '../../utils/common';
+import { UserNotification } from '../Notification/UserNotification';
 import './Header.scss';
 
 interface IHeaderProps {}
-enum HeaderSelect {
+export enum HeaderSelect {
   NewsFeed,
   Members,
   Exercise,
   Grades,
+  GradeReview,
   OtherPage,
 }
 
@@ -35,8 +38,11 @@ export const Header: React.FC<IHeaderProps> = () => {
   const [leftNavOpenStatus, setLeftNavOpenStatus] = useState(false);
   const [anchorElAdd, setAnchorElAdd] = useState(null);
   const [anchorElAvt, setAnchorElAvt] = useState(null);
-  const location = useLocation();
-  const [headerSelect, setHeaderSelect] = useState(HeaderSelect.OtherPage);
+  const currentClassId = useAppSelector((state) => state.classReducer.currentClassId);
+  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
+  const headerSelect = useAppSelector((state) => state.classReducer.headerSelect);
+  const dispatch = useAppDispatch();
+
   const navigate = useNavigate();
   const Context = useAppContextApi();
   const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
@@ -82,21 +88,26 @@ export const Header: React.FC<IHeaderProps> = () => {
     navigate('/edit-profile');
   };
 
-  useEffect(() => {
-    // TODO:
-
-    if (/class-detail\/\d+?\/exercise-manager/.test(location.pathname)) {
-      setHeaderSelect(HeaderSelect.Exercise);
-    } else if (location.pathname.includes('class-detail')) {
-      setHeaderSelect(HeaderSelect.NewsFeed);
-    } else if (location.pathname.includes('/members')) {
-      setHeaderSelect(HeaderSelect.Members);
-    } else if (location.pathname.includes('/grades')) {
-      setHeaderSelect(HeaderSelect.Grades);
-    } else {
-      // setHeaderSelect(HeaderSelect.OtherPage);
-    }
-  }, []);
+  const createHeaderItem = (selection: HeaderSelect, navigateLink: string, headerName: string) => {
+    return (
+      <div
+        className={`header__center-container__item ${
+          headerSelect === selection ? 'header__center-container__item--selected' : ''
+        }`}
+        onClick={() => {
+          dispatch(setHeaderSelect(selection));
+          navigate(navigateLink, {
+            replace: true,
+            state: selection,
+          });
+        }}
+      >
+        <Typography variant="h6" fontWeight="500">
+          {headerName}
+        </Typography>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -113,92 +124,34 @@ export const Header: React.FC<IHeaderProps> = () => {
                 </Link>
               </Typography>
             </div>
-            {Context?.currentClassId && (
+            {currentClassId && (
               <div className="header__center-container">
-                <div
-                  className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.NewsFeed
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                  onClick={() => {
-                    if (headerSelect !== HeaderSelect.NewsFeed) {
-                      setHeaderSelect(HeaderSelect.NewsFeed);
-                      navigate('/class-detail/' + Context?.currentClassId, {
-                        replace: true,
-                        state: HeaderSelect.NewsFeed,
-                      });
-                    }
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Bảng tin
-                  </Typography>
-                </div>
-                <div
-                  className={`header__center-container__item  ${
-                    headerSelect === HeaderSelect.Members
-                      ? 'header__center-container__item--selected'
-                      : ''
-                  }`}
-                  onClick={() => {
-                    if (HeaderSelect.Members !== headerSelect) {
-                      setHeaderSelect(HeaderSelect.Members);
-                      navigate('/members/' + Context?.currentClassId, {
-                        replace: true,
-                        state: HeaderSelect.Members,
-                      });
-                    }
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Mọi người
-                  </Typography>
-                </div>
-                <div
-                  className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.Exercise
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                  onClick={() => {
-                    if (headerSelect !== HeaderSelect.Exercise) {
-                      setHeaderSelect(HeaderSelect.Exercise);
-                      navigate('/class-detail/' + Context?.currentClassId + '/exercise-manager', {
-                        replace: true,
-                        state: HeaderSelect.Exercise,
-                      });
-                    }
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Bài tập
-                  </Typography>
-                </div>
+                {createHeaderItem(
+                  HeaderSelect.NewsFeed,
+                  '/class-detail/' + currentClassId,
+                  'Bảng tin',
+                )}
 
-                <div
-                  className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.Grades
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                  onClick={() => {
-                    if (headerSelect !== HeaderSelect.Grades) {
-                      setHeaderSelect(HeaderSelect.Grades);
-                      navigate('/class-detail/' + Context?.currentClassId + '/grades', {
-                        replace: true,
-                        state: HeaderSelect.Grades,
-                      });
-                    }
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Điểm
-                  </Typography>
-                </div>
+                {createHeaderItem(HeaderSelect.Members, '/members/' + currentClassId, 'Mọi người')}
+                {isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.Exercise,
+                    '/class-detail/' + currentClassId + '/exercise-manager',
+                    ' Bài tập',
+                  )}
+                {isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.Grades,
+                    '/class-detail/' + currentClassId + '/grades',
+                    'Điểm',
+                  )}
+
+                {!isTeacher &&
+                  createHeaderItem(
+                    HeaderSelect.GradeReview,
+                    '/class-detail/' + currentClassId + '/grade-review',
+                    'Xem điểm',
+                  )}
               </div>
             )}
             <div className="header__right-container">
@@ -213,6 +166,8 @@ export const Header: React.FC<IHeaderProps> = () => {
                 <MenuItem onClick={handleOpenJoinClassDialog}>Tham gia lớp học</MenuItem>
                 <MenuItem onClick={handleOpenCreateClassDialog}>Tạo mới lớp học</MenuItem>
               </Menu>
+
+              <UserNotification />
               <div>
                 <Avatar src={avatarRand} onClick={handleOpenProfileMenu} className="header__icon" />
                 <Menu

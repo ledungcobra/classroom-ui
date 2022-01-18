@@ -1,10 +1,12 @@
 import { FolderOpen, PermContactCalendar } from '@mui/icons-material';
 import { Avatar } from '@mui/material';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import { HeaderSelect } from '..';
+import { useAppContextApi, useAppDispatch } from '../../redux';
+import { setHeaderSelect } from '../../redux/slices/classContextSlides/classContextSlides';
 // import { Link } from 'react-router-dom';
 import './MyClass.scss';
-
 interface IMyClassProps {
   id?: string;
   name?: string;
@@ -22,6 +24,10 @@ export const MyClass: React.FC<IMyClassProps> = ({
   id,
   classBackground,
 }) => {
+  const Context = useAppContextApi();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
   return (
     <li className="joined__list">
       <div className="joined__wrapper">
@@ -31,14 +37,16 @@ export const MyClass: React.FC<IMyClassProps> = ({
             <img src={classBackground} alt="" />
           </div>
           <div className="joined__content">
-            <Link className="joined__title" to={`/class-detail/${id}`}>
+            <div
+              className="joined__title"
+              onClick={() => {
+                navigate(`/class-detail/${id}`);
+                dispatch(setHeaderSelect(HeaderSelect.NewsFeed));
+              }}
+            >
               <h2>{name}</h2>
               <span>{section}</span>
-            </Link>
-            {/* <a className="joined__title" href={`#`}>
-              <h2>{name}</h2>
-              <span>{section}</span>
-            </a> */}
+            </div>
             <p className="joined__owner">{ownerName}</p>
           </div>
         </div>

@@ -1,33 +1,39 @@
-import { useForm } from 'react-hook-form';
-import { doLogin } from '../../redux/asyncThunk/authAction';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { Alert, Button, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Box } from '@mui/system';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useAppDispatch } from '../../redux';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, useLocation } from 'react-router-dom';
+import FaviIcon from '../../assets/icons/favicon.ico';
+import GIcon from '../../assets/icons/login/g-logo.png';
+import { useAppContextApi, useAppDispatch } from '../../redux';
+import { doLogin } from '../../redux/asyncThunk/authAction';
+import { setMainToken } from '../../redux/slices/appSlices/authSlice';
+import axiosMain from '../../services/axios/axiosMain';
+import { isValidEmail } from '../../utils';
 import {
-  setToken,
-  setRefreshToken,
+  parseParams,
   setCurrentUser,
   setEmail,
   setFullName,
-  parseParams,
+  setRefreshToken,
+  setToken,
 } from '../../utils/common';
-import { setMainToken } from '../../redux/slices/appSlices/authSlice';
-import { TextField } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
-import FaviIcon from '../../assets/icons/favicon.ico';
-import GIcon from '../../assets/icons/login/g-logo.png';
-import { apiAuth } from './../../services/apis/apiAuth';
-
-import { useLocation } from 'react-router-dom';
-
 import './Login.scss';
-import { useEffect, useState } from 'react';
-import React from 'react';
-import { Link } from 'react-router-dom';
 
 type FormValues = {
   username: string;
   password: string;
 };
+
+enum DialogState {
+  NONE,
+  INPUT_EMAIL,
+  NOTIFY_SUCCESS,
+  NOTIFY_FAIL,
+  INPUT_NEWPASSWORD,
+}
 
 export const Login = () => {
   const { register, handleSubmit } = useForm();
@@ -35,11 +41,35 @@ export const Login = () => {
 
   const [isLoging, setIsLoging] = useState(false);
   const [error, setError] = useState('');
+  const [resetEmail, setResetEmail] = React.useState('');
+  const [newPass, setNewPass] = React.useState('');
+  const [reNewPass, setReNewPass] = React.useState('');
+  const [restorePasswordToken, setRestorePasswordToken] = React.useState('');
+  const Context = useAppContextApi();
+
+  const [dialogState, setDialogState] = React.useState<DialogState>(DialogState.NONE);
+  const [dialogMessage, setDialogMessage] = React.useState<string>('');
 
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     console.log(Object.keys(query).length);
+    if (query['reset-password']) {
+      const email = query['email'];
+      const token = query['token'];
+      axiosMain
+        .get(`/Email/reset-password?token=${token}&email=${email}`)
+        .then(({ data }) => {
+          if (data !== 'Error') {
+            setDialogState(DialogState.NOTIFY_SUCCESS);
+            setDialogMessage('Mật khẩu mới của bạn là: ' + data);
+          } else {
+            setDialogState(DialogState.NOTIFY_FAIL);
+            setDialogMessage('Có lỗi trong quá trình khôi phục mật khẩu');
+          }
+        })
+        .catch((e) => {});
+      return;
+    }
     if (Object.keys(query).length > 1) {
       setIsLoging(false);
       let token = query.token;
@@ -50,6 +80,7 @@ export const Login = () => {
       setEmail(query.email);
       setFullName(query.currentFullName);
       dispatch(setMainToken(token));
+
       window.location.replace('/');
     }
   }, []);
@@ -83,6 +114,31 @@ export const Login = () => {
         setIsLoging(false);
         setError('*Tên đăng nhập hoặc mật khẩu không chính xác!');
       });
+  };
+
+  const handleRestoreAccountByEmail = (email: string) => {
+    if (email) {
+      axiosMain
+        .post('/users/reset-password', {
+          email: email,
+        })
+        .then(({ data }) => {
+          if (data.status === 400) {
+            Context?.openSnackBarError('Có lỗi xẩy ra');
+          } else {
+            setDialogState(DialogState.NOTIFY_SUCCESS);
+            setDialogMessage('Bạn vui lòng check mail vừa nhập để khôi phục mật khẩu');
+          }
+        });
+    } else {
+      Context?.openSnackBarError('Email điền vào rỗng vui lòng check lại');
+    }
+  };
+
+  const handleProcessRestorePassword = (token: string) => {
+    // if (token !== '') {
+    // } else {
+    // }
   };
 
   return (
@@ -145,10 +201,114 @@ export const Login = () => {
             </LoadingButton>
             <p className="right-side__form__question">
               Bạn chưa có tài khoản? <Link to="/signup">Đăng ký</Link>
+              <br />
+              Quên mật khẩu ?{' '}
+              <span
+                onClick={() => {
+                  setDialogState(DialogState.INPUT_EMAIL);
+                }}
+                className="restore-password"
+              >
+                Khôi phục mật khẩu
+              </span>
             </p>
           </form>
         </div>
       </div>
+
+      <Dialog
+        fullWidth
+        open={dialogState !== DialogState.NONE}
+        onClose={() => setDialogState(DialogState.NONE)}
+        maxWidth="sm"
+      >
+        {dialogState === DialogState.INPUT_EMAIL && (
+          <>
+            <DialogTitle>Khôi phục mật khẩu</DialogTitle>
+            <DialogContent>
+              <TextField
+                fullWidth
+                type="email"
+                placeholder="Nhập vào email liên kết tài khoản"
+                value={resetEmail}
+                error={!isValidEmail(resetEmail)}
+                color="success"
+                onChange={(e) => setResetEmail(e.target.value)}
+                sx={{ marginBottom: '15px' }}
+              />
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={() => handleRestoreAccountByEmail(resetEmail)}
+                  variant="contained"
+                  sx={{ borderRadius: 0 }}
+                  color="warning"
+                >
+                  Khôi phục
+                </Button>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+        {(dialogState === DialogState.NOTIFY_SUCCESS ||
+          dialogState === DialogState.NOTIFY_FAIL) && (
+          <>
+            <DialogTitle>Thông báo</DialogTitle>
+            <DialogContent>
+              <Alert
+                severity={dialogState === DialogState.NOTIFY_SUCCESS ? 'success' : 'error'}
+                sx={{ marginBottom: '10px' }}
+              >
+                {dialogMessage}
+              </Alert>
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={() => setDialogState(DialogState.NONE)}
+                  variant="contained"
+                  sx={{ borderRadius: 0 }}
+                  color={dialogState === DialogState.NOTIFY_SUCCESS ? 'success' : 'warning'}
+                >
+                  Đóng
+                </Button>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+        {dialogState === DialogState.INPUT_NEWPASSWORD && (
+          <>
+            <DialogTitle>Nhập mật khẩu mới để khôi phục</DialogTitle>
+            <DialogContent>
+              <TextField
+                fullWidth
+                type="password"
+                placeholder="Nhập mật khẩu mới"
+                value={newPass}
+                color="success"
+                onChange={(e) => setNewPass(e.target.value)}
+                sx={{ marginBottom: '15px' }}
+              />
+              <TextField
+                fullWidth
+                type="password"
+                placeholder="Xác nhận mật khẩu"
+                value={reNewPass}
+                color="success"
+                onChange={(e) => setReNewPass(e.target.value)}
+                sx={{ marginBottom: '15px' }}
+              />
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={() => handleProcessRestorePassword(restorePasswordToken)}
+                  variant="contained"
+                  sx={{ borderRadius: 0 }}
+                  color="success"
+                >
+                  Khôi phục
+                </Button>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 };

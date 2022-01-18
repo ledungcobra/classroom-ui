@@ -131,3 +131,128 @@ interface IResClassAssignment {
   maxGrade: number;
   order: number;
 }
+
+interface ICommonResponse<T> {
+  status: number;
+  result: number;
+  message: string | null;
+  content: T;
+}
+interface IGradeReviewContent {
+  id: number;
+  gradeExpect: number;
+  message: string;
+  studentId: number;
+  gradeId: number;
+  mssv: string;
+  status: GradeReviewStatus;
+  student: IStudent;
+  grade: IGrade;
+  exerciseName: string;
+}
+
+interface IStudent {
+  id: number;
+  studentID: string | null;
+  fullName: string | null;
+  firstName: string | null;
+  middleName: string | null;
+  lastName: string | null;
+  dateOfBird: string;
+  userId: number;
+  phone: string | null;
+}
+
+interface IHeaderExercise {
+  id: number;
+  name: string;
+  maxGrade: number;
+  gradeScale: number;
+}
+
+interface IStudentScore {
+  id: number;
+  mssv: string;
+  name: string;
+  grades: IGrade[];
+}
+
+interface IGrade {
+  id: number;
+  gradeId: number;
+  grade: number;
+  maxGrade: number;
+  gradeReviewId: number;
+  gradeScale: number;
+}
+
+interface IStudentGradeContent {
+  header: IHeaderExercise[];
+  scores: IStudentScore;
+  total: number;
+}
+
+interface IGradeReviewCommentContent {
+  hasMore: boolean;
+  total: number;
+  data: IGradeReviewComment[];
+}
+
+interface IGradeReviewComment {
+  id: number;
+  message: string;
+  studentId: number;
+  teacherId: number;
+  gradeReviewId: number;
+  student: IUserCommentInfo | null;
+  teacher: IUserCommentInfo | null;
+}
+
+interface IUserCommentInfo {
+  id: number;
+  username: string;
+  fullName: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: number;
+  email: string;
+  profileImageUrl: string | null;
+  personalEmail: string;
+  studentID: string;
+  phoneNumber: string;
+  personalPhoneNumber: string;
+  userStatus: number;
+}
+
+interface INotificationContent {
+  total: number;
+  hasMore: boolean;
+  data: INotifications | null;
+}
+
+interface INotifications {
+  amountUnseen: number;
+  notifications: INotification[];
+}
+
+enum ETypeNotification {
+  STUDENT = 1,
+  TEACHER = 2,
+}
+interface INotification {
+  id: number;
+  userId: number;
+  isSeen: boolean;
+  senderName: string;
+  typeNotification: ETypeNotification;
+  message: string;
+  createBy: string;
+  createOn: string;
+  updateBy: string;
+  updateOn: string;
+  gradeReviewId?: number;
+  courseId?: number;
+  gradeId?: number;
+  gradeReviewId?: number;
+}

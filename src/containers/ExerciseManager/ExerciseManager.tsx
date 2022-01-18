@@ -13,14 +13,14 @@ import React, { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router';
 import { GREEN_COLOR } from '../../constants';
-import { useAppContextApi, useAppSelector } from '../../redux';
+import { useAppContextApi, useAppDispatch, useAppSelector } from '../../redux';
+import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
 import { apiClass } from '../../services/apis/apiClass';
 import './ExerciseManager.scss';
 
-interface Props {
-}
+interface Props {}
 
-interface IExercise {
+export interface IExercise {
   id?: number;
   name?: string;
   maxGrade?: number;
@@ -29,137 +29,6 @@ interface IExercise {
   description?: string;
   courseId?: number;
 }
-
-interface ExerciseItemProps {
-  onAddExercise?: (exercise: IExercise, onDone: () => void) => void;
-  onDeleteExercise?: (id?: number) => void;
-  onUpdateExercise?: (exercise: IExercise) => void;
-  exercise?: IExercise;
-  isEditable?: boolean;
-  isOld?: boolean;
-}
-
-const ExerciseItem = ({
-                        onAddExercise,
-                        isEditable: isEditting = false,
-                        isOld = true,
-                        exercise,
-                        onDeleteExercise,
-                        onUpdateExercise,
-                      }: ExerciseItemProps) => {
-  const Context = useAppContextApi();
-  const [editing, setEditing] = React.useState(isEditting);
-  const [exerciseState, setExerciseState] = React.useState(exercise);
-
-  const onSave = () => {
-    if (exerciseState) {
-      onUpdateExercise?.(exerciseState!!);
-      setEditing(false);
-      Context?.openSnackBar('Thêm bài tập thành công');
-    } else {
-      Context?.openSnackBar('Bạn chưa nhập liệu gì');
-    }
-  };
-
-  const onDelete = (id?: number) => {
-    onDeleteExercise?.(id);
-  };
-
-  const onDoneAddExercise = () => {
-    setExerciseState((prev) => {
-      return {
-        ...prev,
-        name: '',
-        maxGrade: 0,
-      };
-    });
-  };
-  return (
-    <Card className='exercise-item' sx={{ marginBottom: '10px' }}>
-      <Box padding='15px'>
-        <Grid container sx={{ height: '100%' }}>
-          <Grid item md={11}>
-            <Box display='column' justifyContent='flex-start'>
-              <TextField
-                variant='filled'
-                placeholder='Tên bài tập'
-                type='text'
-                label='Tên bài tập'
-                fullWidth
-                sx={{ marginBottom: '10px' }}
-                disabled={isOld && !editing}
-                value={exerciseState?.name}
-                onChange={(e) => {
-                  setExerciseState({
-                    ...exerciseState,
-                    name: e.target.value,
-                  });
-                }}
-              />
-              <TextField
-                variant='filled'
-                placeholder='Điểm tối đa'
-                type='number'
-                fullWidth
-                label='Điểm tối đa'
-                disabled={isOld && !editing}
-                value={exerciseState?.maxGrade}
-                onChange={(e) => {
-                  setExerciseState({
-                    ...exerciseState,
-                    maxGrade: parseInt(e.target.value!!),
-                  });
-                }}
-              />
-            </Box>
-          </Grid>
-          <Grid item md={1} sx={{ height: '100%' }}>
-            <Box
-              display='flex'
-              flexDirection='column'
-              justifyContent='space-around'
-              gap='10px'
-              height='100%'
-            >
-              {isOld ? (
-                <>
-                  {!editing ? (
-                    <IconButton color='success' onClick={() => setEditing(true)}>
-                      <EditIcon />
-                    </IconButton>
-                  ) : (
-                    <IconButton color='success' onClick={onSave}>
-                      <SaveIcon />
-                    </IconButton>
-                  )}
-                  <IconButton>
-                    <DeleteIcon color='error' onClick={() => onDelete(exerciseState?.id)} />
-                  </IconButton>
-                </>
-              ) : (
-                <>
-                  <IconButton
-                    color='success'
-                    onClick={() => {
-                      setExerciseState({ name: undefined, maxGrade: undefined });
-                      if (exerciseState) {
-                        onAddExercise?.(exerciseState!!, onDoneAddExercise);
-                      } else {
-                        Context?.openSnackBar('Bạn không có exercise để thêm');
-                      }
-                    }}
-                  >
-                    <AddIcon sx={{ color: GREEN_COLOR }} />
-                  </IconButton>
-                </>
-              )}
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
-    </Card>
-  );
-};
 
 const grid = 8;
 
@@ -183,6 +52,7 @@ export const ExerciseManager = (props: Props) => {
   const Context = useAppContextApi();
   const [exercisesState, setExercisesState] = React.useState(new Array<IExercise>());
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (id && currentUser !== null) {
@@ -201,7 +71,7 @@ export const ExerciseManager = (props: Props) => {
           } else {
             Context?.openSnackBarError('Có lỗi xảy ra trong quá trình tải');
           }
-          Context?.setCurrentClassId(parseInt(id));
+          dispatch(setCurrentClassId(parseInt(id)));
         })
         .catch((e) => {
           Context?.hideLoading();
@@ -313,7 +183,7 @@ export const ExerciseManager = (props: Props) => {
 
   useEffect(() => {
     if (id && id !== '' && typeof id === 'number') {
-      Context?.setCurrentClassId(+id);
+      dispatch(setCurrentClassId(+id));
     }
   }, [id]);
 
@@ -373,10 +243,10 @@ export const ExerciseManager = (props: Props) => {
       });
   };
   return (
-    <Container maxWidth='md' sx={{ marginTop: '40px' }}>
-      <Box display='flex' flexDirection='column'>
+    <Container maxWidth="md" sx={{ marginTop: '40px' }}>
+      <Box display="flex" flexDirection="column">
         <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId='droppable'>
+          <Droppable droppableId="droppable">
             {(provided: any, snapshot: any) => (
               <div
                 {...provided.droppableProps}
@@ -409,5 +279,136 @@ export const ExerciseManager = (props: Props) => {
         <ExerciseItem isOld={false} onAddExercise={onAddExercise} />
       </Box>
     </Container>
+  );
+};
+
+interface ExerciseItemProps {
+  onAddExercise?: (exercise: IExercise, onDone: () => void) => void;
+  onDeleteExercise?: (id?: number) => void;
+  onUpdateExercise?: (exercise: IExercise) => void;
+  exercise?: IExercise;
+  isEditable?: boolean;
+  isOld?: boolean;
+}
+
+const ExerciseItem = ({
+  onAddExercise,
+  isEditable: isEditting = false,
+  isOld = true,
+  exercise,
+  onDeleteExercise,
+  onUpdateExercise,
+}: ExerciseItemProps) => {
+  const Context = useAppContextApi();
+  const [editing, setEditing] = React.useState(isEditting);
+  const [exerciseState, setExerciseState] = React.useState(exercise);
+
+  const onSave = () => {
+    if (exerciseState) {
+      onUpdateExercise?.(exerciseState!!);
+      setEditing(false);
+      Context?.openSnackBar('Thêm bài tập thành công');
+    } else {
+      Context?.openSnackBar('Bạn chưa nhập liệu gì');
+    }
+  };
+
+  const onDelete = (id?: number) => {
+    onDeleteExercise?.(id);
+  };
+
+  const onDoneAddExercise = () => {
+    setExerciseState((prev) => {
+      return {
+        ...prev,
+        name: '',
+        maxGrade: 0,
+      };
+    });
+  };
+  return (
+    <Card className="exercise-item" sx={{ marginBottom: '10px' }}>
+      <Box padding="15px">
+        <Grid container sx={{ height: '100%' }}>
+          <Grid item md={11}>
+            <Box display="column" justifyContent="flex-start">
+              <TextField
+                variant="filled"
+                placeholder="Tên bài tập"
+                type="text"
+                label="Tên bài tập"
+                fullWidth
+                sx={{ marginBottom: '10px' }}
+                disabled={isOld && !editing}
+                value={exerciseState?.name}
+                onChange={(e) => {
+                  setExerciseState({
+                    ...exerciseState,
+                    name: e.target.value,
+                  });
+                }}
+              />
+              <TextField
+                variant="filled"
+                placeholder="Điểm tối đa"
+                type="number"
+                fullWidth
+                label="Điểm tối đa"
+                disabled={isOld && !editing}
+                value={exerciseState?.maxGrade}
+                onChange={(e) => {
+                  setExerciseState({
+                    ...exerciseState,
+                    maxGrade: parseInt(e.target.value!!),
+                  });
+                }}
+              />
+            </Box>
+          </Grid>
+          <Grid item md={1} sx={{ height: '100%' }}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-around"
+              gap="10px"
+              height="100%"
+            >
+              {isOld ? (
+                <>
+                  {!editing ? (
+                    <IconButton color="success" onClick={() => setEditing(true)}>
+                      <EditIcon />
+                    </IconButton>
+                  ) : (
+                    <IconButton color="success" onClick={onSave}>
+                      <SaveIcon />
+                    </IconButton>
+                  )}
+                  <IconButton>
+                    <DeleteIcon color="error" onClick={() => onDelete(exerciseState?.id)} />
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <IconButton
+                    color="success"
+                    onClick={() => {
+                      setExerciseState({ name: undefined, maxGrade: undefined });
+                      if (exerciseState) {
+                        onAddExercise?.(exerciseState!!, onDoneAddExercise);
+                      } else {
+                        Context?.openSnackBar('Bạn không có exercise để thêm');
+                      }
+                    }}
+                  >
+                    <AddIcon sx={{ color: GREEN_COLOR }} />
+                  </IconButton>
+                </>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </Card>
   );
 };

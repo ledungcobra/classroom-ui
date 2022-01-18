@@ -6,7 +6,7 @@ import { Avatar, Badge, Button, Card, Divider, IconButton, Typography } from '@m
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 import { GREEN_COLOR } from '../../constants';
 import { useAppSelector } from '../../redux';
 import {
@@ -25,25 +25,40 @@ export const UserNotification = () => {
     (notification.notificationContent?.data?.notifications?.length ?? 0) > 0;
 
   React.useEffect(() => {
-    dispatch(getAllNotifcation(localStorage.getItem('classroom@current_user') ?? ''));
+    dispatch(
+      getAllNotifcation({
+        currentUser: localStorage.getItem('classroom@current_user') ?? '',
+        StartAt: 0,
+        MaxResults: 20,
+      }),
+    );
   }, []);
 
   const [isShowNotification, setIsShowNotification] = React.useState(false);
-  const handleLoadMore = () => {};
+  const handleLoadMore = () => {
+    dispatch(
+      getAllNotifcation({
+        MaxResults: 3,
+        StartAt: notification.notificationContent?.data?.notifications.length ?? 0,
+        currentUser: localStorage.getItem('classroom@current_user') ?? '',
+      }),
+    );
+  };
   return (
     <div className="notification">
       <IconButton onClick={() => setIsShowNotification(!isShowNotification)}>
-        <Badge
-          badgeContent={5}
-          color="error"
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-          onClick={() => {}}
-        >
-          {isFullNotification ? <FullNotificationsIcon /> : <EmptyNotificationsIcon />}
-        </Badge>
+        {notification && (
+          <Badge
+            badgeContent={notification.notificationContent?.data?.notifications.length}
+            color="error"
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+          >
+            {isFullNotification ? <FullNotificationsIcon /> : <EmptyNotificationsIcon />}
+          </Badge>
+        )}
       </IconButton>
 
       {isShowNotification && (
@@ -115,7 +130,6 @@ const NotificationItem: React.FC<INotification> = ({
 }) => {
   const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const markSeenNotification = (id: number) => {
     dispatch(
@@ -126,16 +140,9 @@ const NotificationItem: React.FC<INotification> = ({
     );
   };
   return (
-    <div
+    <Link
       className="notification__item__wrapper"
-      onClick={() =>
-        navigate(
-          `class-detail/${courseId}/grade-review?gradeId=${gradeId}&gradeReviewId=${gradeReviewId}`,
-          {
-            replace: true,
-          },
-        )
-      }
+      to={`/class-detail/${courseId}/grade-review?gradeId=${gradeId}&gradeReviewId=${gradeReviewId}`}
     >
       <div className="notification__item">
         <Divider sx={{ width: '90%', marginBottom: '8px' }} />
@@ -166,6 +173,6 @@ const NotificationItem: React.FC<INotification> = ({
           </Box>
         </Box>
       </div>
-    </div>
+    </Link>
   );
 };

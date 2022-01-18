@@ -217,3 +217,9 @@ interface IUpdateMarkSeenNotificationRequest {
   id: number;
   currentUser: string | null;
 }
+
+interface INotificationRequest {
+  currentUser: string | null;
+  StartAt: number;
+  MaxResults: number;
+}

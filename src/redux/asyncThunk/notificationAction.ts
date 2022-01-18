@@ -3,8 +3,12 @@ import axiosMain from '../../services/axios/axiosMain';
 
 export const getAllNotifcation = createAsyncThunk(
   'notification/getAllNotifcation',
-  async (currentUser: string) => {
-    return (await axiosMain.get(`/notification?CurrentUser=${currentUser}`)).data;
+  async (params: INotificationRequest) => {
+    return (
+      await axiosMain.get(
+        `/notification?CurrentUser=${params.currentUser}&MaxResults=${params.MaxResults}&StartAt=${params.StartAt}`,
+      )
+    ).data;
   },
 );
 

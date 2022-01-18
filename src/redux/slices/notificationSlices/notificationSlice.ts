@@ -41,11 +41,17 @@ const notificationSlice = createSlice({
           state.errorMessage = response.message ?? '';
           return;
         }
-
+        // if (state.notificationContent) {
+        //   state.notificationContent.data!!.notifications = [
+        //     ...state.notificationContent!!.data!!.notifications,
+        //     ...action.payload.content!!.data!!.notifications,
+        //   ];
+        //   state.notificationContent.hasMore = action.payload.content.hasMore;
+        //   state.notificationContent.total = action.payload.content.total;
+        // } else {
         state.notificationContent = response.content;
-        // if (state.notificationContent.data) {
-        //   state.notificationContent.data.notifications =
-        //     state.notificationContent.data.notifications.sort((not) => (not.isSeen ? -1 : 1));
+        state.notificationContent.data?.notifications.sort((n) => (n.isSeen ? 1 : -1));
+
         // }
       },
     );
@@ -107,7 +113,7 @@ const notificationSlice = createSlice({
             });
 
           state.notificationContent.data.notifications =
-            state.notificationContent.data.notifications.sort((not) => (not.isSeen ? -1 : 1));
+            state.notificationContent.data.notifications.sort((not) => (not.isSeen ? 1 : -1));
         }
       },
     );

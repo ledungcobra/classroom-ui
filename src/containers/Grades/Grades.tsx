@@ -200,7 +200,12 @@ const Grades = () => {
     axiosMain
       .post(`/course/${id}/assignments/${exerciseId}/update-grade-normal`, {
         isFinalized: true,
-        scores: studentGrade,
+        scores: studentGrade.map((s) => {
+          if (!s.grade) {
+            s.grade = 0;
+          }
+          return s;
+        }),
         currentUser: currentUser,
       })
       .then(({ data }) => {

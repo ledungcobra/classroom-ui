@@ -85,6 +85,7 @@ export const GradeReview = () => {
   React.useEffect(() => {
     const gradeId = query.gradeId;
     const gradeReviewId = query.gradeReviewId;
+
     if (gradeId && gradeReviewId) {
       batch(() => {
         setSelectedGradeId(gradeId);

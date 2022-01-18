@@ -7,9 +7,10 @@ import { useForm } from 'react-hook-form';
 import { Link, useLocation } from 'react-router-dom';
 import FaviIcon from '../../assets/icons/favicon.ico';
 import GIcon from '../../assets/icons/login/g-logo.png';
-import { useAppDispatch } from '../../redux';
+import { useAppContextApi, useAppDispatch } from '../../redux';
 import { doLogin } from '../../redux/asyncThunk/authAction';
 import { setMainToken } from '../../redux/slices/appSlices/authSlice';
+import axiosMain from '../../services/axios/axiosMain';
 import { isValidEmail } from '../../utils';
 import {
   parseParams,
@@ -44,6 +45,7 @@ export const Login = () => {
   const [newPass, setNewPass] = React.useState('');
   const [reNewPass, setReNewPass] = React.useState('');
   const [restorePasswordToken, setRestorePasswordToken] = React.useState('');
+  const Context = useAppContextApi();
 
   const [dialogState, setDialogState] = React.useState<DialogState>(DialogState.NONE);
   const [dialogMessage, setDialogMessage] = React.useState<string>('');
@@ -51,6 +53,23 @@ export const Login = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     console.log(Object.keys(query).length);
+    if (query['reset-password']) {
+      const email = query['email'];
+      const token = query['token'];
+      axiosMain
+        .get(`/Email/reset-password?token=${token}&email=${email}`)
+        .then(({ data }) => {
+          if (data !== 'Error') {
+            setDialogState(DialogState.NOTIFY_SUCCESS);
+            setDialogMessage('Mật khẩu mới của bạn là: ' + data);
+          } else {
+            setDialogState(DialogState.NOTIFY_FAIL);
+            setDialogMessage('Có lỗi trong quá trình khôi phục mật khẩu');
+          }
+        })
+        .catch((e) => {});
+      return;
+    }
     if (Object.keys(query).length > 1) {
       setIsLoging(false);
       let token = query.token;
@@ -61,6 +80,7 @@ export const Login = () => {
       setEmail(query.email);
       setFullName(query.currentFullName);
       dispatch(setMainToken(token));
+
       window.location.replace('/');
     }
   }, []);
@@ -97,14 +117,28 @@ export const Login = () => {
   };
 
   const handleRestoreAccountByEmail = (email: string) => {
-    setDialogState(DialogState.NOTIFY_SUCCESS);
-    setDialogMessage('Bạn vui lòng check mail vừa nhập để khôi phục mật khẩu');
+    if (email) {
+      axiosMain
+        .post('/users/reset-password', {
+          email: email,
+        })
+        .then(({ data }) => {
+          if (data.status === 400) {
+            Context?.openSnackBarError('Có lỗi xẩy ra');
+          } else {
+            setDialogState(DialogState.NOTIFY_SUCCESS);
+            setDialogMessage('Bạn vui lòng check mail vừa nhập để khôi phục mật khẩu');
+          }
+        });
+    } else {
+      Context?.openSnackBarError('Email điền vào rỗng vui lòng check lại');
+    }
   };
 
   const handleProcessRestorePassword = (token: string) => {
-    if (token !== '') {
-    } else {
-    }
+    // if (token !== '') {
+    // } else {
+    // }
   };
 
   return (

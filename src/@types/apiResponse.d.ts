@@ -227,7 +227,7 @@ interface IUserCommentInfo {
 
 interface INotificationContent {
   total: number;
-  hasMore: number;
+  hasMore: boolean;
   data: INotifications | null;
 }
 

@@ -147,6 +147,8 @@ interface IGradeReviewContent {
   mssv: string;
   status: GradeReviewStatus;
   student: IStudent;
+  grade: IGrade;
+  exerciseName: string;
 }
 
 interface IStudent {
@@ -181,6 +183,7 @@ interface IGrade {
   grade: number;
   maxGrade: number;
   gradeReviewId: number;
+  gradeScale: number;
 }
 
 interface IStudentGradeContent {
@@ -208,6 +211,7 @@ interface IGradeReviewComment {
 interface IUserCommentInfo {
   id: number;
   username: string;
+  fullName: string;
   firstName: string;
   middleName: string;
   lastName: string;
@@ -219,4 +223,36 @@ interface IUserCommentInfo {
   phoneNumber: string;
   personalPhoneNumber: string;
   userStatus: number;
+}
+
+interface INotificationContent {
+  total: number;
+  hasMore: number;
+  data: INotifications | null;
+}
+
+interface INotifications {
+  amountUnseen: number;
+  notifications: INotification[];
+}
+
+enum ETypeNotification {
+  STUDENT = 1,
+  TEACHER = 2,
+}
+interface INotification {
+  id: number;
+  userId: number;
+  isSeen: boolean;
+  senderName: string;
+  typeNotification: ETypeNotification;
+  message: string;
+  createBy: string;
+  createOn: string;
+  updateBy: string;
+  updateOn: string;
+  gradeReviewId?: number;
+  courseId?: number;
+  gradeId?: number;
+  gradeReviewId?: number;
 }

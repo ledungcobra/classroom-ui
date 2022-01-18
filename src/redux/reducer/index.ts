@@ -1,3 +1,4 @@
+import { notificationReducer } from './../slices/notificationSlices/notificationSlice';
 import { gradeReviewReducer } from './../slices/gradeReviewSlices/gradeReviewSlice';
 import { classReducer } from './../slices/classContextSlides/classContextSlides';
 import { editorReducer } from './../slices/editorSlides/editorSlice';
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   editorReducer,
   classReducer,
   gradeReviewReducer,
+  notificationReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

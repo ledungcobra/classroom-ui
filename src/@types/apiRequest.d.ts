@@ -19,7 +19,7 @@ interface IParamRefreshToken {
 
 interface IParamGetListClasses {
   title: string;
-  currentUser: string;
+  currentUser?: string;
   startAt: number;
   maxResults: number;
   sortColumn: string;
@@ -31,7 +31,7 @@ interface IParamCreateClasses {
   title: string;
   subject: string;
   room: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IUserProfileInfo {
@@ -52,7 +52,7 @@ interface IParamChangePassword {
 
 interface IParamGetClassDetail {
   classId: number;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IParamGetMemberClass {
@@ -76,13 +76,13 @@ interface IParamInviteMemberClass {
 interface IParamAddStudent {
   token: string;
   role: number;
-  currentUser: string;
+  currentUser?: string;
   invitee: string;
 }
 
 interface IParamGetClassAssignment {
   courseId: number;
-  currentUser: string;
+  currentUser?: string;
   SortColumn: '+Order' | '-Order';
 }
 
@@ -91,7 +91,7 @@ interface IParamAddClassAssignment {
   name: string;
   description: string;
   maxGrade: number;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IParamUpdateClassAssignment {
@@ -100,13 +100,13 @@ interface IParamUpdateClassAssignment {
   name: string;
   description: string;
   maxGrade: number;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IParamDeleteClassAssignment {
   courseId: number;
   assignmentsId: number;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IGetGradeReviewCommentsRequest {
@@ -121,7 +121,7 @@ interface ICreateGradeReviewRequest {
   gradeId: number;
   gradeExpect: number;
   reason: string;
-  currentUser: string;
+  currentUser?: string | null;
 }
 
 interface IApproveGradeReviewRequest {
@@ -129,7 +129,7 @@ interface IApproveGradeReviewRequest {
   gradeId: number;
   gradeReviewId: number;
   approvalStatus: GradeReviewStatus;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IUpdateGradeReviewRequest {
@@ -138,14 +138,14 @@ interface IUpdateGradeReviewRequest {
   gradeReviewId: number;
   gradeExpect: number;
   reason: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IDeleteGradeReviewRequest {
   courseId: number;
   gradeId: number;
   gradeReviewId: number;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface ITeacherCommentRequest {
@@ -153,7 +153,7 @@ interface ITeacherCommentRequest {
   courseId: number;
   gradeId: number;
   gradeReviewId: number;
-  currentUser: string;
+  currentUser?: string;
   teacherId: number;
 }
 
@@ -163,7 +163,7 @@ interface ITeacherUpdateCommentRequest {
   gradeReviewId: number;
   reviewCommentId: number;
   message: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface ITeacherDeleteCommentRequest {
@@ -172,7 +172,7 @@ interface ITeacherDeleteCommentRequest {
   gradeReviewId: number;
   reviewCommentId: number;
   message: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IStudentCommentRequest {
@@ -180,7 +180,7 @@ interface IStudentCommentRequest {
   courseId: number;
   gradeId: number;
   gradeReviewId: number;
-  currentUser: string;
+  currentUser?: string;
   studentId: number;
 }
 
@@ -190,7 +190,7 @@ interface IStudentUpdateCommentRequest {
   gradeReviewId: number;
   reviewCommentId: number;
   message: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IStudentDeleteCommentRequest {
@@ -199,7 +199,7 @@ interface IStudentDeleteCommentRequest {
   gradeReviewId: number;
   reviewCommentId: number;
   message: string;
-  currentUser: string;
+  currentUser?: string;
 }
 
 interface IGetGradeReviewRequest {
@@ -210,5 +210,10 @@ interface IGetGradeReviewRequest {
 
 interface IGetStudentGradeRequest {
   courseId: number | null;
+  currentUser?: string | null;
+}
+
+interface IUpdateMarkSeenNotificationRequest {
+  id: number;
   currentUser: string | null;
 }

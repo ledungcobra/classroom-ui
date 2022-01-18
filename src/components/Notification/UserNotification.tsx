@@ -3,90 +3,30 @@ import FullNotificationsIcon from '@mui/icons-material/Notifications';
 import EmptyNotificationsIcon from '@mui/icons-material/NotificationsNone';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import { Avatar, Badge, Button, Card, Divider, IconButton, Typography } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { GREEN_COLOR } from '../../constants';
 import { useAppSelector } from '../../redux';
+import {
+  doUpdateSeenANotification,
+  getAllNotifcation,
+} from '../../redux/asyncThunk/notificationAction';
+import { useAppDispatch } from '../../redux/hooks';
 import './UserNotification.scss';
 
-interface INotification {
-  id: number;
-  senderName: string;
-  message: string;
-  idGradeReview: number;
-  seen: boolean;
-}
-
-const response = {
-  data: {
-    amountUnseen: 0,
-    notifications: [
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-      {
-        id: 1,
-        senderName: 'ABC',
-        message: 'Xin chao abcd 13328932732894',
-        idGradeReview: 1,
-        seen: false,
-      },
-    ],
-  },
-  hasMore: true,
-  total: 0,
-};
 export const UserNotification = () => {
-  const [isFullNotification, setIsFullNotification] = React.useState(
-    response.data.amountUnseen > 0,
-  );
+  const notification = useAppSelector((state) => state.notificationReducer);
+  const isLoading = notification.loading;
+
+  const dispatch = useAppDispatch();
+  const isFullNotification =
+    (notification.notificationContent?.data?.notifications?.length ?? 0) > 0;
+
+  React.useEffect(() => {
+    dispatch(getAllNotifcation(localStorage.getItem('classroom@current_user') ?? ''));
+  }, []);
 
   const [isShowNotification, setIsShowNotification] = React.useState(false);
   const handleLoadMore = () => {};
@@ -110,6 +50,14 @@ export const UserNotification = () => {
         <Card variant="outlined" className="notification__body">
           <Box
             display="flex"
+            justifyContent="flex-end"
+            sx={{ padding: '10px', height: '30px', width: '100%' }}
+          >
+            {isLoading && <CircularProgress sx={{ alignSelf: 'flex-end' }} color="success" />}
+          </Box>
+
+          <Box
+            display="flex"
             alignItems="center"
             justifyContent="center"
             flexDirection="column"
@@ -122,21 +70,12 @@ export const UserNotification = () => {
           </Box>
 
           <div className="notification__body__content">
-            {response.data.notifications.length > 0 ? (
+            {(notification?.notificationContent?.data?.notifications?.length ?? 0) > 0 ? (
               <>
-                {response.data.notifications.map((not, index) => {
-                  return (
-                    <NotificationItem
-                      key={index}
-                      id={not.id}
-                      idGradeReview={not.idGradeReview}
-                      message={not.message}
-                      senderName={not.senderName}
-                      seen={not.seen}
-                    />
-                  );
+                {notification?.notificationContent?.data?.notifications?.map((not, index) => {
+                  return <NotificationItem key={index} {...not} />;
                 })}
-                {response.hasMore && (
+                {notification?.notificationContent?.hasMore && (
                   <Button
                     color="success"
                     variant="contained"
@@ -161,14 +100,43 @@ export const UserNotification = () => {
 
 const NotificationItem: React.FC<INotification> = ({
   id,
-  idGradeReview,
-  message,
-  seen,
+  createBy,
+  createOn,
+  isSeen,
   senderName,
+  typeNotification,
+  updateBy,
+  updateOn,
+  userId,
+  message,
+  courseId,
+  gradeId,
+  gradeReviewId,
 }) => {
   const avatarRand = useAppSelector((state) => state.utilsReducer.randomUserAvt);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const markSeenNotification = (id: number) => {
+    dispatch(
+      doUpdateSeenANotification({
+        id,
+        currentUser: localStorage.getItem('classroom@current_user') ?? '',
+      }),
+    );
+  };
   return (
-    <Link className="notification__item__wrapper" to={'grade-review'}>
+    <div
+      className="notification__item__wrapper"
+      onClick={() =>
+        navigate(
+          `class-detail/${courseId}/grade-review?gradeId=${gradeId}&gradeReviewId=${gradeReviewId}`,
+          {
+            replace: true,
+          },
+        )
+      }
+    >
       <div className="notification__item">
         <Divider sx={{ width: '90%', marginBottom: '8px' }} />
         <Box display="flex" justifyContent="space-between">
@@ -186,13 +154,18 @@ const NotificationItem: React.FC<INotification> = ({
               <span>{message}</span>
             </Box>
           </Box>
-          {seen ? (
-            <CheckIcon sx={{ color: GREEN_COLOR }} />
-          ) : (
-            <RadioButtonCheckedIcon sx={{ color: 'rgba(red,0.8)' }} />
-          )}
+
+          <Box display="flex" sx={{ height: '100%' }}>
+            {isSeen ? (
+              <CheckIcon sx={{ color: GREEN_COLOR }} />
+            ) : (
+              <IconButton onClick={() => markSeenNotification(id)}>
+                <RadioButtonCheckedIcon sx={{ color: 'rgba(red,0.8)' }} />
+              </IconButton>
+            )}
+          </Box>
         </Box>
       </div>
-    </Link>
+    </div>
   );
 };

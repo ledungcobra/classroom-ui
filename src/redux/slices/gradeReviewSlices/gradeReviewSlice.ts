@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GradeReviewStatus as EGradeReviewStatus } from '../../../containers/GradeReview/Data';
 import {
-  doApprove,
+  GradeReviewStatus as EGradeReviewStatus,
+  GradeReviewStatus,
+} from '../../../containers/GradeReview/Data';
+import {
   doCreateGradeReview,
   doDeleteGradeReview,
   doGetGradeReviewComments,
@@ -13,7 +15,11 @@ import {
   doTeacherUpdateComment,
   doUpdateGradeReview,
 } from '../../asyncThunk/gradeReviewAction';
-import { doGetGradeReview, doGetStudentGrade } from './../../asyncThunk/gradeReviewAction';
+import {
+  doApprove,
+  doGetGradeReview,
+  doGetStudentGrade,
+} from './../../asyncThunk/gradeReviewAction';
 interface TInitialState {
   isLoading: boolean;
   approve: EGradeReviewStatus;
@@ -26,6 +32,7 @@ interface TInitialState {
   };
   pendingCommentId: number;
   studentGrade: IStudentGradeContent | null;
+  pendingAproveStatus: GradeReviewStatus;
 }
 
 const initialState = {
@@ -39,6 +46,7 @@ const initialState = {
     hasMore: false,
   },
   studentGrade: null,
+  pendingAproveStatus: GradeReviewStatus.None,
 } as TInitialState;
 
 const gradeReviewSlice = createSlice({
@@ -50,14 +58,23 @@ const gradeReviewSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(doApprove.pending, (state) => {
+    builder.addCase(doApprove.pending, (state, action) => {
       state.isLoading = true;
+      state.pendingAproveStatus = action.meta.arg.approvalStatus;
     });
     builder.addCase(
       doApprove.fulfilled,
       (state, action: PayloadAction<ICommonResponse<string>>) => {
         state.isLoading = false;
-        state.errorMessage = action.payload.content;
+        if (action.payload.status === 400) {
+          state.errorMessage = action.payload.content;
+          state.pendingAproveStatus = GradeReviewStatus.None;
+          return;
+        }
+
+        if (state.gradeReview) {
+          state.gradeReview.status = state.pendingAproveStatus;
+        }
       },
     );
 

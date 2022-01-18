@@ -126,26 +126,6 @@ export const Header: React.FC<IHeaderProps> = () => {
             </div>
             {currentClassId && (
               <div className="header__center-container">
-                {/* <div
-                  className={`header__center-container__item
-              ${
-                headerSelect === HeaderSelect.NewsFeed
-                  ? 'header__center-container__item--selected'
-                  : ''
-              }`}
-                  onClick={() => {
-                    dispatch(setHeaderSelect(HeaderSelect.NewsFeed));
-                    navigate('/class-detail/' + currentClassId, {
-                      replace: true,
-                      state: HeaderSelect.NewsFeed,
-                    });
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="500">
-                    Bảng tin
-                  </Typography>
-                </div> */}
-
                 {createHeaderItem(
                   HeaderSelect.NewsFeed,
                   '/class-detail/' + currentClassId,

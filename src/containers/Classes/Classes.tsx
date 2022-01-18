@@ -28,7 +28,7 @@ export const Classes = () => {
             title: '',
             sortColumn: '',
             startAt: 0,
-            maxResults: 10,
+            maxResults: 20,
           } as IParamGetListClasses),
         ).then(() => {
           Context?.hideLoading();

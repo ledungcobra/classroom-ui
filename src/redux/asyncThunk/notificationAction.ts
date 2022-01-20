@@ -6,7 +6,7 @@ export const getAllNotifcation = createAsyncThunk(
   async (params: INotificationRequest) => {
     return (
       await axiosMain.get(
-        `/notification?CurrentUser=${params.currentUser}&MaxResults=${params.MaxResults}&StartAt=${params.StartAt}`,
+        `/notification?CurrentUser=${params.currentUser}&MaxResults=${params.MaxResults}&StartAt=${params.StartAt}&SortColumn=-CreateOn`,
       )
     ).data;
   },

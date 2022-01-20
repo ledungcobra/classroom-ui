@@ -4,12 +4,16 @@ interface TInitialState {
   comment: string;
   currentCommentId: number | null;
   isEditing: boolean;
+  exerciseName?: string;
+  maxGrade?: number;
 }
 
 const initialState = {
   comment: '',
   isEditing: false,
   currentCommentId: null,
+  exerciseName: undefined,
+  maxGrade: undefined,
 } as TInitialState;
 
 const editorSlice = createSlice({
@@ -25,10 +29,17 @@ const editorSlice = createSlice({
     setIsEditing: (state, action: PayloadAction<boolean>) => {
       state.isEditing = action.payload;
     },
+    setExerciseName: (state, action: PayloadAction<string | undefined>) => {
+      state.exerciseName = action.payload;
+    },
+    setMaxGrade: (state, action: PayloadAction<number | undefined>) => {
+      state.maxGrade = action.payload;
+    },
   },
   extraReducers: (builder) => {},
 });
 
 export const editorReducer = editorSlice.reducer;
 
-export const { setComment, setCurrentCommentId, setIsEditing } = editorSlice.actions;
+export const { setComment, setCurrentCommentId, setIsEditing, setExerciseName, setMaxGrade } =
+  editorSlice.actions;

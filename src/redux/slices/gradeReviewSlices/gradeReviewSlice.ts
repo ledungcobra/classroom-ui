@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  GradeReviewStatus as EGradeReviewStatus,
-  GradeReviewStatus,
-} from '../../../containers/GradeReview/Data';
+import { GradeReviewStatus } from '../../../constants';
 import {
   doCreateGradeReview,
   doDeleteGradeReview,
@@ -22,7 +19,7 @@ import {
 } from './../../asyncThunk/gradeReviewAction';
 interface TInitialState {
   isLoading: boolean;
-  approve: EGradeReviewStatus;
+  approve: GradeReviewStatus;
   errorMessage: string;
   gradeReview: IGradeReviewContent | null;
   error: boolean;
@@ -38,7 +35,7 @@ interface TInitialState {
 const initialState = {
   isLoading: false,
   errorMessage: '',
-  approve: EGradeReviewStatus.None,
+  approve: GradeReviewStatus.None,
   error: false,
   gradeReview: null,
   comments: {
@@ -55,6 +52,9 @@ const gradeReviewSlice = createSlice({
   reducers: {
     setError: (state, action: PayloadAction<boolean>) => {
       state.error = action.payload;
+    },
+    clearGradeReview: (state) => {
+      state.gradeReview = null;
     },
   },
   extraReducers: (builder) => {
@@ -74,6 +74,9 @@ const gradeReviewSlice = createSlice({
 
         if (state.gradeReview) {
           state.gradeReview.status = state.pendingAproveStatus;
+          if (state.gradeReview.status === GradeReviewStatus.Approve) {
+            state.gradeReview.grade.grade = state.gradeReview.gradeExpect;
+          }
         }
       },
     );
@@ -299,4 +302,4 @@ const gradeReviewSlice = createSlice({
 });
 
 export const gradeReviewReducer = gradeReviewSlice.reducer;
-export const { setError } = gradeReviewSlice.actions;
+export const { setError, clearGradeReview } = gradeReviewSlice.actions;

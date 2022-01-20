@@ -13,28 +13,48 @@ import {
   doUpdateSeenANotification,
   getAllNotifcation,
 } from '../../redux/asyncThunk/notificationAction';
-import { useAppDispatch } from '../../redux/hooks';
+import useComponentVisible, { useAppDispatch } from '../../redux/hooks';
 import './UserNotification.scss';
 
 export const UserNotification = () => {
   const notification = useAppSelector((state) => state.notificationReducer);
   const isLoading = notification.loading;
+  const { ref, isComponentVisible } = useComponentVisible(false);
+  const [isShowNotification, setIsShowNotification] = React.useState(isComponentVisible);
 
   const dispatch = useAppDispatch();
   const isFullNotification =
     (notification.notificationContent?.data?.notifications?.length ?? 0) > 0;
+  const pollingRef = React.useRef<any>(null);
 
   React.useEffect(() => {
     dispatch(
       getAllNotifcation({
         currentUser: localStorage.getItem('classroom@current_user') ?? '',
         StartAt: 0,
-        MaxResults: 20,
+        MaxResults: 3,
       }),
     );
+    // const loadMore = () => {
+    //   pollingRef.current = setTimeout(() => {
+    //     handleLoadMore();
+    //     pollingRef.current = loadMore();
+    //   }, 2000);
+    //   return pollingRef.current;
+    // };
+    // loadMore();
+
+    return () => {
+      if (pollingRef.current) {
+        clearTimeout(pollingRef.current);
+      }
+    };
   }, []);
 
-  const [isShowNotification, setIsShowNotification] = React.useState(false);
+  React.useEffect(() => {
+    setIsShowNotification(isComponentVisible);
+  }, [isComponentVisible]);
+
   const handleLoadMore = () => {
     dispatch(
       getAllNotifcation({
@@ -45,11 +65,11 @@ export const UserNotification = () => {
     );
   };
   return (
-    <div className="notification">
+    <div className="notification" ref={ref}>
       <IconButton onClick={() => setIsShowNotification(!isShowNotification)}>
         {notification && (
           <Badge
-            badgeContent={notification.notificationContent?.data?.notifications.length}
+            badgeContent={notification.notificationContent?.data?.amountUnseen}
             color="error"
             anchorOrigin={{
               vertical: 'top',

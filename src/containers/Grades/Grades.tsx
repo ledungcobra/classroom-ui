@@ -309,7 +309,9 @@ const Grades = () => {
         },
       })
       .then((response) => {
-        Context?.openSnackBar('Upload thành');
+        console.log(response);
+        Context?.openSnackBar('Upload thành công');
+        window.location.reload();
       })
       .catch((error) => Context?.openSnackBar('Upload file thất bại'))
       .finally(handleCloseMenu);

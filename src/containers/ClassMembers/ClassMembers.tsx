@@ -141,6 +141,87 @@ const ClassMembers = (props: ClassMemberProps) => {
       });
   };
 
+  const handleHide = () => {
+    if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
+      setMembers((members) => {
+        members.students = members!!.students.filter((m) => m.id !== moreButtonEventData.data.id);
+        return { ...members };
+      });
+    } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
+      setMembers((members) => {
+        members!!.students = members!!.students.filter((_, index) => !checkStudents[index].checked);
+        return { ...members };
+      });
+    }
+    setIsOpenMenu(false);
+  };
+
+  const handleDelete = () => {
+    Context?.showLoading();
+    if (
+      moreButtonEventData.type === TypeMoreButton.StudentSingle ||
+      moreButtonEventData.type === TypeMoreButton.TeacherSingle
+    ) {
+      const userId = moreButtonEventData.data.id;
+      apiClass
+        .postDeleteMember({
+          currentUser,
+          userId,
+          courseId: parseInt(classId!!),
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            Context?.openSnackBar('Xoá thành công');
+            if (moreButtonEventData.type === TypeMoreButton.TeacherSingle) {
+              setMembers((members) => {
+                members.teachers = members.teachers.filter((t) => t.id !== userId);
+                return { ...members };
+              });
+            } else {
+              setMembers((members) => {
+                members.students = members!!.students.filter((m) => m.id !== userId);
+                setCheckStudents(members.students.map((s) => ({ id: s.id, checked: false })));
+                return { ...members };
+              });
+            }
+          } else if (response.status === 400) {
+            Context?.openSnackBar(response.message);
+          }
+        })
+        .finally(() => {
+          Context?.hideLoading();
+        });
+    } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
+      Promise.all(
+        checkStudents
+          .filter((s) => s.checked)
+          .map((s) => {
+            return apiClass.postDeleteMember({
+              courseId: parseInt(classId!!),
+              currentUser,
+              userId: s.id,
+            });
+          }),
+      )
+        .then((responses) => {
+          Context?.openSnackBar('Xoá thành công');
+          setMembers((members) => {
+            const students = members.students.filter((_, index) => !checkStudents[index].checked);
+            setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
+            return {
+              ...members,
+              teachers: members.teachers,
+              students,
+            };
+          });
+        })
+        .finally(() => {
+          Context?.hideLoading();
+        });
+    }
+    setIsOpenMenu(false);
+  };
+
   const [studentReverse, setStudentReverse] = useState(false);
   return (
     <Container maxWidth="md">
@@ -182,10 +263,10 @@ const ClassMembers = (props: ClassMemberProps) => {
                       fontSize="15px"
                       color={t.status === 'INVITED' ? 'gray' : 'black'}
                     >
-                      {t.email}
+                      {t.email ?? t.username}
                     </Typography>
                   </Box>
-                  {currentUser === members.owner && (
+                  {currentUser === members.owner && t.username !== members.owner && (
                     <IconButton
                       onClick={(e) => {
                         openMenu(e, TypeMoreButton.TeacherSingle, {
@@ -258,99 +339,8 @@ const ClassMembers = (props: ClassMemberProps) => {
                   }}
                   open={isOpenMenu}
                 >
-                  <MenuItem
-                    onClick={() => {
-                      console.log('MUTIPLE' + JSON.stringify(moreButtonEventData));
-
-                      // TODO handle ẩn
-                      if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
-                        setMembers((members) => {
-                          members.students = members!!.students.filter(
-                            (m) => m.id !== moreButtonEventData.data.id,
-                          );
-                          return { ...members };
-                        });
-                      } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
-                        setMembers((members) => {
-                          members!!.students = members!!.students.filter(
-                            (_, index) => !checkStudents[index].checked,
-                          );
-                          return { ...members };
-                        });
-                      }
-                      setIsOpenMenu(false);
-                    }}
-                  >
-                    Ẩn
-                  </MenuItem>
-
-                  <MenuItem
-                    onClick={() => {
-                      Context?.showLoading();
-                      if (moreButtonEventData.type === TypeMoreButton.StudentSingle) {
-                        apiClass
-                          .postDeleteMember({
-                            currentUser,
-                            userId: moreButtonEventData.data.id,
-                            courseId: parseInt(classId!!),
-                          })
-                          .then((response) => {
-                            if (response.status === 200) {
-                              Context?.openSnackBar('Xoá thành công');
-                              setMembers((members) => {
-                                members.students = members!!.students.filter(
-                                  (m) => m.id !== moreButtonEventData.data.id,
-                                );
-
-                                setCheckStudents(
-                                  members.students.map((s) => ({ id: s.id, checked: false })),
-                                );
-                                return { ...members };
-                              });
-                            } else if (response.status === 400) {
-                              Context?.openSnackBar(response.message);
-                            }
-                          })
-                          .finally(() => {
-                            Context?.hideLoading();
-                          });
-                      } else if (moreButtonEventData.type === TypeMoreButton.StudentMultiple) {
-                        Promise.all(
-                          checkStudents
-                            .filter((s) => s.checked)
-                            .map((s) => {
-                              return apiClass.postDeleteMember({
-                                courseId: parseInt(classId!!),
-                                currentUser,
-                                userId: s.id,
-                              });
-                            }),
-                        )
-                          .then((responses) => {
-                            console.log(responses);
-
-                            Context?.openSnackBar('Xoá thành công');
-                            setMembers((members) => {
-                              const students = members.students.filter(
-                                (_, index) => !checkStudents[index].checked,
-                              );
-                              setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
-                              return {
-                                ...members,
-                                teachers: members.teachers,
-                                students,
-                              };
-                            });
-                          })
-                          .finally(() => {
-                            Context?.hideLoading();
-                          });
-                      }
-                      setIsOpenMenu(false);
-                    }}
-                  >
-                    Xoá
-                  </MenuItem>
+                  <MenuItem onClick={handleHide}>Ẩn</MenuItem>
+                  <MenuItem onClick={handleDelete}>Xoá</MenuItem>
                   <MenuItem
                     onClick={() => {
                       setIsOpenMenu(false);
@@ -397,7 +387,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                         fontSize="15px"
                         color={s.status === 'INVITED' ? 'gray' : 'black'}
                       >
-                        {s.email}
+                        {s.email ?? s.username}
                       </Typography>
                     </Box>
                     {isTeacher && (

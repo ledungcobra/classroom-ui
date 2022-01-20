@@ -1,8 +1,6 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import EditIcon from '@mui/icons-material/Edit';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
@@ -26,6 +24,7 @@ import React from 'react';
 import { batch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { PostComment } from '../../components';
+import { GradeReviewStatus } from '../../constants';
 import {
   setComment,
   setCurrentCommentId,
@@ -47,20 +46,12 @@ import {
   doTeacherComment,
   doTeacherDeleteComment,
   doTeacherUpdateComment,
+  doUpdateGradeReview,
 } from '../../redux/asyncThunk/gradeReviewAction';
 import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
 import { setError } from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
 import { parseParams } from '../../utils';
-import { GradeReviewStatus } from './Data';
-
-enum CommentState {
-  Draft,
-  Posted,
-}
-interface ICommentProps extends IGradeReviewComment {
-  handleClickMore: (event: React.MouseEvent<HTMLElement>, id: number) => void;
-  state: CommentState;
-}
+import { CommentItem, CommentState } from './CommentItem';
 
 export const GradeReview = () => {
   const [showPostStatus, setShowPostStatus] = React.useState(false);
@@ -79,8 +70,9 @@ export const GradeReview = () => {
   const [open, setOpen] = React.useState(false);
   const [selectedGrade, setSelectedGrade] = React.useState<IGrade | null | undefined>(null);
   const [inputExpectScore, setInputExpectScore] = React.useState<number | null>(null);
-  const [inputReason, setInputReason] = React.useState('');
+  const [inputReason, setInputReason] = React.useState<string | null>('');
   const query = parseParams(useLocation().search);
+  const [editingGradeReview, setEditingGradeReview] = React.useState(false);
 
   React.useEffect(() => {
     const gradeId = query.gradeId;
@@ -160,8 +152,14 @@ export const GradeReview = () => {
     gradeId?: number,
     gradeReviewId?: number,
   ) => {
+    setSelectedGrade(
+      gradeReviewState.studentGrade?.scores.grades.find((g) => g.gradeId === gradeId),
+    );
+
     if (gradeReviewId === 0) {
       setOpen(true);
+      setInputExpectScore(null);
+      setInputReason(null);
     } else {
       setSelectedGradeId(gradeId ?? null);
 
@@ -183,32 +181,56 @@ export const GradeReview = () => {
         );
       });
     }
-
-    setSelectedGrade(
-      gradeReviewState.studentGrade?.scores.grades.find((g) => g.gradeId === gradeId),
-    );
   };
 
-  const handleSubmitCreateGradeReview = (gradeExpect: number, reason: string) => {
-    if (gradeExpect > (selectedGrade?.maxGrade ?? 0) && gradeExpect < 0) {
+  const handleSubmitPostGradeReview = (gradeExpect: number, reason: string) => {
+    if (gradeExpect > (selectedGrade?.maxGrade ?? 0) || gradeExpect < 0) {
       Context?.openSnackBarError(
         'Điểm mong muốn phải nằm trong khoảng ' + 0 + ' đến ' + selectedGrade?.maxGrade,
       );
       return;
     }
+
+    if (reason === null || reason === '') {
+      Context?.openSnackBarError('Lý do không được để trống');
+      return;
+    }
     if (selectedGrade) {
-      dispatch(
-        doCreateGradeReview({
-          courseId: +id!!,
-          gradeExpect: gradeExpect,
-          gradeId: selectedGrade.gradeId,
-          reason: reason,
-          currentUser: localStorage.getItem(currentUserKey),
-        }),
-      );
+      if (editingGradeReview) {
+        dispatch(
+          doUpdateGradeReview({
+            courseId: +id!!,
+            gradeExpect: gradeExpect,
+            gradeId: selectedGrade.gradeId,
+            reason: reason,
+            currentUser: localStorage.getItem(currentUserKey) ?? '',
+            gradeReviewId: gradeReviewState.gradeReview?.id ?? 0,
+          }),
+        );
+      } else {
+        dispatch(
+          doCreateGradeReview({
+            courseId: +id!!,
+            gradeExpect: gradeExpect,
+            gradeId: selectedGrade.gradeId,
+            reason: reason,
+            currentUser: localStorage.getItem(currentUserKey),
+          }),
+        );
+      }
+      setEditingGradeReview(false);
+      handleCloseDialog();
+      setSelectedGrade(null);
+      setInputReason(null);
+      setInputExpectScore(null);
     } else {
       Context?.openSnackBarError('Có lỗi trong quá trình tạo grade review');
     }
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+    setEditingGradeReview(false);
   };
   const handlePostComment = (content: string) => {
     if (selectedGradeId === null) return;
@@ -296,8 +318,10 @@ export const GradeReview = () => {
   const calculateAverage = (grades: IGrade[]) => {
     const total = grades.reduce((total, current) => total + current.maxGrade, 0);
     grades = grades.map((g) => {
-      g.gradeScale = +((g.maxGrade * 100.0) / total).toFixed(2);
-      return g;
+      const gClone = { ...g };
+
+      gClone.gradeScale = +((gClone.maxGrade * 100.0) / total).toFixed(2);
+      return gClone;
     });
     return grades.reduce((total, current) => total + current.grade * current.gradeScale, 0) / 100.0;
   };
@@ -312,6 +336,12 @@ export const GradeReview = () => {
         currentUser: localStorage.getItem(currentUserKey) ?? '',
       }),
     );
+  };
+
+  const handleEditingGradeReviewClicked = () => {
+    setInputExpectScore(gradeReviewState.gradeReview?.gradeExpect ?? 0);
+    setInputReason(gradeReviewState.gradeReview?.message ?? '');
+    setEditingGradeReview(true);
   };
 
   return (
@@ -413,20 +443,34 @@ export const GradeReview = () => {
                             sx={{ width: '100%', backgroundColor: 'rgba(green,0.4)' }}
                             alignItems="flex-start"
                           >
-                            <p>
-                              <strong>Điểm mong muốn </strong>
-                              <i style={{ color: 'red' }}>
-                                <u>
-                                  <span
-                                    style={{
-                                      borderRadius: '50%',
-                                    }}
-                                  >
-                                    {gradeReviewState?.gradeReview?.gradeExpect}
-                                  </span>
-                                </u>
-                              </i>
-                            </p>
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              sx={{ width: '100%' }}
+                              justifyContent="space-between"
+                            >
+                              <p>
+                                <strong>Điểm mong muốn </strong>
+                                <i style={{ color: 'red' }}>
+                                  <u>
+                                    <span
+                                      style={{
+                                        borderRadius: '50%',
+                                      }}
+                                    >
+                                      {gradeReviewState?.gradeReview?.gradeExpect}
+                                    </span>
+                                  </u>
+                                </i>
+                              </p>
+                              {!isTeacher &&
+                                gradeReviewState.gradeReview.status ===
+                                  GradeReviewStatus.Pending && (
+                                  <IconButton onClick={handleEditingGradeReviewClicked}>
+                                    <EditIcon />
+                                  </IconButton>
+                                )}
+                            </Box>
                             <p>
                               <strong>Môn </strong>
                               <i style={{ color: 'red' }}>
@@ -483,7 +527,7 @@ export const GradeReview = () => {
                               >
                                 <Avatar />
                                 <Divider orientation="vertical" sx={{ height: '100%' }} />
-                                <h5>{gradeReviewState?.gradeReview?.mssv}</h5>
+                                <h5>{gradeReviewState?.gradeReview?.student.fullName}</h5>
                               </Box>
                               <Box display="flex" alignItems="center" gap="10px">
                                 {isTeacher && (
@@ -588,13 +632,13 @@ export const GradeReview = () => {
           <DeleteIcon />
         </MenuItem>
       </Menu>
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={open || editingGradeReview} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle>Nhập điểm phúc khảo</DialogTitle>
         <DialogContent sx={{ minWidth: '100%' }}>
           <TextField
             fullWidth
             type="number"
-            placeholder="Nhập vào điểmm muốn phúc khảo"
+            placeholder="Nhập vào điểm muốn phúc khảo"
             inputProps={{
               min: 0,
               max: selectedGrade?.maxGrade,
@@ -618,59 +662,13 @@ export const GradeReview = () => {
           <Box display="flex" justifyContent="flex-end">
             <Button
               variant="outlined"
-              onClick={() => handleSubmitCreateGradeReview(inputExpectScore!!, inputReason)}
+              onClick={() => handleSubmitPostGradeReview(inputExpectScore!!, inputReason ?? '')}
             >
-              Gửi
+              {editingGradeReview ? 'Cập nhật' : 'Gửi'}
             </Button>
           </Box>
         </DialogContent>
       </Dialog>
     </Container>
-  );
-};
-
-const CommentItem: React.FC<ICommentProps> = (props) => {
-  const user = props.teacher ? props.teacher : props.student;
-  let displayName: string;
-  const isTeacher = useAppSelector((state) => state.classReducer.isTeacher);
-
-  if (props.teacher) {
-    displayName = user?.firstName + ' ' + user?.middleName + ' ' + user?.lastName;
-  } else {
-    displayName = user?.fullName ?? '';
-  }
-
-  return (
-    <Card sx={{ width: '100%', marginBottom: '8px' }}>
-      <CardContent>
-        <Box display="flex" flexDirection="column" alignItems="flex-start">
-          <Box display="flex" justifyContent="space-between" sx={{ width: '100%' }}>
-            <Box display="flex" alignItems="center" gap="10px" sx={{ marginBottom: '10px' }}>
-              <Avatar />
-              <Divider orientation="vertical" sx={{ height: '100%' }} />
-              <h5>{displayName}</h5>
-            </Box>
-            {isTeacher && props.teacher ? (
-              <IconButton onClick={(event) => props.handleClickMore(event, props.id!!)}>
-                <MoreVertIcon />
-              </IconButton>
-            ) : !isTeacher && props.student ? (
-              <IconButton onClick={(event) => props.handleClickMore(event, props.id!!)}>
-                <MoreVertIcon />
-              </IconButton>
-            ) : null}
-          </Box>
-        </Box>
-        <Divider sx={{ borderBottom: '10px', width: '100%' }} />
-        <div style={{ textAlign: 'left' }}>
-          <span
-            dangerouslySetInnerHTML={{
-              __html: props.message,
-            }}
-          />
-          {props.state === CommentState.Draft && <DriveFileRenameOutlineIcon />}
-        </div>
-      </CardContent>
-    </Card>
   );
 };

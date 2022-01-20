@@ -4,6 +4,14 @@ export enum ETokenKey {
   CURRENT_USER = 'classroom@current_user',
   CURRENT_EMAIL = 'classroom@current_email',
   CURRENT_FULLNAME = 'classroom@current_full_name',
+  STORE = 'store',
+}
+
+export enum GradeReviewStatus {
+  None = 0,
+  Pending = 1,
+  Approve = 2,
+  Reject = 3,
 }
 
 export const DEFAULT_USER_AVATAR = 'https://lh3.googleusercontent.com/a/default-user=s40-c';

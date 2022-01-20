@@ -4,12 +4,17 @@ import { ETokenKey } from '../constants';
 
 export const AUTHENTICATION_HEADER_NAME = '';
 
-export const logout = () => {
-  window.location.replace('/login');
+export const logout = (redirectUrl: string | undefined = undefined) => {
+  console.log(redirectUrl);
+
   localStorage.removeItem(ETokenKey.ACCESS_TOKEN);
   localStorage.removeItem(ETokenKey.CURRENT_USER);
   localStorage.removeItem(ETokenKey.CURRENT_FULLNAME);
   localStorage.removeItem(ETokenKey.CURRENT_EMAIL);
+  localStorage.removeItem(ETokenKey.STORE);
+  window.location.replace(
+    '/login' + (redirectUrl && redirectUrl !== '/' ? '?redirect=' + redirectUrl : ''),
+  );
 };
 
 export const clearAllToken = () => {

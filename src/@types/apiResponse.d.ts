@@ -63,7 +63,8 @@ interface IUser {
   id: number;
   username: string;
   firstName: string;
-  middleName: number;
+  middleName: string;
+  lastName: string;
   email: Role;
   profileImageUrl: string | undefined | null;
 }

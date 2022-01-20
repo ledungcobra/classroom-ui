@@ -11,6 +11,7 @@ interface TInitialState {
   notificationContent: INotificationContent | null;
   errorMessage: string;
   pendingId: number | null;
+  notificationMap: { [id: number]: boolean };
 }
 
 const initialState = {
@@ -19,6 +20,7 @@ const initialState = {
   notificationContent: null,
   errorMessage: '',
   pendingId: null,
+  notificationMap: { [32]: false },
 } as TInitialState;
 
 const notificationSlice = createSlice({
@@ -41,18 +43,35 @@ const notificationSlice = createSlice({
           state.errorMessage = response.message ?? '';
           return;
         }
-        // if (state.notificationContent) {
-        //   state.notificationContent.data!!.notifications = [
-        //     ...state.notificationContent!!.data!!.notifications,
-        //     ...action.payload.content!!.data!!.notifications,
-        //   ];
-        //   state.notificationContent.hasMore = action.payload.content.hasMore;
-        //   state.notificationContent.total = action.payload.content.total;
-        // } else {
-        state.notificationContent = response.content;
-        state.notificationContent.data?.notifications.sort((n) => (n.isSeen ? 1 : -1));
 
-        // }
+        const notifications = action.payload.content.data?.notifications;
+        if (!notifications) return;
+        if (state.notificationContent) {
+          const nots = [] as INotification[];
+
+          for (let not of notifications) {
+            if (state.notificationContent.data?.notifications.find((n) => n.id === not.id)) {
+              continue;
+            }
+            nots?.push(not);
+          }
+          if (state.notificationContent.data) {
+            state.notificationContent.data.notifications = [
+              ...state.notificationContent.data.notifications,
+              ...nots,
+            ];
+          }
+        } else {
+          state.notificationContent = response.content;
+        }
+
+        state.notificationContent.hasMore = response.content.hasMore;
+
+        state.notificationContent.data?.notifications.sort((n) => (n.isSeen ? 1 : -1));
+        if (state.notificationContent.data) {
+          state.notificationContent.data.amountUnseen =
+            state.notificationContent.data?.notifications.filter((n) => !n.isSeen).length;
+        }
       },
     );
 
@@ -84,6 +103,9 @@ const notificationSlice = createSlice({
             },
             ...state.notificationContent.data?.notifications.slice(index + 1),
           ];
+
+          state.notificationContent.data.amountUnseen =
+            state.notificationContent.data.notifications.filter((n) => !n.isSeen).length;
         }
       },
     );
@@ -114,6 +136,7 @@ const notificationSlice = createSlice({
 
           state.notificationContent.data.notifications =
             state.notificationContent.data.notifications.sort((not) => (not.isSeen ? 1 : -1));
+          state.notificationContent.data.amountUnseen = 0;
         }
       },
     );

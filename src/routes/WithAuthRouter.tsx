@@ -11,6 +11,7 @@ import {
 } from '../redux';
 
 import { batch } from 'react-redux';
+import { useLocation } from 'react-router';
 
 export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   component: Compnent,
@@ -28,6 +29,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   const currentUserLocalStorage = localStorage.getItem(ETokenKey.CURRENT_USER);
   const currentFullNameLocalStorage = localStorage.getItem(ETokenKey.CURRENT_FULLNAME);
   const currentEmailLocalStorage = localStorage.getItem(ETokenKey.CURRENT_EMAIL);
+  const location = useLocation();
 
   const dispatch = useAppDispatch();
   const isLogined = useAppSelector((state) => state.authReducer.isLogined);
@@ -39,7 +41,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
     !currentEmailLocalStorage
   ) {
     clearAllToken();
-    logout();
+    logout(location.pathname);
   } else {
     dispatch(setLogined(true));
     dispatch(setCurrentUser(currentUserLocalStorage as string));

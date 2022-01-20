@@ -46,7 +46,6 @@ export const Login = () => {
   const [reNewPass, setReNewPass] = React.useState('');
   const [restorePasswordToken, setRestorePasswordToken] = React.useState('');
   const Context = useAppContextApi();
-
   const [dialogState, setDialogState] = React.useState<DialogState>(DialogState.NONE);
   const [dialogMessage, setDialogMessage] = React.useState<string>('');
 
@@ -108,7 +107,11 @@ export const Login = () => {
         setFullName(currentFullName);
         dispatch(setMainToken(token));
 
-        window.location.replace('/');
+        if (query['redirect']) {
+          window.location.replace(query['redirect']);
+        } else {
+          window.location.replace('/');
+        }
       })
       .catch((err) => {
         setIsLoging(false);

@@ -25,14 +25,30 @@ const notificationSlice = createSlice({
   name: 'notification',
   initialState: initialState,
   reducers: {
-    addNewNotification: (state,action:PayloadAction<INotification>)=>{
-      if(state.notificationContent && state.notificationContent.data && state.notificationContent.data.notifications
-        && !state.notificationContent.data.notifications.find(n=> n.id === action.payload.id)
-        ){
-        state.notificationContent.data.notifications = [action.payload, ...state.notificationContent.data.notifications];
-        state.notificationContent.data.amountUnseen = state.notificationContent.data.notifications.filter(n=> !n.isSeen).length;
+    addNewNotification: (state, action: PayloadAction<INotification>) => {
+      if (
+        state.notificationContent &&
+        state.notificationContent.data &&
+        state.notificationContent.data.notifications
+      ) {
+        if (!state.notificationContent.data.notifications.find((n) => n.id === action.payload.id))
+          state.notificationContent.data.notifications = [
+            action.payload,
+            ...state.notificationContent.data.notifications,
+          ];
+        state.notificationContent.data.amountUnseen =
+          state.notificationContent.data.notifications.filter((n) => !n.isSeen).length;
+      } else {
+        state.notificationContent = {
+          data: {
+            amountUnseen: 1,
+            notifications: [action.payload],
+          },
+          hasMore: false,
+          total: 1,
+        };
       }
-    }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getAllNotifcation.pending, (state) => {
@@ -151,5 +167,4 @@ const notificationSlice = createSlice({
 });
 
 export const notificationReducer = notificationSlice.reducer;
-export const {addNewNotification} = notificationSlice.actions;
-
+export const { addNewNotification } = notificationSlice.actions;

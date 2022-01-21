@@ -42,6 +42,7 @@ interface IUserProfileInfo {
   personalEmail: string;
   personalPhoneNumber?: string;
   studentID?: string;
+  disabledStudentId?: boolean;
 }
 
 interface IParamChangePassword {

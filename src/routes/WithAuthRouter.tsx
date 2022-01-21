@@ -42,7 +42,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
     !currentEmailLocalStorage
   ) {
     clearAllToken();
-    logout(location.pathname);
+    logout();
   } else {
     dispatch(setLogined(true));
     dispatch(setCurrentUser(currentUserLocalStorage as string));

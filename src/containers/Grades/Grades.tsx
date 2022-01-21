@@ -220,7 +220,7 @@ const Grades = () => {
   const handleReturnGradeToOneStudent = () => {
     const studentId = moreVertEventData.data.studentId;
     const exerciseId = moreVertEventData.data.exerciseId;
-    const grade = scores.filter((s) => s.id === +studentId)[0][exerciseId + 'grade'];
+    const grade = scores.filter((s) => s.mssv === studentId)[0][exerciseId + 'grade'];
     axiosMain
       .post(`/course/${id}/assignments/${exerciseId}/update-grade-finalized`, {
         mssv: studentId.toString(),
@@ -456,11 +456,7 @@ const Grades = () => {
                         <IconButton
                           className="more-button"
                           onClick={(e) => {
-                            openMoreVertOneGradeOneStudent(
-                              e,
-                              parseInt(studentScore.id),
-                              parseInt(h.id),
-                            );
+                            openMoreVertOneGradeOneStudent(e, studentScore.mssv, parseInt(h.id));
                           }}
                         >
                           <MoreVert />

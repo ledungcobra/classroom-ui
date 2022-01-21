@@ -107,11 +107,11 @@ export const Login = () => {
         setFullName(currentFullName);
         dispatch(setMainToken(token));
 
-        if (query['redirect']) {
-          window.location.replace(query['redirect']);
-        } else {
-          window.location.replace('/');
-        }
+        // if (query['redirect']) {
+        //   window.location.replace(query['redirect']);
+        // } else {
+        window.location.replace('/');
+        // }
       })
       .catch((err) => {
         setIsLoging(false);

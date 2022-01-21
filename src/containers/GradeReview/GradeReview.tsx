@@ -531,7 +531,6 @@ export const GradeReview = () => {
                                     <IconButton onClick={handleEditingGradeReviewClicked}>
                                       <EditIcon />
                                     </IconButton>
-                                    <p>Connection state: {connectionStatus}</p>
                                   </Box>
                                 )}
                             </Box>

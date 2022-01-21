@@ -79,18 +79,24 @@ export const EditProfile = (props: IEditProfileProps) => {
         currentUser: currentUser ?? '',
         newPassword: passwordState.newPassword!!,
       })
-      .then(() => {
-        Context?.openSnackBar('Thay đổi mật khẩu thành công');
-        setPasswordState((prev) => {
-          return {
-            ...prev,
-            dirty: {} as MyMap,
-            errors: {} as MyMap,
-            password: '',
-            newPassword: '',
-            rePassword: '',
-          };
-        });
+      .then((data) => {
+        console.log(data);
+        if (data?.content?.succeeded === true) {
+          Context?.openSnackBar('Thay đổi mật khẩu thành công');
+
+          setPasswordState((prev) => {
+            return {
+              ...prev,
+              dirty: {} as MyMap,
+              errors: {} as MyMap,
+              password: '',
+              newPassword: '',
+              rePassword: '',
+            };
+          });
+        } else {
+          Context?.openSnackBarError('Thay đổi mật khẩu thất bại');
+        }
       })
       .catch((e) => {
         Context?.openSnackBarError('Đổi password lỗi');
@@ -120,6 +126,7 @@ export const EditProfile = (props: IEditProfileProps) => {
             middleName: content.middleName,
             phoneNumber: content.phoneNumber,
             studentID: content.studentID,
+            disabledStudentId: !!content.studentID,
           });
         } else {
           Context?.openSnackBarError('Có lỗi xảy ra trong quá trình lấy thông tin user');
@@ -212,6 +219,10 @@ export const EditProfile = (props: IEditProfileProps) => {
       })
       .then(() => {
         Context?.openSnackBar('Cập nhật profile thành công');
+        setUserProfileState({
+          ...userProfileState,
+          disabledStudentId: true,
+        });
       })
       .catch((e) => {
         console.log(e);
@@ -313,7 +324,7 @@ export const EditProfile = (props: IEditProfileProps) => {
                       id="studentID"
                       value={userProfileState.studentID}
                       required
-                      disabled={!!userProfileState.studentID}
+                      disabled={!!userProfileState.disabledStudentId}
                       error={!!userProfileState.errors['studentID']}
                       placeholder="Student ID"
                       variant="standard"

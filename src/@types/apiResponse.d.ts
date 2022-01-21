@@ -5,6 +5,7 @@ interface IResLogin {
   email: string;
   phone: string;
   token: string;
+  id: number;
   timeExpired: string;
   refreshToken: string;
   refreshTokenTimeExpired: string;
@@ -256,4 +257,17 @@ interface INotification {
   courseId?: number;
   gradeId?: number;
   gradeReviewId?: number;
+}
+
+interface ApproveResponse {
+  gradeReviewId: number;
+  status: GradeReviewStatus;
+}
+
+
+interface IMessage {
+  sender?: number | null;
+  data: any;
+  receiver?: number;
+  channel: string;
 }

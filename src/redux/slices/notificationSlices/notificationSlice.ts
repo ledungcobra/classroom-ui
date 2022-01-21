@@ -11,7 +11,6 @@ interface TInitialState {
   notificationContent: INotificationContent | null;
   errorMessage: string;
   pendingId: number | null;
-  notificationMap: { [id: number]: boolean };
 }
 
 const initialState = {
@@ -20,13 +19,21 @@ const initialState = {
   notificationContent: null,
   errorMessage: '',
   pendingId: null,
-  notificationMap: { [32]: false },
 } as TInitialState;
 
 const notificationSlice = createSlice({
   name: 'notification',
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    addNewNotification: (state,action:PayloadAction<INotification>)=>{
+      if(state.notificationContent && state.notificationContent.data && state.notificationContent.data.notifications
+        && !state.notificationContent.data.notifications.find(n=> n.id === action.payload.id)
+        ){
+        state.notificationContent.data.notifications = [action.payload, ...state.notificationContent.data.notifications];
+        state.notificationContent.data.amountUnseen = state.notificationContent.data.notifications.filter(n=> !n.isSeen).length;
+      }
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(getAllNotifcation.pending, (state) => {
       state.loading = true;
@@ -144,3 +151,5 @@ const notificationSlice = createSlice({
 });
 
 export const notificationReducer = notificationSlice.reducer;
+export const {addNewNotification} = notificationSlice.actions;
+

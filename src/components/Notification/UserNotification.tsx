@@ -7,20 +7,22 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { GREEN_COLOR } from '../../constants';
 import { useAppSelector } from '../../redux';
 import {
   doUpdateSeenANotification,
   getAllNotifcation,
 } from '../../redux/asyncThunk/notificationAction';
-import useComponentVisible, { useAppDispatch } from '../../redux/hooks';
+import useComponentVisible, { useAppContextApi, useAppDispatch } from '../../redux/hooks';
+import { addNewNotification } from '../../redux/slices/notificationSlices/notificationSlice';
 import './UserNotification.scss';
-
 export const UserNotification = () => {
   const notification = useAppSelector((state) => state.notificationReducer);
   const isLoading = notification.loading;
   const { ref, isComponentVisible } = useComponentVisible(false);
   const [isShowNotification, setIsShowNotification] = React.useState(isComponentVisible);
+  const Context = useAppContextApi();
 
   const dispatch = useAppDispatch();
   const isFullNotification =
@@ -35,14 +37,6 @@ export const UserNotification = () => {
         MaxResults: 3,
       }),
     );
-    // const loadMore = () => {
-    //   pollingRef.current = setTimeout(() => {
-    //     handleLoadMore();
-    //     pollingRef.current = loadMore();
-    //   }, 2000);
-    //   return pollingRef.current;
-    // };
-    // loadMore();
 
     return () => {
       if (pollingRef.current) {
@@ -54,6 +48,50 @@ export const UserNotification = () => {
   React.useEffect(() => {
     setIsShowNotification(isComponentVisible);
   }, [isComponentVisible]);
+
+  //#region Web socket
+
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
+    process.env.REACT_APP_WEB_SOCKET_NOTIFICATION ?? '',
+  );
+
+  React.useEffect(() => {
+    sendMessage(
+      JSON.stringify({
+        channel: 'JOIN',
+        data: '',
+        sender: localStorage.getItem('user_id') ?? 0,
+      } as IMessage),
+    );
+  }, []);
+
+  React.useEffect(() => {
+    if (lastMessage !== null) {
+      const m = JSON.parse(lastMessage.data!!) as IMessage;
+      switch (m.channel) {
+        case 'CONNECTED':
+          console.log('Connected to notification');
+
+          break;
+        case 'NOTIFICATION':
+          dispatch(addNewNotification(m.data as INotification));
+          Context?.openSnackBar('Bạn có 1 thông báo mới');
+          break;
+        case 'ERROR':
+          window.alert('Error');
+          break;
+      }
+    }
+  }, [lastMessage]);
+
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
+  //#endregion
 
   const handleLoadMore = () => {
     dispatch(
@@ -162,7 +200,11 @@ const NotificationItem: React.FC<INotification> = ({
   return (
     <Link
       className="notification__item__wrapper"
-      to={`/class-detail/${courseId}/grade-review?gradeId=${gradeId}&gradeReviewId=${gradeReviewId}`}
+      to={
+        gradeId === 0
+          ? `/class-detail/${courseId}/grade-review`
+          : `/class-detail/${courseId}/grade-review?gradeId=${gradeId}&gradeReviewId=${gradeReviewId}`
+      }
     >
       <div className="notification__item">
         <Divider sx={{ width: '90%', marginBottom: '8px' }} />

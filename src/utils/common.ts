@@ -45,6 +45,9 @@ export const setEmail = (value: string) => {
   localStorage.setItem(ETokenKey.CURRENT_EMAIL, value);
 };
 
+export const setUserId = (value: number | null) =>
+  localStorage.setItem(ETokenKey.USER_ID, value + '');
+
 export const isExistToken = (token: string) => {
   if (
     !token ||

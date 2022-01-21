@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
+import { batch } from 'react-redux';
+import { useLocation } from 'react-router';
 import { ETokenKey } from '../constants';
-import { logout, isExistToken, clearAllToken } from '../utils';
 import {
-  useAppDispatch,
-  useAppSelector,
-  setLogined,
   setCurrentUser,
   setEmail,
   setFullName,
+  setLogined,
+  setUserId,
+  useAppDispatch,
+  useAppSelector,
 } from '../redux';
-
-import { batch } from 'react-redux';
-import { useLocation } from 'react-router';
+import { clearAllToken, isExistToken, logout } from '../utils';
 
 export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   component: Compnent,
@@ -29,6 +29,7 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
   const currentUserLocalStorage = localStorage.getItem(ETokenKey.CURRENT_USER);
   const currentFullNameLocalStorage = localStorage.getItem(ETokenKey.CURRENT_FULLNAME);
   const currentEmailLocalStorage = localStorage.getItem(ETokenKey.CURRENT_EMAIL);
+  const userId = localStorage.getItem(ETokenKey.USER_ID);
   const location = useLocation();
 
   const dispatch = useAppDispatch();
@@ -47,6 +48,9 @@ export const WithAuthRouter: React.FC<IWithAuthRouter> = ({
     dispatch(setCurrentUser(currentUserLocalStorage as string));
     dispatch(setFullName(currentFullNameLocalStorage as string));
     dispatch(setEmail(currentEmailLocalStorage as string));
+    if (userId) {
+      dispatch(setUserId(+userId));
+    }
   }
 
   useEffect(() => {

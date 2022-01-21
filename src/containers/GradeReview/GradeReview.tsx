@@ -23,6 +23,7 @@ import { Box } from '@mui/system';
 import React from 'react';
 import { batch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { PostComment } from '../../components';
 import { GradeReviewStatus } from '../../constants';
 import {
@@ -49,7 +50,13 @@ import {
   doUpdateGradeReview,
 } from '../../redux/asyncThunk/gradeReviewAction';
 import { setCurrentClassId } from '../../redux/slices/classContextSlides/classContextSlides';
-import { setError } from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
+import {
+  Approve,
+  DeleteComment,
+  doAddNewComment,
+  setError,
+  UpdateComment,
+} from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
 import { parseParams } from '../../utils';
 import { CommentItem, CommentState } from './CommentItem';
 
@@ -57,7 +64,6 @@ export const GradeReview = () => {
   const [showPostStatus, setShowPostStatus] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenuMore = Boolean(anchorEl);
-  const comment = useAppSelector((state) => state.editorReducer.comment);
   const dispatch = useAppDispatch();
 
   const { id } = useParams();
@@ -73,6 +79,59 @@ export const GradeReview = () => {
   const [inputReason, setInputReason] = React.useState<string | null>('');
   const query = parseParams(useLocation().search);
   const [editingGradeReview, setEditingGradeReview] = React.useState(false);
+
+  //#region Web socket
+
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
+    process.env.REACT_APP_WEB_SOCKET_MESSAGES ?? '',
+  );
+
+  React.useEffect(() => {
+    sendMessage(
+      JSON.stringify({
+        channel: 'JOIN',
+        data: '',
+        sender: localStorage.getItem('user_id') ?? 0,
+      } as IMessage),
+    );
+  }, []);
+
+  React.useEffect(() => {
+    if (lastMessage !== null) {
+      const message = JSON.parse(lastMessage.data ?? '') as IMessage;
+      switch (message.channel) {
+        case 'SUCCESS':
+          console.log('Connected to Comments');
+          break;
+        case 'ADD_COMMENT':
+          const comment = message.data as IGradeReviewComment;
+          if (comment.gradeReviewId === gradeReviewState?.gradeReview?.id) {
+            dispatch(doAddNewComment(comment));
+          }
+          break;
+        case 'UPDATE_COMMENT':
+          dispatch(UpdateComment(message.data.value as ICommonResponse<IGradeReviewComment>));
+          break;
+        case 'DELETE_COMMENT':
+          dispatch(DeleteComment(message.data.value as ICommonResponse<number>));
+          break;
+        case 'APPROVAL':
+          dispatch(Approve(message.data.value as ICommonResponse<ApproveResponse | string>));
+          break;
+        case 'ERROR':
+          window.alert('Error');
+      }
+    }
+  }, [lastMessage]);
+
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
+  //#endregion
 
   React.useEffect(() => {
     const gradeId = query.gradeId;
@@ -323,7 +382,9 @@ export const GradeReview = () => {
       gClone.gradeScale = +((gClone.maxGrade * 100.0) / total).toFixed(2);
       return gClone;
     });
-    return grades.reduce((total, current) => total + current.grade * current.gradeScale, 0) / 100.0;
+    return (
+      grades.reduce((total, current) => total + current.grade * current.gradeScale, 0) / 100.0
+    ).toFixed(2);
   };
 
   const handleApprove = (status: GradeReviewStatus) => {
@@ -466,9 +527,12 @@ export const GradeReview = () => {
                               {!isTeacher &&
                                 gradeReviewState.gradeReview.status ===
                                   GradeReviewStatus.Pending && (
-                                  <IconButton onClick={handleEditingGradeReviewClicked}>
-                                    <EditIcon />
-                                  </IconButton>
+                                  <Box display="flex" flexDirection="column">
+                                    <IconButton onClick={handleEditingGradeReviewClicked}>
+                                      <EditIcon />
+                                    </IconButton>
+                                    <p>Connection state: {connectionStatus}</p>
+                                  </Box>
                                 )}
                             </Box>
                             <p>

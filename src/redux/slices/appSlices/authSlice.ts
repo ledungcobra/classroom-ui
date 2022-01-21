@@ -8,9 +8,11 @@ interface TInitialState {
   currentUser: string;
   email: string;
   fullName: string;
+  userId: number | null;
 }
 
 const initialState = {
+  userId: null,
   mainToken: '',
   currentUser: '',
   email: '',
@@ -38,11 +40,15 @@ const authSlice = createSlice({
     setFullName: (state, action: PayloadAction<string>) => {
       state.fullName = action.payload;
     },
+
+    setUserId: (state, action) => {
+      state.userId = action.payload;
+    },
   },
   extraReducers: (builder) => {},
 });
 
 export const authReducer = authSlice.reducer;
 
-export const { setMainToken, setLogined, setCurrentUser, setEmail, setFullName } =
+export const { setMainToken, setLogined, setCurrentUser, setEmail, setFullName, setUserId } =
   authSlice.actions;

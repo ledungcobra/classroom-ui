@@ -5,6 +5,7 @@ export enum ETokenKey {
   CURRENT_EMAIL = 'classroom@current_email',
   CURRENT_FULLNAME = 'classroom@current_full_name',
   STORE = 'store',
+  USER_ID = 'user_id',
 }
 
 export enum GradeReviewStatus {

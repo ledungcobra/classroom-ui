@@ -1,3 +1,4 @@
+// @ts-nocheck
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -20,10 +21,10 @@ import {
   TextField,
 } from '@mui/material';
 import { Box } from '@mui/system';
+import { Client } from '@stomp/stompjs';
 import React from 'react';
 import { batch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { PostComment } from '../../components';
 import { GradeReviewStatus } from '../../constants';
 import {
@@ -59,13 +60,16 @@ import {
 } from '../../redux/slices/gradeReviewSlices/gradeReviewSlice';
 import { parseParams } from '../../utils';
 import { CommentItem, CommentState } from './CommentItem';
+interface IMessage<T> {
+  channel: string;
+  data: Map<string, T>;
+}
 
 export const GradeReview = () => {
   const [showPostStatus, setShowPostStatus] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenuMore = Boolean(anchorEl);
   const dispatch = useAppDispatch();
-
   const { id } = useParams();
   const selectedCommentId = useAppSelector((state) => state.editorReducer.currentCommentId);
   const currentClassId = useAppSelector((state) => state.classReducer.currentClassId);
@@ -79,59 +83,9 @@ export const GradeReview = () => {
   const [inputReason, setInputReason] = React.useState<string | null>('');
   const query = parseParams(useLocation().search);
   const [editingGradeReview, setEditingGradeReview] = React.useState(false);
-
-  //#region Web socket
-
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    process.env.REACT_APP_WEB_SOCKET_MESSAGES ?? '',
-  );
-
-  React.useEffect(() => {
-    sendMessage(
-      JSON.stringify({
-        channel: 'JOIN',
-        data: '',
-        sender: localStorage.getItem('user_id') ?? 0,
-      } as IMessage),
-    );
-  }, []);
-
-  React.useEffect(() => {
-    if (lastMessage !== null) {
-      const message = JSON.parse(lastMessage.data ?? '') as IMessage;
-      switch (message.channel) {
-        case 'SUCCESS':
-          console.log('Connected to Comments');
-          break;
-        case 'ADD_COMMENT':
-          const comment = message.data as IGradeReviewComment;
-          if (comment.gradeReviewId === gradeReviewState?.gradeReview?.id) {
-            dispatch(doAddNewComment(comment));
-          }
-          break;
-        case 'UPDATE_COMMENT':
-          dispatch(UpdateComment(message.data.value as ICommonResponse<IGradeReviewComment>));
-          break;
-        case 'DELETE_COMMENT':
-          dispatch(DeleteComment(message.data.value as ICommonResponse<number>));
-          break;
-        case 'APPROVAL':
-          dispatch(Approve(message.data.value as ICommonResponse<ApproveResponse | string>));
-          break;
-        case 'ERROR':
-          window.alert('Error');
-      }
-    }
-  }, [lastMessage]);
-
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
-  //#endregion
+  const client = React.useRef<Client | null>(null);
+  const [isConnecting, setConnecting] = React.useState(false);
+  const [lastMessage, setLastMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const gradeId = query.gradeId;
@@ -179,6 +133,104 @@ export const GradeReview = () => {
       });
     }
   }, []);
+
+  React.useEffect(() => {
+    handleConnect();
+    const disconnect = () => {
+      if (client.current) {
+        client.current.publish({
+          destination: '/Messages',
+          body: JSON.stringify({
+            channel: 'DISCONNECT',
+            data: {
+              username: localStorage.getItem(currentUserKey),
+            },
+          } as IMessage<string>),
+        });
+        client.current.deactivate();
+      }
+    };
+    window.addEventListener('beforeunload', disconnect);
+    return () => {
+      window.removeEventListener('beforeunload', disconnect);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (lastMessage === null) return;
+
+    const msg = JSON.parse(lastMessage) as IMessage<ICommonResponse<any>>;
+
+    switch (msg.channel) {
+      case 'SUCCESS':
+        break;
+      case 'ADD_COMMENT':
+        const comment = msg.data as IGradeReviewComment;
+        if (comment.gradeReviewId !== gradeReviewState?.gradeReview?.id) {
+          return;
+        }
+        dispatch(doAddNewComment(comment));
+
+        break;
+      case 'UPDATE_COMMENT':
+        const data = msg.data as ICommonResponse<IGradeReviewComment>;
+        console.log(data);
+
+        dispatch(UpdateComment(data));
+        break;
+      case 'DELETE_COMMENT':
+        {
+          const data = msg.data as ICommonResponse<number>;
+          console.log(data);
+          dispatch(DeleteComment(data));
+        }
+
+        break;
+      case 'APPROVAL':
+        {
+          let data = msg.data as ICommonResponse<ApproveResponse | string>;
+          console.log(data);
+          dispatch(Approve(data));
+        }
+        break;
+      case 'ERROR':
+        window.alert('Error');
+    }
+  }, [lastMessage]);
+
+  const handleConnect = () => {
+    if (isConnecting) return;
+    if (client.current) {
+      client.current.unsubscribe('/user/Messages');
+    }
+    client.current = new Client({
+      brokerURL: process.env.REACT_APP_WEB_SOCKET_MESSAGES,
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      onConnect: (frame) => {
+        client.current.publish({
+          destination: '/Messages',
+          body: JSON.stringify({
+            channel: 'JOIN',
+            data: {
+              username: localStorage.getItem(currentUserKey),
+              sender: localStorage.getItem('user_id') ?? (0 as number),
+            },
+          } as IMessage<string>),
+        });
+
+        client.current?.subscribe('/user/Messages', (message) => {
+          setLastMessage(message.body);
+        });
+        setConnecting(false);
+      },
+      debug: console.log,
+      onStompError: console.error,
+    });
+    client.current.activate();
+    setConnecting(true);
+  };
 
   const Context = useAppContextApi();
   React.useEffect(() => {
@@ -232,7 +284,7 @@ export const GradeReview = () => {
         );
         dispatch(
           doGetGradeReviewComments({
-            CourseId: courseId!!,
+            CourseId: courseId,
             CurrentUser: localStorage.getItem(currentUserKey) ?? '',
             GradeId: gradeId!!,
             GradeReviewId: gradeReviewId!!,
@@ -375,7 +427,7 @@ export const GradeReview = () => {
   };
 
   const calculateAverage = (grades: IGrade[]) => {
-    const total = grades.reduce((total, current) => total + current.maxGrade, 0);
+    const total = grades.reduce((acc, current) => acc + current.maxGrade, 0);
     grades = grades.map((g) => {
       const gClone = { ...g };
 
@@ -383,7 +435,7 @@ export const GradeReview = () => {
       return gClone;
     });
     return (
-      grades.reduce((total, current) => total + current.grade * current.gradeScale, 0) / 100.0
+      grades.reduce((accum, current) => accum + current.grade * current.gradeScale, 0) / 100.0
     ).toFixed(2);
   };
 

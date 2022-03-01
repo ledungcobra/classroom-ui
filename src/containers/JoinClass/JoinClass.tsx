@@ -27,13 +27,7 @@ export const JoinClass = (props: Props) => {
       role = 2;
     }
 
-    // if (hashedEmail && sha256(myEmail) !== hashedEmail) {
-    //   Context?.openSnackBarError('Email này không được mời vào lớp');
-    //   setTimeout(() => {
-    //     navigate('/');
-    //   }, 2000);
-    // }
-
+    
     apiClass
       .postAddMember({
         currentUser,

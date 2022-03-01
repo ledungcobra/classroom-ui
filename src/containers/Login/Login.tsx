@@ -32,14 +32,15 @@ enum DialogState {
   INPUT_EMAIL,
   NOTIFY_SUCCESS,
   NOTIFY_FAIL,
-  INPUT_NEWPASSWORD,
+  INPUT_NEW_PASSWORD,
+  ERROR,
+  EMAIL_CONFIRM,
 }
 
 export const Login = () => {
   const { register, handleSubmit } = useForm();
   let query = parseParams(useLocation().search);
-
-  const [isLoging, setIsLoging] = useState(false);
+  const [isLogging, setIsLogging] = useState(false);
   const [error, setError] = useState('');
   const [resetEmail, setResetEmail] = React.useState('');
   const [newPass, setNewPass] = React.useState('');
@@ -51,26 +52,32 @@ export const Login = () => {
 
   const dispatch = useAppDispatch();
   useEffect(() => {
-    console.log(Object.keys(query).length);
     if (query['reset-password']) {
       const email = query['email'];
       const token = query['token'];
-      axiosMain
-        .get(`/Email/reset-password?token=${token}&email=${email}`)
-        .then(({ data }) => {
-          if (data !== 'Error') {
-            setDialogState(DialogState.NOTIFY_SUCCESS);
-            setDialogMessage('Mật khẩu mới của bạn là: ' + data);
-          } else {
-            setDialogState(DialogState.NOTIFY_FAIL);
-            setDialogMessage('Có lỗi trong quá trình khôi phục mật khẩu');
-          }
-        })
-        .catch((e) => {});
+      axiosMain.get(`/Email/reset-password?token=${token}&email=${email}`).then(({ data }) => {
+        if (data !== 'Error') {
+          setDialogState(DialogState.NOTIFY_SUCCESS);
+          setDialogMessage('Mật khẩu mới của bạn là: ' + data);
+        } else {
+          setDialogState(DialogState.NOTIFY_FAIL);
+          setDialogMessage('Có lỗi trong quá trình khôi phục mật khẩu');
+        }
+      });
+      return;
+    }
+
+    if (query['error']) {
+      setDialogState(DialogState.ERROR);
+      return;
+    }
+
+    if (query['email-confirm']) {
+      setDialogState(DialogState.EMAIL_CONFIRM);
       return;
     }
     if (Object.keys(query).length > 1) {
-      setIsLoging(false);
+      setIsLogging(false);
       let token = query.token;
       let refreshToken = '';
       setToken(token);
@@ -85,7 +92,7 @@ export const Login = () => {
   }, []);
 
   const onSubmit = (data: FormValues) => {
-    setIsLoging(true);
+    setIsLogging(true);
     dispatch(
       doLogin({
         username: data.username,
@@ -94,7 +101,7 @@ export const Login = () => {
     )
       .then(unwrapResult)
       .then((res: { content: IResLogin }) => {
-        setIsLoging(false);
+        setIsLogging(false);
         let token = res.content.token;
         let currentUser = res.content.username;
         let currentEmail = res.content.email;
@@ -107,14 +114,10 @@ export const Login = () => {
         setFullName(currentFullName);
         dispatch(setMainToken(token));
 
-        // if (query['redirect']) {
-        //   window.location.replace(query['redirect']);
-        // } else {
         window.location.replace('/');
-        // }
       })
       .catch((err) => {
-        setIsLoging(false);
+        setIsLogging(false);
         setError('*Tên đăng nhập hoặc mật khẩu không chính xác!');
       });
   };
@@ -187,7 +190,7 @@ export const Login = () => {
             </div>
             <LoadingButton
               type="submit"
-              loading={isLoging}
+              loading={isLogging}
               className="right-side__form__login-btn"
               variant="contained"
             >
@@ -195,7 +198,7 @@ export const Login = () => {
             </LoadingButton>
             <p className="right-side__form__btn-separate">HOẶC</p>
             <LoadingButton
-              href={`${process.env.REACT_APP_BASE_API}users/login`}
+              href={`${process.env.REACT_APP_BASE_API}users/login/google`}
               variant="outlined"
               className="right-side__form__login-btn"
               startIcon={<img alt="g-icon" src={GIcon} width="25" height="25" />}
@@ -276,7 +279,7 @@ export const Login = () => {
             </DialogContent>
           </>
         )}
-        {dialogState === DialogState.INPUT_NEWPASSWORD && (
+        {dialogState === DialogState.INPUT_NEW_PASSWORD && (
           <>
             <DialogTitle>Nhập mật khẩu mới để khôi phục</DialogTitle>
             <DialogContent>
@@ -306,6 +309,41 @@ export const Login = () => {
                   color="success"
                 >
                   Khôi phục
+                </Button>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+        {dialogState === DialogState.ERROR && (
+          <>
+            <DialogTitle>Có lỗi xẩy ra trong quá trình kích hoạt tài khoản</DialogTitle>
+            <DialogContent>
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={() => setDialogState(DialogState.NONE)}
+                  variant="contained"
+                  sx={{ borderRadius: 0 }}
+                  color="success"
+                >
+                  Đóng
+                </Button>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+
+        {dialogState === DialogState.EMAIL_CONFIRM && (
+          <>
+            <DialogTitle>Kích hoạt tài khoản thành công</DialogTitle>
+            <DialogContent>
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={() => setDialogState(DialogState.NONE)}
+                  variant="contained"
+                  sx={{ borderRadius: 0 }}
+                  color="success"
+                >
+                  Đóng
                 </Button>
               </Box>
             </DialogContent>

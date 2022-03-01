@@ -47,6 +47,7 @@ const convertResponse = (data: any): IResMembers => {
 interface CheckStatus {
   id: number;
   checked: boolean;
+  studentID: string;
 }
 const ClassMembers = (props: ClassMemberProps) => {
   const currentUser = useAppSelector((state) => state.authReducer.currentUser);
@@ -84,7 +85,7 @@ const ClassMembers = (props: ClassMemberProps) => {
   }, []);
 
   const [checkStudents, setCheckStudents] = useState<CheckStatus[]>(
-    members?.students.map((s) => ({ id: s.id, checked: false })) ?? [],
+    members?.students.map((s) => ({ id: s.id, checked: false, studentID: s.studentID })) ?? [],
   );
   useEffect(() => {
     if (classId) {
@@ -95,8 +96,8 @@ const ClassMembers = (props: ClassMemberProps) => {
         })
         .then((data) => {
           Context?.hideLoading();
-          const members = convertResponse(data);
-          setMembers(members);
+          const innerMembers = convertResponse(data);
+          setMembers(innerMembers);
         })
         .catch((e) => {
           Context?.hideLoading();
@@ -106,7 +107,11 @@ const ClassMembers = (props: ClassMemberProps) => {
 
   useEffect(() => {
     if (members?.students?.length > 0) {
-      setCheckStudents(members?.students.map((s) => ({ id: s.id, checked: false })) ?? []);
+      setCheckStudents(
+        members?.students.map(
+          (s) => ({ id: s.id, checked: false, studentID: s.studentID } as CheckStatus),
+        ) ?? [],
+      );
     }
   }, [members]);
   const [selectAll, setSelectAll] = useState(false);
@@ -162,26 +167,37 @@ const ClassMembers = (props: ClassMemberProps) => {
       moreButtonEventData.type === TypeMoreButton.StudentSingle ||
       moreButtonEventData.type === TypeMoreButton.TeacherSingle
     ) {
-      const userId = moreButtonEventData.data.id;
+      let { userId, studentId } = moreButtonEventData.data;
+      var s = userId as number;
+      const s1: string = studentId as string;
       apiClass
         .postDeleteMember({
           currentUser,
-          userId,
+          userId: s,
           courseId: parseInt(classId!!),
-        })
+          studentId: s1,
+        } as IDeleteMemberRequest)
         .then((response) => {
           if (response.status === 200) {
             Context?.openSnackBar('Xoá thành công');
             if (moreButtonEventData.type === TypeMoreButton.TeacherSingle) {
-              setMembers((members) => {
-                members.teachers = members.teachers.filter((t) => t.id !== userId);
-                return { ...members };
+              setMembers((innerMembers) => {
+                innerMembers.teachers = innerMembers.teachers.filter((t) => t.id !== userId);
+                return { ...innerMembers };
               });
             } else {
-              setMembers((members) => {
-                members.students = members!!.students.filter((m) => m.id !== userId);
-                setCheckStudents(members.students.map((s) => ({ id: s.id, checked: false })));
-                return { ...members };
+              setMembers((innerMembers) => {
+                const students = innerMembers.students
+                  .filter((m) => m.id !== userId)
+                  .filter((u) => u.studentID !== studentId);
+                setCheckStudents(
+                  students.map((student) => ({
+                    id: student.id,
+                    checked: false,
+                    studentID: student.studentID,
+                  })),
+                );
+                return { ...innerMembers, students: students };
               });
             }
           } else if (response.status === 400) {
@@ -200,6 +216,7 @@ const ClassMembers = (props: ClassMemberProps) => {
               courseId: parseInt(classId!!),
               currentUser,
               userId: s.id,
+              studentId: s.studentID,
             });
           }),
       )
@@ -207,7 +224,11 @@ const ClassMembers = (props: ClassMemberProps) => {
           Context?.openSnackBar('Xoá thành công');
           setMembers((members) => {
             const students = members.students.filter((_, index) => !checkStudents[index].checked);
-            setCheckStudents(students.map((s) => ({ id: s.id, checked: false })));
+            setCheckStudents(
+              students.map(
+                (s) => ({ id: s.id, checked: false, studentID: s.studentID } as CheckStatus),
+              ),
+            );
             return {
               ...members,
               teachers: members.teachers,
@@ -396,6 +417,7 @@ const ClassMembers = (props: ClassMemberProps) => {
                           openMenu(e, TypeMoreButton.StudentSingle, {
                             index,
                             id: s.id,
+                            studentId: s.studentID,
                           })
                         }
                       >

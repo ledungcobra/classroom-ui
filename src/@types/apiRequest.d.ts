@@ -224,3 +224,10 @@ interface INotificationRequest {
   StartAt: number;
   MaxResults: number;
 }
+
+interface IDeleteMemberRequest {
+  courseId: number;
+  userId: number;
+  currentUser: string;
+  studentId: string;
+}

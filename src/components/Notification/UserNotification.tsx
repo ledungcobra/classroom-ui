@@ -7,7 +7,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Box } from '@mui/system';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { GREEN_COLOR } from '../../constants';
 import { useAppSelector } from '../../redux';
 import {
@@ -15,7 +14,6 @@ import {
   getAllNotifcation,
 } from '../../redux/asyncThunk/notificationAction';
 import useComponentVisible, { useAppContextApi, useAppDispatch } from '../../redux/hooks';
-import { addNewNotification } from '../../redux/slices/notificationSlices/notificationSlice';
 import './UserNotification.scss';
 export const UserNotification = () => {
   const notification = useAppSelector((state) => state.notificationReducer);
@@ -51,47 +49,47 @@ export const UserNotification = () => {
 
   //#region Web socket
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    process.env.REACT_APP_WEB_SOCKET_NOTIFICATION ?? '',
-  );
+  // const { sendMessage, lastMessage, readyState } = useWebSocket(
+  //   process.env.REACT_APP_WEB_SOCKET_NOTIFICATION ?? '',
+  // );
 
-  React.useEffect(() => {
-    sendMessage(
-      JSON.stringify({
-        channel: 'JOIN',
-        data: '',
-        sender: localStorage.getItem('user_id') ?? 0,
-      } as IMessage),
-    );
-  }, []);
+  // React.useEffect(() => {
+  //   sendMessage(
+  //     JSON.stringify({
+  //       channel: 'JOIN',
+  //       data: '',
+  //       sender: localStorage.getItem('user_id') ?? 0,
+  //     } as IMessage),
+  //   );
+  // }, []);
 
-  React.useEffect(() => {
-    if (lastMessage !== null) {
-      const m = JSON.parse(lastMessage.data!!) as IMessage;
-      switch (m.channel) {
-        case 'CONNECTED':
-          console.log('Connected to notification');
+  // React.useEffect(() => {
+  //   if (lastMessage !== null) {
+  //     const m = JSON.parse(lastMessage.data!!) as IMessage;
+  //     switch (m.channel) {
+  //       case 'CONNECTED':
+  //         console.log('Connected to notification');
 
-          break;
-        case 'NOTIFICATION':
-          dispatch(addNewNotification(m.data as INotification));
-          Context?.openSnackBar('Bạn có 1 thông báo mới');
-          break;
-        case 'ERROR':
-          window.alert('Error');
-          break;
-      }
-    }
-  }, [lastMessage]);
+  //         break;
+  //       case 'NOTIFICATION':
+  //         dispatch(addNewNotification(m.data as INotification));
+  //         Context?.openSnackBar('Bạn có 1 thông báo mới');
+  //         break;
+  //       case 'ERROR':
+  //         window.alert('Error');
+  //         break;
+  //     }
+  //   }
+  // }, [lastMessage]);
 
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
-  //#endregion
+  // const connectionStatus = {
+  //   [ReadyState.CONNECTING]: 'Connecting',
+  //   [ReadyState.OPEN]: 'Open',
+  //   [ReadyState.CLOSING]: 'Closing',
+  //   [ReadyState.CLOSED]: 'Closed',
+  //   [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  // }[readyState];
+  // //#endregion
 
   const handleLoadMore = () => {
     dispatch(

@@ -230,7 +230,6 @@ const gradeReviewSlice = createSlice({
     });
     builder.addCase(doStudentComment.fulfilled, comment);
 
-    // TODO:
     builder.addCase(doStudentDeleteComment.pending, (state, action) => {
       state.isLoading = true;
     });

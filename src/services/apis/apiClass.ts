@@ -32,7 +32,7 @@ export const apiClass = {
     return (await axiosMain.post(url, body)).data;
   },
 
-  postDeleteMember: async (body: { courseId: number; userId: number; currentUser: string }) => {
+  postDeleteMember: async (body:IDeleteMemberRequest) => {
     return (await axiosMain.post(basicUrlWithoutSlash + '/remove-member', body)).data;
   },
 

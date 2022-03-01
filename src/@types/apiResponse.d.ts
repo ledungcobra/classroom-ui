@@ -68,6 +68,7 @@ interface IUser {
   lastName: string;
   email: Role;
   profileImageUrl: string | undefined | null;
+  studentID: string;
 }
 
 type TStatus = 'INVITED' | 'JOINED';
@@ -263,7 +264,6 @@ interface ApproveResponse {
   gradeReviewId: number;
   status: GradeReviewStatus;
 }
-
 
 interface IMessage {
   sender?: number | null;

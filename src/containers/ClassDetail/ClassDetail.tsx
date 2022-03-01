@@ -323,7 +323,7 @@ export const ClassDetail = () => {
 
               <MenuItem
                 onClick={() => {
-                  // TODO : handle xoá
+                  // TODO: handle xoá
                 }}
               >
                 Xoá

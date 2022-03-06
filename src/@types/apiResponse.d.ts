@@ -265,9 +265,7 @@ interface ApproveResponse {
   status: GradeReviewStatus;
 }
 
-interface IMessage {
-  sender?: number | null;
-  data: any;
-  receiver?: number;
+interface IMessageResponse<T> {
   channel: string;
+  data: Map<string, T>;
 }

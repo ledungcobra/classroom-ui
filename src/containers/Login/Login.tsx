@@ -18,7 +18,7 @@ import {
   setEmail,
   setFullName,
   setRefreshToken,
-  setToken,
+  setToken
 } from '../../utils/common';
 import './Login.scss';
 
@@ -81,7 +81,7 @@ export const Login = () => {
       let token = query.token;
       let refreshToken = '';
       setToken(token);
-      setRefreshToken(refreshToken);
+      setRefreshToken(query.refreshToken);
       setCurrentUser(query.username);
       setEmail(query.email);
       setFullName(query.currentFullName);
@@ -108,7 +108,7 @@ export const Login = () => {
         let currentFullName = res.content.fullName;
 
         setToken(token);
-        setRefreshToken(token);
+        setRefreshToken(res.content.refreshToken);
         setCurrentUser(currentUser);
         setEmail(currentEmail);
         setFullName(currentFullName);

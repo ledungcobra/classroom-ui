@@ -8,24 +8,30 @@ import { Box } from '@mui/system';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { GREEN_COLOR } from '../../constants';
-import { useAppSelector } from '../../redux';
+import { useAppContextApi, useAppSelector } from '../../redux';
 import {
   doUpdateSeenANotification,
   getAllNotifcation,
 } from '../../redux/asyncThunk/notificationAction';
-import useComponentVisible, { useAppContextApi, useAppDispatch } from '../../redux/hooks';
+import useComponentVisible, { useAppDispatch } from '../../redux/hooks';
+import { addNewNotification } from '../../redux/slices/notificationSlices/notificationSlice';
+import { useSocket } from '../../utils/socketHook';
 import './UserNotification.scss';
+
 export const UserNotification = () => {
   const notification = useAppSelector((state) => state.notificationReducer);
   const isLoading = notification.loading;
   const { ref, isComponentVisible } = useComponentVisible(false);
   const [isShowNotification, setIsShowNotification] = React.useState(isComponentVisible);
-  const Context = useAppContextApi();
 
   const dispatch = useAppDispatch();
   const isFullNotification =
     (notification.notificationContent?.data?.notifications?.length ?? 0) > 0;
-  const pollingRef = React.useRef<any>(null);
+  const Context = useAppContextApi();
+  const lastMessage = useSocket(
+    'Notifications',
+    process.env.REACT_APP_WEB_SOCKET_NOTIFICATIONS ?? '',
+  );
 
   React.useEffect(() => {
     dispatch(
@@ -35,61 +41,31 @@ export const UserNotification = () => {
         MaxResults: 3,
       }),
     );
-
-    return () => {
-      if (pollingRef.current) {
-        clearTimeout(pollingRef.current);
-      }
-    };
   }, []);
 
   React.useEffect(() => {
     setIsShowNotification(isComponentVisible);
   }, [isComponentVisible]);
 
-  //#region Web socket
-
-  // const { sendMessage, lastMessage, readyState } = useWebSocket(
-  //   process.env.REACT_APP_WEB_SOCKET_NOTIFICATION ?? '',
-  // );
-
-  // React.useEffect(() => {
-  //   sendMessage(
-  //     JSON.stringify({
-  //       channel: 'JOIN',
-  //       data: '',
-  //       sender: localStorage.getItem('user_id') ?? 0,
-  //     } as IMessage),
-  //   );
-  // }, []);
-
-  // React.useEffect(() => {
-  //   if (lastMessage !== null) {
-  //     const m = JSON.parse(lastMessage.data!!) as IMessage;
-  //     switch (m.channel) {
-  //       case 'CONNECTED':
-  //         console.log('Connected to notification');
-
-  //         break;
-  //       case 'NOTIFICATION':
-  //         dispatch(addNewNotification(m.data as INotification));
-  //         Context?.openSnackBar('Bạn có 1 thông báo mới');
-  //         break;
-  //       case 'ERROR':
-  //         window.alert('Error');
-  //         break;
-  //     }
-  //   }
-  // }, [lastMessage]);
-
-  // const connectionStatus = {
-  //   [ReadyState.CONNECTING]: 'Connecting',
-  //   [ReadyState.OPEN]: 'Open',
-  //   [ReadyState.CLOSING]: 'Closing',
-  //   [ReadyState.CLOSED]: 'Closed',
-  //   [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  // }[readyState];
-  // //#endregion
+  React.useEffect(() => {
+    console.log(lastMessage);
+    
+    if (lastMessage !== '') {
+      const m = JSON.parse(lastMessage) as IMessageResponse<any>;
+      switch (m.channel) {
+        case 'CONNECTED':
+          console.log('Connected to notification');
+          break;
+        case 'NOTIFICATION':
+          dispatch(addNewNotification(m.data as unknown as INotification));
+          Context?.openSnackBar('Bạn có 1 thông báo mới');
+          break;
+        case 'ERROR':
+          window.alert('Error');
+          break;
+      }
+    }
+  }, [lastMessage]);
 
   const handleLoadMore = () => {
     dispatch(
